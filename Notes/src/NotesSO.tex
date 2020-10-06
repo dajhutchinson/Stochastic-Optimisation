@@ -1,7 +1,8 @@
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
-\usepackage{amsmath,amsfonts,fancyhdr,bbm}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm,graphicx}
+\graphicspath{ {img/} }
 \usepackage[section]{DomH}
 \headertitle{Stochastic Optimisation - Notes}
 
@@ -21,7 +22,7 @@
 \end{example}
 
 \begin{definition}{Multi-Armed Bandit Problem}
-   An agent is faced with a choice of $K$ actions. Each time the agent plays action $i$ they receive a reward from the random real-valued distribution $\nu_i$. Each reward is independent of the past. The distributions $\nu_1,\dots,\nu_K$ are unknown to the agent.\\
+   An agent is faced with a choice of $K$ actions. Each (discrete) time step the agent plays action $i$ they receive a reward from the random real-valued distribution $\nu_i$. Each reward is independent of the past. The distributions $\nu_1,\dots,\nu_K$ are unknown to the agent.\\
    In the \textit{Multi-Armed Bandit Problem} the agent seeks to maximise a measure of long-run reward.
 \end{definition}
 
@@ -30,8 +31,9 @@
 \end{remark}
 
 \begin{definition}{Formal Definition of Multi-Armed Bandit Problem}
-  Consider a sequence of mutually independent random variables $\{X_i(t)\}_{i\in[1,K]}$, with $t\in\nats$. Consider $X_i(t)$ to be the distribution of rewards an agent would receive if they performed action $i$ at time $t$. Since the rewards are independent of the past $X_i(t),X_i(t+1),\dots$ are IID random variables. The \textit{Multi-Armed Bandit Problem} tasks us to find the greatest expected reward from all the actions.
+  Consider a sequence of (unknown) mutually independent random variables $\{X_i(t)\}_{i\in[1,K]}$, with $t\in\nats$. Consider $X_i(t)$ to be the distribution of rewards an agent would receive if they performed action $i$ at time $t$. Since the rewards are independent of the past $X_i(t),X_i(t+1),\dots$ are IID random variables. The \textit{Multi-Armed Bandit Problem} tasks us to find the greatest expected reward from all the actions.
   \[ \mu^*:=\max_{i=1}^K\mu_i\quad\text{where }\mu_i=\expect(X_i(t)) \]
+  There are a number of ways to formalise this objective.
 \end{definition}
 
 \begin{remark}{Assumptions}
@@ -50,21 +52,27 @@
 \begin{definition}{Long-Run Average Reward Criterion, $X_*$}
   For a strategy $I(\cdot)$ we define the following measure for \textit{Long-Run Average Reward}
   \[ {\displaystyle X_*=\lim_{T\to\infty}\inf\frac1T\sum_{t=1}^T\expect(X_{I(t)})} \]
+  The \textit{Infinum} is taken as there is no guarantee the limit exists (depending on the strategy), typically we will only deal with strategies where this limit exists.\\
   Most strategies as based only on realisations of $\{X_i(s)\}_{s\in[1,t)}$, thus $\expect(X_{I(t)})\leq\mu^*$ and thus $X_*\leq\mu^*$. A strategy $I(\cdot)$ is \textit{Optimal} if $X_*=\mu^*$.
 \end{definition}
 
-\begin{remark}{It is not hard to find an \textit{Optimal Strategy} in the (very) long run.}
-
+\begin{remark}{It is not hard to find an \textit{Optimal Strategy} in the (very) long run, so we are going to look at \textit{Regret Minimisation First}.}
 \end{remark}
+
+\subsection{Regret Minimisation}
 
 \begin{definition}{Regret, $R_n$}
   \textit{Regret} is a measure of how much reward was lost during the first $n$ time steps. The \textit{Regret} $R_n$ of a strategy $\{I(t)\}_{t\in\nats}$ in the first $n$ time steps is given by
   \[\begin{array}{rcl}
-    R_n&=&{\displaystyle \max\limits_{k=1}^K\sum_{t=1}^n \expect[X_k(t)-X_{I(t)}(t)]}\\
+    R_n&=&{\displaystyle \max\limits_{k=1}^K\sum_{t=1}^n \expect[\underbrace{X_k(t)}_\text{Best Pos}-\underbrace{X_{I(t)}(t)}_\text{Actual}]}\\
     &=&n\mu^*-{\displaystyle\sum_{t=1}^n\expect\big[X_{I(t)}(t)\big]}
   \end{array}\]
-  \textit{Regret} only involves expectation and thus can be learnt from observations
+  \textit{Regret} only involves expectation and thus can be learnt from observations. We want to produce a strategy where \textit{Total Regret} grows sub-linearly.(i.e. $R_T/T\overset{T\to\infty}\longrightarrow0$)
 \end{definition}
+
+\begin{remark}{Minimising the growth rate of $R_T$ with $T$ is quite hard.}
+  The best achievable regret scales as $R_T\sim c\log T$ (i.e. $R_T/c\log T\overset{T\to\infty}\longrightarrow1$) where $c$ depends on the reward distributions $X_1(t),\dots,X_K(t)$.
+\end{remark}
 
 \begin{definition}{Pseudo-Regret, $\tilde{R}_n$}
   \textit{Pseudo-Regret} $\tilde{R}_n$ is a less popular alternative to \textit{Regret} $R_n$.
@@ -72,6 +80,26 @@
   \[ \tilde{R}_n=\max\limits_{k=1}^K\sum_{t=1}^n\big(X_k(t)-X_{I(t)}(t)\big) \]
   \textit{Pseudo-Regret} includes intrinsic randomness (which is independent of the past) and thus cannot be learnt from observations.
 \end{definition}
+
+\subsection{Best Arm Identification for Bernoulli Distribution}
+
+\begin{example}{Best Arm Identification for Bernoulli Bandits}
+  Consider a bandit with two \textit{Bernoulli} arms: $\{X_1(t)\}_{t\in\nats}$ IID RVs with distribution $\text{Bern}(\mu_1)$; and, $\{X_2(t)\}_{t\in\nats}$ IID RVs with distribution $\text{Bern}(\mu_2)$. \\
+  Suppose $\mu_1>\mu_2$ (i.e. arm 1 is better). Let the player play each arm $n$ times and declare the arm with the greatest empirical mean to be the better arm. \textit{What is the probability of choosing the wrong arm (Arm 2)?}.\\
+  \\
+  An error occurs if $\sum_{t=1}^nX_2(t)\geq\sum_{t=1}^nX_1(t)$ and thus we want to calculate the probability of this event.\\
+  Define $\{Y(t)\}_{t\in\nats}$ st $Y(t):=\{X_2(t)-X_1(t)$. This means $Y(t)\in\{-1,0,1\}\subset[-1,1]$.\\
+  To use \textit{Hoeffding's inequality} we need to scale $Y$ to be in $[0,1]$, so we define $Z(t):=\frac12(Y(t)+1)$. We have $\expect(Z(t))&=&\frac12(1+\mu_2-\mu_1)$ and an error occurs if $\sum_{t=1}^nY(t)>0\Longleftrightarrow \sum_{t=1}^nZ(t)\geq\frac{n}2$. By \textit{Hoeffding's Inequality}
+  \[\begin{array}{rclll}
+    \prob(\text{error})&=&\displaystyle\prob\left(\sum_{i=1}^nZ(t)\geq\frac{n}2\right)\\
+    &=&{\displaystyle\prob\left(\left(\sum_{i=1}^nZ(t)\right)-\frac{n}2(1+\mu_2-\mu_1)\geq\frac{n}2(\mu_1-\mu_2)\right)}\quad\text{subtracting $\mu$ from both sides}\\
+    &=&{\displaystyle\prob\left(\sum_{i=1}^n\bigg(X_i-\underbrace{\frac{1}{2}(1+\mu_2-\mu_1)}_\mu\bigg)\geq n\underbrace{\frac12(\mu_1-\mu_2)}_t\right)}\quad\text{arranging for Hoeffding's}\\
+    &\leq&\exp\left(-2n\cdot\frac{1}4(\mu_1-\mu_2)^2\right)\quad\text{by Hoeffding's Inequality}\\
+    &=&\exp\left(-\frac{n}2(\mu_1-\mu_2)^2\right)
+  \end{array}\]
+\end{example}
+
+\subsection{Heuristic}
 
 \section{Probability Inequalities}
 
@@ -125,9 +153,46 @@
   \end{array}\]
 \end{theorem}
 
+\begin{theorem}{Jensen's Inequality}
+  Let $f$ be a \textit{Convex Function} and $X$ be a random variable. Then
+  \[ \expect[f(X)]\geq f(\expect[X]) \]
+\end{theorem}
+
 \begin{theorem}{Bound on Moment Generating Function}
-  Let $X$ be a random variable taking values in $[0,1]$ with finite expected value $\mu$. Then
+  Let $X$ be a random variable taking values in $[0,1]$ with finite expected value $\mu$. Then we can bound the MGF of the centred random variable with
   \[ \forall\ \theta\in\reals\quad\expect\left[e^{\theta(X-\mu)}\right]\leq e^{\theta^2/8} \]
+  \textit{Proof (of weaker version)}\\
+  Let $X_1$ be an independent copy of $X$, so both have mean $\mu$. We can easily verify that $f(x)=e^{\theta x}$ is a convex function for all $\theta\in\reals$. By \textit{Jensen's Inequality} to $f(\cdot)$ and $X_1$
+  \[ \expect[e^{-\theta X_1}]\geq e^{-\theta\expect[X_1]}=e^{-\theta\mu}\quad(1) \]
+  Consequently
+  \[\begin{array}{rrclll}
+  &\expect[e^{\theta(X-X_1)}]&=&\expect[e^{\theta X}]\cdot\expect[e^{-\theta X_1}]&\quad&\text{by independence}\\
+  &&\geq&\expect[e^{\theta X}]\cdot e^{-\theta\mu}&&\text{by (1)}\\
+  &&=&\expect[e^{\theta(X-\mu)}]\\
+  \implies&\expect[e^{\theta(X-X_1)}]&\geq&\expect[e^{\theta(X-\mu)}]
+  \end{array}\]
+  Since $X,X_1\in[0,1]$ then $(X-X_1)\in[-1,1]$. As $X,X_1$ have the same distribution $\expect(X-X_1)=0$ and the distribution is symmetric around the mean.\\
+  Define random variable $S$ which is independent of $X,X_1$ and takes values $\{-1,1\}$, each with probability $p=\frac12$. $S(X-X_1)$ has the same distribution as $(X-X_1)$ due to independence of $S$ and symmetry of $(X-X_1)$. Hence
+  \[\begin{array}{rclll}
+    \expect[e^{\theta(X-X_1)}]&=&\expect[e^{\theta S(X-X_1)}]&\quad&\text{by identical distribution}\\
+    &\leq&\expect[e^{\theta S}]&&(2)\text{ since }$(X-X_1)\in[-1,1]$\\
+    &=&\frac12(e^\theta+e^{-\theta})&&\text{ by def. of expectation}\\
+    \implies\expect[e^{\theta(X-X_1)}]&\leq&\frac12(e^\theta+e^{-\theta})
+  \end{array}\]
+  Note that $f(x)=e^x+e^{-x}$ is increasing for $x\in(0,\infty)$; decreasing for $x\in(-\infty,0)$; and symmetric around $0$.\\
+  Using a \textit{Taylor Series} we an observed that
+  \[\begin{array}{rclll}
+  \frac12(e^\theta-e^{-\theta})&=&{\displaystyle\sum_{n=0}^\infty}\frac{\theta^{2n}}{(2n)!}&\quad&\text{by Taylor expansion of}e^x\\
+  &\leq&\displaystyle\sum_{n=0}^\infty\frac{(\theta^2/2)^n}{n!}\\
+  &\overset{\text{def.}}{=}&e^{\theta^2/2}\\
+  \implies\frac12(e^\theta+e^{-\theta})&\leq&e^{\theta^2/2}
+  \end{array}\]
+  Combining all these results we get
+  \[ \begin{array}{rl}
+  &\expect[e^{\theta(X-\mu)}]\leq\expect[e^{\theta(X-X_1)}]\leq\frac12(e^\theta+e^{-\theta})\leq e^{\theta^2/2}\\
+  \implies&\expect[e^{\theta(X-\mu)}]\leq e^{\theta^2/2}
+  \end{array}\]
+  \proved
 \end{theorem}
 
 \begin{theorem}{Hoeffding's Theorem}
@@ -136,18 +201,13 @@
   \textit{Proof}\\
   From \textit{Chernoff's Bound} we have that
   \[ \forall\ \theta>0\quad\prob\left(\sum_{i=1}^n(X_i-\mu)>nt\right)\leq e^{-\theta nt}\left(\expect[e^{\theta(X-\mu)}]\right)^n \]
-  Using \texttt{Theorem 2.6} to bound the moment generating function, we get
+  Using \texttt{Theorem 2.7} to bound the moment generating function, we get
   \[ \forall\ \theta>0\quad\prob\left(\sum_{i=1}^n(X_i-\mu)>nt\right)\leq e^{-\theta nt}\cdot e^{n\frac{\theta^2}8}=e^{n\left(-\theta t+\frac{1}8\theta^2\right)} \]
   Thus, by taking $\log$s and rearranging, we get
   \[ \forall\ \theta>0\quad\frac1n\log\prob\left(\sum_{i=1}^n(X_i-\mu)>nt\right)\leq-\theta t+\frac{\theta^2}8 \]
   We have that $-\theta t+\frac{\theta^2}8$ is minimised at $\theta=4t$ which is positive if $t$ is positive. Thus, by applying this bound and substituting $\theta=4t$ we get
   \[ \forall\ \theta>0\quad\prob\left(\sum_{i=1}^n(X_i-\mu)>nt\right)\leq e^{n\left(-4t^2+\frac{1}8(16t^2)\right)}=e^{n(-4t^2+2t^2)}=e^{-2nt^2} \]
-  $\hfill\square$
-\end{theorem}
-
-\begin{theorem}{Jensen's Inequality}
-  Let $f$ be a \textit{Convex Function} and $X$ be a random variable. Then
-  \[ \expect[f(X)]\geq f(\expect[X]) \]
+  \proved
 \end{theorem}
 
 \setcounter{section}{-1}
@@ -156,7 +216,11 @@
 \begin{definition}{Convex Function}
   A function $f:\reals\to(\reals\cup\{+\infty\})$ is \textit{Convex} if, $\forall\ x,y\in\reals,\ \alpha\in[0,1]$, we have
   \[ f(\alpha x+(1-\alpha)y)\leq\alpha f(x)+(1-\alpha)f(y) \]
-  A smooth function $f$ is convex iff $f$ is twice differentiable and $f''(x)\geq0\ \forall\ x\in\reals$.
+  A smooth function $f$ is convex iff $f$ is twice differentiable and $f''(x)\geq0\ \forall\ x\in\reals$.\\
+  Visually, a function is convex if you can draw a line between any two points on the function and the function lies below the line.
+  \begin{center}
+    \includegraphics[scale=.5]{convex_concave.png}
+  \end{center}
 \end{definition}
 
 \end{document}

@@ -1,9 +1,10 @@
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
-\usepackage{amsmath,amsfonts,fancyhdr,bbm,graphicx}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm,graphicx,tikz}
+\usetikzlibrary{automata,positioning}
 \graphicspath{ {img/} }
-\usepackage[section]{DomH}
+\usepackage[section,nohyphen]{DomH}
 \headertitle{Stochastic Optimisation - Notes}
 
 \begin{document}
@@ -12,6 +13,8 @@
 \author{Dom Hutchinson}
 \date{\today}
 \maketitle
+
+\tableofcontents\newpage
 
 \section{Multi-Armed Bandit}
 
@@ -89,7 +92,7 @@
   \\
   An error occurs if $\sum_{t=1}^nX_2(t)\geq\sum_{t=1}^nX_1(t)$ and thus we want to calculate the probability of this event.\\
   Define $\{Y(t)\}_{t\in\nats}$ st $Y(t):=\{X_2(t)-X_1(t)$. This means $Y(t)\in\{-1,0,1\}\subset[-1,1]$.\\
-  To use \textit{Hoeffding's inequality} we need to scale $Y$ to be in $[0,1]$, so we define $Z(t):=\frac12(Y(t)+1)$. We have $\expect(Z(t))&=&\frac12(1+\mu_2-\mu_1)$ and an error occurs if $\sum_{t=1}^nY(t)>0\Longleftrightarrow \sum_{t=1}^nZ(t)\geq\frac{n}2$. By \textit{Hoeffding's Inequality}
+  To use \textit{Hoeffding's inequality} we need to scale $Y$ to be in $[0,1]$, so we define $Z(t):=\frac12(Y(t)+1)$. We have $\expect(Z(t))=\frac12(1+\mu_2-\mu_1)$ and an error occurs if $\sum_{t=1}^nY(t)>0\Longleftrightarrow \sum_{t=1}^nZ(t)\geq\frac{n}2$. By \textit{Hoeffding's Inequality}
   \[\begin{array}{rclll}
     \prob(\text{error})&=&\displaystyle\prob\left(\sum_{i=1}^nZ(t)\geq\frac{n}2\right)\\
     &=&{\displaystyle\prob\left(\left(\sum_{i=1}^nZ(t)\right)-\frac{n}2(1+\mu_2-\mu_1)\geq\frac{n}2(\mu_1-\mu_2)\right)}\quad\text{subtracting $\mu$ from both sides}\\
@@ -101,7 +104,13 @@
 
 \subsection{Heuristic}
 
-\section{Probability Inequalities}
+\section{Probability}
+
+\begin{definition}{Random Process}
+  A \textit{Random Process} is a collection of random variables indexed by time $\{X_t\}_{t\in T}$ (e.g. flipping a coin several times). Each of these random variables can take a value from a state space $S$. A random process a \textit{Discrete Time Process} if the index set $T$ is discrete. A random process a \textit{Continuous Time Process} if the index set $T$ is continuous.
+\end{definition}
+
+\subsection{Probability Inequalities}
 
 \begin{remark}{We can use the moments of a random variable to determine bounds on the probability of it taking values in a certain set.}
 \end{remark}
@@ -175,7 +184,7 @@
   Define random variable $S$ which is independent of $X,X_1$ and takes values $\{-1,1\}$, each with probability $p=\frac12$. $S(X-X_1)$ has the same distribution as $(X-X_1)$ due to independence of $S$ and symmetry of $(X-X_1)$. Hence
   \[\begin{array}{rclll}
     \expect[e^{\theta(X-X_1)}]&=&\expect[e^{\theta S(X-X_1)}]&\quad&\text{by identical distribution}\\
-    &\leq&\expect[e^{\theta S}]&&(2)\text{ since }$(X-X_1)\in[-1,1]$\\
+    &\leq&\expect[e^{\theta S}]&&(2)\text{ since }(X-X_1)\in[-1,1]\\
     &=&\frac12(e^\theta+e^{-\theta})&&\text{ by def. of expectation}\\
     \implies\expect[e^{\theta(X-X_1)}]&\leq&\frac12(e^\theta+e^{-\theta})
   \end{array}\]
@@ -210,8 +219,142 @@
   \proved
 \end{theorem}
 
+\subsection{Markov Chains}
+
+\begin{definition}{Markov Property}
+  A random process has the \textit{Markov Property} if the conditional probability of a future state \underline{only} depends on the current state.
+  \[ \prob(X_{t+1}=y|X_{t}=x_t,X_{t-1}=x_{t-1})=\prob(X_{t+1}=y|X_t=x_t) \]
+  A random process with the \textit{Markov Property} is called a \textit{Markov Process/Chain}.
+\end{definition}
+
+\begin{remark}{On this course we only deal with discrete time markov chains}\end{remark}
+
+\begin{proposition}{Characterising a Markov Process}
+  A \textit{Markov Process} can be characterised by the set of all $1$-step conditional probabilities
+  \[ \prob(X_{t+1}=y|X_t=x)\ \forall\ x,y\in S \]
+  A markov chain is \textit{time-homogeneous} if the $1$-step conditionals only depend on $x,y$ and not on $t$ ($\prob(X_{t+1}=y|X_t=x)=\prob(X_1=t|X_0=x)$). The $1$-step conditional probabilities of a \textit{time-homogeneous markov process} can be specified in an $|S|\times |S|$ matrix $P$ where
+  \[ p_{x,y}=\prob(X_{t+1}=y|X_t=x) \]
+  $P$ is a \textit{Stochastic Matrix}.
+\end{proposition}
+
+\begin{proposition}{$n$-Step Transition Probabilities from $1$-Step Transition Matrix}
+  Let $P$ be the $1$-step transition matrix for a \textit{time-homogeneous}.
+
+  \par The $2$-step transition probabilities (ie $\prob(X_{t+2}=z|X_t=x)$) can be found as
+  \[\begin{array}{rcll}
+    \prob(X_{t+2}=z|X_t=x)&=&\prob(X_2=z|X_0=x)&\text{by time-homogeneity}\\
+    &=&\sum_{y\in S}\prob(X_2=z,X_1=y|X_t=x)\\
+    &=&\sum_{y\in S}\prob(X_1=y|X_0=x)\prob(X_2=z|X_1=t,X_0=x)\\
+    &=&\sum_{y\in S}\prob(X_1=y|X_0=x)\prob(X_2=z|X_1=y)\\
+    &=&\sum_{y\in S}p_{xy}p_{yz}\\
+    &\equiv&[P^2]_{xz}
+  \end{array}\]
+  This can be generalise for the $n$-step transition probabilities with
+  \[ \prob(X_{t+n}=z|X_t=x)=[P^n]_{xz} \]
+\end{proposition}
+
+\begin{proposition}{Any Joint Probability from $1$-Step Transition Matrix}
+  For a time homogeneous markov process the joint distribution of any transition can be computed by considering the individual steps of the transition.
+  \[ \prob(X_{n_0}=x_0,X_{n_1}=x_1,X_{n_2}=x_2,\dots)=\prob(X_{n_0}=x_0)\cdot[P^{n_0-n_1}]_{x_0x_1}\cdot[P^{n_1-n_2}]_{x_1x_2}\dots \]
+\end{proposition}
+
+\begin{proposition}{State Diagram Representation}
+  A graph/automata can be drawn to represent the transition probability matrix $P$. A node is assigned for each member of the state space $S$ and an arrow is drawn between each pair of nodes $(x,y)$ where $P_{xy}\neq0$. Generally the value of $P_{xy}$ is denoted on the arrow.
+  \begin{center}
+    \[P=\begin{pmatrix}\frac{1}{2}&\frac{1}{2}&0\\\frac{1}{6}&\frac{1}{2}&\frac{1}{3}\\0&\frac{1}{2}&\frac{1}{2}\end{pmatrix}\]
+    \begin{tikzpicture}
+    	\node[state] (0) {0};
+    	\node[state] (1)[right=of 0] {1};
+    	\node[state] (2)[right=of 1] {2};
+
+    	\path[->]
+    	(0) edge [loop above] node {$\frac{1}{2}$} (0)
+    	    edge [bend right] node[below] {$\frac{1}{2}$} (1)
+    	(1) edge [loop above] node {$\frac{1}{2}$} (1)
+    	    edge [bend right] node[above] {$\frac{1}{6}$} (0)
+    	    edge [bend right] node[below] {$\frac{1}{3}$} (2)
+    	(2) edge [loop above] node {$\frac{1}{2}$} (2)
+    	    edge [bend right] node[above] {$\frac{1}{3}$} (1);
+    \end{tikzpicture}
+  \end{center}
+\end{proposition}
+
+\begin{definition}{Invariant Distribution}
+  Let $\pmb\mu(t)$ denote the probability distribution of random variable $X$ (i,e, $\mu_x(t)=\prob(X_t=x)$). Then
+  \[\begin{array}{rrcl}
+    &\pmb\mu(t+1)&=&\prob(X_{t+1}=y)=\sum_{x\in S}\prob(X_t=x,X_{t+1}=y)=\sum_{x\in S}\mu_x(t)p_{xy}=\pmb\mu(t)P\\
+    \implies&\pmb\mu(t+1)&=&\pmb\mu(t)P
+  \end{array}\]
+  A distribution $\pmb\pi$ on the state space is called an \textit{Invariant Distribution} if $\pmb\pi=\pmb\pi P$. If $X_t$ has distribution $\pmb\pi$ so will $X_{t+1},\dots$. Every markov chain with a \textit{finite} state space $S$ has an \textit{invariant distribution}. (Not necessarily true if $S$ is infinite).
+\end{definition}
+
+\begin{proposition}{Finding an Invariant Distribution}
+  If an \textit{Invariant Distribution} it is easy to find by solving $\pmb\pi P=\pmb\pi$ and using normalising constant $\sum_{x\in S}\pi_x=1$.
+\end{proposition}
+
+\begin{definition}{Transience}
+  A state $x\in S$ is \textit{Transient} if $\prob(\exists\ t>0: X_t=x|X_0=x)<1$. The number of times the markov chain returns to a transient state is finite, with probability 1.
+\end{definition}
+
+\begin{definition}{Recurrent}
+  A state $x\in S$ is \textit{Recuurent} if $\prob(\exists\ t>0: X_t=x|X_0=x)=1$. The number of times the markov chain returns to a recurrent state is \underline{in}finite, with probability 1.
+  \par Every markov chain, with a finite state space $S$, has a recurrent communicating class.
+\end{definition}
+
+\begin{definition}{Communication Class}
+  We say $y\in S$ is \textit{Accessible} from $x\in S$ if $\exists\ t\geq0$ st $[P^t]_{xy}>0$.
+  \par We say $x$ and $y$ \textit{communicate} (denoted $xCy$) if: $x$ is \textit{accessible} from $y$ and $y$ is \textit{accessible} from $x$.
+  \par \textit{Communication} is an \textit{equivalence relation} on the state space $S$. Hence, \textit{communication} partitions $S$ into equivalence classes called \textit{Communication Classes}. All elements of a \textit{Communication Class} communicate with all other elements in the class, it is possible for elements to be accessible from another class but \underline{not} for those elements to \textit{communicate}.
+  \par If one state in a \textit{Communicating Class} is \textit{Transient/Recurrent} then all states are in that class.
+  \par If a \textit{Markov Chain} has only one communicating class it is called \textit{Irreducible}.
+\end{definition}
+
+\begin{remark}{If a Markov chain is irreducible, its invariant distribution (if one exists) is unique}
+  If a \textit{Markov Chain} is irreducible and has a finite state space, then it has a unique invariant distribution.
+\end{remark}
+
+\begin{example}{Markov Chains}
+  \begin{itemize}
+    \item The \textit{Asymmetric Simple Random Walk} on $\ints$ is $\underbrace{\text{irreducible}}_\text{obvious},\ \underbrace{\text{transient}}_\text{not obvious}$ and has no invariant distribution.
+    \item The \textit{Symmetric Simple Random Walk} on $\ints$ is $\underbrace{\text{irreducible}}_\text{obvious},\ \underbrace{\text{recurrent}}_\text{not obvious}$ and has no invariant distribution.
+  \end{itemize}
+\end{example}
+
+\begin{theorem}{Ergodic Theorem for Markov Chains}
+  Let $\{X_t\}_{t\in\nats}$ be an irreducible markov chain on state space $S$ (not necessarily finite) with unique invariant distribution $\pmb\pi$. Then
+  \[ \forall\ x\in S\quad\lim_{t\to\infty}\frac1t\sum_{s=1}^t \indexed(X_s=x)=\pi_x\]
+  i.e. The fraction of time spend in state $x\in S$ tends to $\pi_x$ in the long run.
+\end{theorem}
+
+\begin{definition}{Period}
+  The \textit{Period} of a state $x\in S$ is the greatest common divisor of all possible return times to $x$
+  \[ \text{Period}(x):=\text{gcd}\big(\{t>0:\prob(X_t=x|X_0=x)>0\}\big) \]
+  \par A state $x\in S$ is \textit{Aperiodic} if $\text{Period}(x)=1$. An irreducible markov chain is \textit{aperiodic} if all its states are aperiodic.
+  \par All states in a \textit{communicating class} have the same period.
+\end{definition}
+
+\begin{propoistion}{Marginal Distribution of Irreducible, Aperiodic Markov Chain}
+  If an irreducible, aperiodic Markov Chain has an invariant distribution $\pmb\pi$, then
+  \[ \forall\ x\in S\quad\mu_x(t)\overset{t\to\infty}{\longrightarrow}\pi_x \]
+\end{propoistion}
+
+\begin{definition}{Reversibility}
+  A markov chain $\{X_t\}_{t\in\ints}$ is \textit{Reversible} if all joint distributions are the same forwards and backwards in time. (i.e. the distribution of the chain is the same if it was reversed).
+  \par An irreducible markov chain $\{X_t\}_{t\in\ints}$ with transition matrix $P$ is reversible iff
+  \[\exists\ \pmb\pi\quad\text{st}\quad\pi_xp_{xy}=\pi_yp_{yx}\ \forall\ x,y\in S\]
+  This is the \textit{Local/Detailed Balance Equation}. Note that this is a system of ${|S|\choose2}$ equations which need to be consistent for reversibility to exist.
+\end{definition}
+
 \setcounter{section}{-1}
 \section{Reference}
+
+\begin{definition}{Stochastic Matrix}
+  A matrix is called a \textit{Stochastic matrix} if:
+  \begin{enumerate}
+    \item All elements are non-negative.
+    \item All rows sum to 1.
+  \end{enumerate}
+\end{definition}
 
 \begin{definition}{Convex Function}
   A function $f:\reals\to(\reals\cup\{+\infty\})$ is \textit{Convex} if, $\forall\ x,y\in\reals,\ \alpha\in[0,1]$, we have
@@ -222,5 +365,23 @@
     \includegraphics[scale=.5]{convex_concave.png}
   \end{center}
 \end{definition}
+
+\begin{definition}{Equivalence Relation}
+  A relation is an \textit{Equivalence Relation} if it is
+  \begin{enumerate}
+    \item Reflexive: $i\leftrightarrow i$.
+    \item Symmetric: If $i\to j$ then $j\to i$ .
+    \item Transitive: If $i\to j$ and $j\to k$ then $i\to k$.
+  \end{enumerate}
+\end{definition}
+
+\begin{definition}{Simple Random Walk}
+  A \textit{Simple Random Walk} is a random walk which moves only one step at a time. (i.e. $X_{t+1}=X_t\pm1$). A probability $p$ is defined for $\prob(X_{t+1}=X_t+1)$, this means $1-p$ is the probability of stepping in the other direction. A \textit{Simple Random Walk} is \textit{Assymetric} if $p\neq p-1$.
+\end{definition}
+
+\subsection{Notation}
+\begin{tabular}{|c|c|}
+  $p_{x,y}$&$\prob(X_{t+1}=x|X_{t}=y)$ for a \textit{time homogenous markov process}
+\end{tabular}
 
 \end{document}

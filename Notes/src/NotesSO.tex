@@ -14,6 +14,8 @@
 \date{\today}
 \maketitle
 
+NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \textit{Markov Process} typically refers to the continuous setting.
+
 \tableofcontents\newpage
 
 \section{Multi-Armed Bandit}
@@ -219,7 +221,7 @@
   \proved
 \end{theorem}
 
-\subsection{Markov Chains}
+\subsection{Markov Processes}
 
 \begin{definition}{Markov Property}
   A random process has the \textit{Markov Property} if the conditional probability of a future state \underline{only} depends on the current state.
@@ -227,10 +229,32 @@
   A random process with the \textit{Markov Property} is called a \textit{Markov Process/Chain}.
 \end{definition}
 
-\begin{remark}{On this course we only deal with discrete time markov chains}\end{remark}
+\begin{remark}{On this course we only deal with discrete time markov chains}
 
-\begin{proposition}{Characterising a Markov Process}
-  A \textit{Markov Process} can be characterised by the set of all $1$-step conditional probabilities
+\end{remark}
+
+
+\begin{definition}{Transience}
+  A state $x\in S$ is \textit{Transient} if $\prob(\exists\ t>0: X_t=x|X_0=x)<1$. The number of times the markov chain returns to a transient state is finite, with probability 1.
+\end{definition}
+
+\begin{definition}{Recurrent}
+  A state $x\in S$ is \textit{Recuurent} if $\prob(\exists\ t>0: X_t=x|X_0=x)=1$. The number of times the markov chain returns to a recurrent state is \underline{in}finite, with probability 1.
+  \par Every markov chain, with a finite state space $S$, has a recurrent communicating class.
+\end{definition}
+
+\begin{definition}{Communication Class}
+  We say $y\in S$ is \textit{Accessible} from $x\in S$ if $\exists\ t\geq0$ st $[P^t]_{xy}>0$.
+  \par We say $x$ and $y$ \textit{communicate} (denoted $xCy$) if: $x$ is \textit{accessible} from $y$ and $y$ is \textit{accessible} from $x$.
+  \par \textit{Communication} is an \textit{equivalence relation} on the state space $S$. Hence, \textit{communication} partitions $S$ into equivalence classes called \textit{Communication Classes}. All elements of a \textit{Communication Class} communicate with all other elements in the class, it is possible for elements to be accessible from another class but \underline{not} for those elements to \textit{communicate}.
+  \par If one state in a \textit{Communicating Class} is \textit{Transient/Recurrent} then all states are in that class.
+  \par If a \textit{Markov Chain} has only one communicating class it is called \textit{Irreducible}.
+\end{definition}
+
+\subsubsection{Discrete Time Markov Chains}
+
+\begin{proposition}{Characterising a Discrete Time Markov Process}
+  A \textit{Discrete Time Markov Process} can be characterised by the set of all $1$-step conditional probabilities
   \[ \prob(X_{t+1}=y|X_t=x)\ \forall\ x,y\in S \]
   A markov chain is \textit{time-homogeneous} if the $1$-step conditionals only depend on $x,y$ and not on $t$ ($\prob(X_{t+1}=y|X_t=x)=\prob(X_1=t|X_0=x)$). The $1$-step conditional probabilities of a \textit{time-homogeneous markov process} can be specified in an $|S|\times |S|$ matrix $P$ where
   \[ p_{x,y}=\prob(X_{t+1}=y|X_t=x) \]
@@ -292,23 +316,6 @@
   If an \textit{Invariant Distribution} it is easy to find by solving $\pmb\pi P=\pmb\pi$ and using normalising constant $\sum_{x\in S}\pi_x=1$.
 \end{proposition}
 
-\begin{definition}{Transience}
-  A state $x\in S$ is \textit{Transient} if $\prob(\exists\ t>0: X_t=x|X_0=x)<1$. The number of times the markov chain returns to a transient state is finite, with probability 1.
-\end{definition}
-
-\begin{definition}{Recurrent}
-  A state $x\in S$ is \textit{Recuurent} if $\prob(\exists\ t>0: X_t=x|X_0=x)=1$. The number of times the markov chain returns to a recurrent state is \underline{in}finite, with probability 1.
-  \par Every markov chain, with a finite state space $S$, has a recurrent communicating class.
-\end{definition}
-
-\begin{definition}{Communication Class}
-  We say $y\in S$ is \textit{Accessible} from $x\in S$ if $\exists\ t\geq0$ st $[P^t]_{xy}>0$.
-  \par We say $x$ and $y$ \textit{communicate} (denoted $xCy$) if: $x$ is \textit{accessible} from $y$ and $y$ is \textit{accessible} from $x$.
-  \par \textit{Communication} is an \textit{equivalence relation} on the state space $S$. Hence, \textit{communication} partitions $S$ into equivalence classes called \textit{Communication Classes}. All elements of a \textit{Communication Class} communicate with all other elements in the class, it is possible for elements to be accessible from another class but \underline{not} for those elements to \textit{communicate}.
-  \par If one state in a \textit{Communicating Class} is \textit{Transient/Recurrent} then all states are in that class.
-  \par If a \textit{Markov Chain} has only one communicating class it is called \textit{Irreducible}.
-\end{definition}
-
 \begin{remark}{If a Markov chain is irreducible, its invariant distribution (if one exists) is unique}
   If a \textit{Markov Chain} is irreducible and has a finite state space, then it has a unique invariant distribution.
 \end{remark}
@@ -333,10 +340,10 @@
   \par All states in a \textit{communicating class} have the same period.
 \end{definition}
 
-\begin{propoistion}{Marginal Distribution of Irreducible, Aperiodic Markov Chain}
+\begin{proposition}{Marginal Distribution of Irreducible, Aperiodic Markov Chain}
   If an irreducible, aperiodic Markov Chain has an invariant distribution $\pmb\pi$, then
   \[ \forall\ x\in S\quad\mu_x(t)\overset{t\to\infty}{\longrightarrow}\pi_x \]
-\end{propoistion}
+\end{proposition}
 
 \begin{definition}{Reversibility}
   A markov chain $\{X_t\}_{t\in\ints}$ is \textit{Reversible} if all joint distributions are the same forwards and backwards in time. (i.e. the distribution of the chain is the same if it was reversed).
@@ -344,6 +351,109 @@
   \[\exists\ \pmb\pi\quad\text{st}\quad\pi_xp_{xy}=\pi_yp_{yx}\ \forall\ x,y\in S\]
   This is the \textit{Local/Detailed Balance Equation}. Note that this is a system of ${|S|\choose2}$ equations which need to be consistent for reversibility to exist.
 \end{definition}
+
+\subsubsection{Continuous Time Markov Process}
+
+\begin{definition}{Continuous Time Markov Process}
+  A stochastic process $\{X_t\}_{t\in\reals}$ is a \textit{Continuous Time Markov Process} on state space $s$ if
+  \[ \forall\ s<t\ \&\ x,y\in S\quad\prob(X_t=y|X_s=x,X_u,u\leq s)=\prob(X_t=y|X_s=x) \]
+  ie future values only depend on the present value and not past.
+  \par If $\forall\ t,s,x,y\ \prob(X_t=y|X_s=x)$ depends only on $x,y,t-s$ (observed values \& change in time) then the process is \textit{Time-Homogeneous}.
+  \par For \textit{Time-Homogenous Markov Processes} we let $P(t)$ denote the stochastic matrix with the probability of each possible transition after $t$ time $[P(t)]_{xy}=\prob(X_t=y|X_0=x)$.
+\end{definition}
+
+\begin{remark}{A \textit{Time-Homogenous Markov Process} is completely described by its initial condition and the family of transition probability matrices $\{P(t):t\geq0$}
+  This set of matrices $\{P(t):t\geq0$ is uncountably large.
+\end{remark}
+
+\begin{definition}{Chapman-Kolmogorov Equations}
+  For a \textit{Time-Homogeneous Markov Process} the family of stochastic matrices $\{P(t):t\geq0$ satisfy the following:
+  \begin{enumerate}
+    \item $P(0)=I$;
+    \item $P(t+s)=P(t)P(s)=P(s)P(t)$
+  \end{enumerate}
+  Hence
+  \[ \frac{d}{dt}P(t):=\lim_{\delta\to0}\frac{P(t+\delta)-P(t)}\delta=\lim_{\delta\to0}\frac{\overbrace{P(t)P(\delta)}^\text{ii)}-P(t)}\delta=P(t)\lim_{\delta\to0}\frac{(P(\delta)-I)}\delta \]
+  Suppose that $Q:=\displaystyle\lim_{\delta\to0}\frac{P(\delta)-P(0)}\delta=\lim_{\delta\to0}\frac{P(\delta)-\overbrace{I}^\text{i)}}\delta$ exists.\\
+  Then $P(t)$ solve the following differential equations, known as the \textit{Chapman-Kolmogorov Equations}
+  \[ \frac{d}{dt}P(t)=\underbrace{P(t)Q}_\text{forward eqn.}=\underbrace{QP(t)}_\text{backward eqn.} \]
+  The solution to these equations is
+  \[ P(t)=P(0)e^{Qt}=e^{Qt}P(0)=e^{Qt}I=e^{Qt} \]
+  N.B. $Q$ is called the \textit{Rate Matrix} or \textit{Infinesimal Generator} of the markov process.
+\end{definition}
+
+\begin{proposition}{Properties of the \textit{Rate Matrix}, $Q$}
+  Let $Q$ be the rate matrix of a \textit{continuous-time markov process}. $Q$ has the following properties
+  \begin{itemize}
+    \item If $n\neq y$ then $\displaystyle q_{xy}:=\lim_{\delta\to0}\frac{[P(\delta)]_{xy}-0}\delta\geq0$. (The off-diagonal elements are non-negative).
+    \item $\displaystyle\forall\ x\in S,\ \sum_{y\in S}q_{xy}=\lim_{\delta\to0}\frac{1-1}\delta=0$. The rows of $Q$ sum to 0.
+    \item Thus, the diagonal entries $q_{xx}$ are negative. (We denote $-q_{xx}$ by $q_x$)
+  \end{itemize}
+\end{proposition}
+
+\begin{proposition}{Interpreting the \textit{Rate Matrix} $Q$}
+  Let $Q$ be the rate matrix of a \textit{continuous-time markov process}.
+  \par If the markov process enters state $x$ at time $t$, it will remain in $x$ for a random time which is distributed $\text{Exp}(q_x)$. (Note that $q_x:=-q_xx$).
+  \par It the jumps to state $y$ with probability   $\frac{q_xy}{q_x}$, independent of the past.
+\end{proposition}
+
+\begin{definition}{Invariant Distributions}
+  Suppose a \textit{Continuous-Time Markov Process} starts with distribution $\pmb\mu(0)$ on state space $S$ (i.e. $\prob(X_0=x)=[\pmb\mu(0)]_x$). Then, the distribution of $X_t$ is $\pmb\mu(t):=\pmb\mu(0)P(t)=\pmb\mu(0)\underbrace{e^{Qt}}_\text{\tiny CK Eqns}$.
+  \par If there exists a distribution $\pmb\pi$ on the state space $S$ st $\forall\ t\geq0\ \pmb\pi=\pmb\pi P(t)=\pmb\pi \underbrace{e^{Qt}}_\text{\tiny CK Eqns}$, then $\pmb\pi$ is an \textit{Invariant Distribution}. This distribution is invariant wrt time.
+  \par If a markov process has a finite state space then it definitely has an invariant distribution.
+\end{definition}
+
+\begin{proposition}{Finding an Invariant Distribution}
+  Starting with $\pmb\pi=\pmb\pi e^{Qt}$ we find that differentiating wrt $t$ and then evaluating at time $t=0$ we get $\pmb0=\pmb\pi Q$ (The Global Balance Equations). This system of equations can be solved to find an \textit{Invariant Distribution}.
+  \par A markov process is \textit{reversible} iff there exists a distribution $\pmb\pi$ on $S$ which satisfies $\pmb\pi_xq_{xy}=\pmb\pi_yq_{yx}\ \forall\ x,y\in S$ (Local balance equations). Solving this system of equations will also find an \textit{Invariant Distribution} but it is not guaranteed to have a solution.
+\end{proposition}
+
+\begin{theorem}{Ergodic Theorem}
+  Let $[X_t]_{t\in\reals^+}$ is an \textit{Irreducible Markov Process} on a state space $S$ and has an invariant distribution $\pmb\pi$. Then
+  \[ \forall\ x\in S\quad\pi_x=\lim_{t\to\infty}\frac1t\int_0^t\indexed(X_s=x)ds \]
+  Moreover, for an arbitrary initial distribution $\pmb\mu(0)$, $\pmb\mu(t)$ converges to $\pmb\pi$ pointwise (i.e. $\mu_x(t)\overset{t\to\infty}\longrightarrow\pi_x$)
+\end{theorem}
+
+\subsubsection{Poisson Process}
+
+\begin{definition}{Counting Process}
+  A \textit{Counting Process} is a stochastic process $\{N(t)\}_{t\in\reals}$ st
+  \begin{enumerate}
+    \item $N(0)=0$ and $N(t)\in\ints$ for all $t\geq0$; and,
+    \item $N(t)$ is a non-decreasing function of $t$.
+  \end{enumerate}
+\end{definition}
+
+\begin{definition}{Independent Increments}
+  A \textit{Process} $\{N(t)\}_{t\in\reals^+}$ is said to have \textit{Independent Increments} if $\forall\ s\in(0,t),\quad(N(t)-N(s))$ is independent of $\{N(u):u\in[0,s]\}$.
+\end{definition}
+
+
+\begin{definition}{Poisson Process}
+  A \textit{Poisson Process} is a \textit{counting process} $\{N(t)\}_{t\in\reals^+}$ which has independent increments and \underline{at least one} of the following equivalence statements are true
+  \begin{itemize}
+    \item $\forall\ t\in[0,t]\quad(N(t)-N(s))\sim\text{Po}(\lambda(t-s))$.
+    \item $\prob(N(t+\delta)-N(t)=1)=\lambda\delta+o(\delta)$ \underline{and}\\
+    $\prob(N(t+\delta)-N(t)=0)=1-\lambda\delta+o(\delta)$ \underline{and}\\
+    $\prob(N(t+\delta)-N(t)\geq2)=o(\delta)$.
+    \item The \underline{times between successive increments} of the process $N(\cdot)$ are iid $\text{Exp}(\lambda)$ random variables.
+  \end{itemize}
+  The parameter $\lambda\in\reals^{>0}$ is called the \textit{rate} of the poisson process. \textit{Poisson Processes} are continuous time markov chains.
+\end{definition}
+
+\begin{example}{Poisson Process}
+  Counting the number of cars which have passed a given point over time.
+\end{example}
+
+\begin{proposition}{Properties of Poisson Processes}
+  Define $\{N(t)\}_{t\in\reals^+}$ to be a \textit{Poisson Process} with rate $\lambda$. Then the following properties hold
+  \begin{enumerate}
+    \item The counting process $\{N(\beta t)\}_{t\in\reals^+}$, with $\beta>0$, is a Poisson Process with rate $\beta\lambda$.
+    \item If $\{N_1(t)\}_{t\in\reals^+}$ and $\{N_2(t)\}_{t\in\reals^+}$ are independent poisson processes with rates $\lambda_1$ and $\lambda_2$, respectively, then $\{N(t):=N_1(t)+N_2(t)\}_{t\in\reals^+}$ is a poisson process with rate $\lambda:=\lambda_1+\lambda_2$.
+    \item Let $X_1,X_2,\dots$ be a sequence of iid $\text{Bern}(p)$ random vairables, independent of $N(\cdot)$. Define $N_1(t):=\sum_{i=1}^{N(t)}X_i$ and $N_2(t):=\sum_{i=1}^{N(t)}(1-X_i)$ (These are called \textit{Bernoulli Thinnings}). These assign increments in $N(\cdot)$ randomly to either $N_1$ or $N_2$ (with probability $p$).\\
+    Then, $N_1(\cdot)$ and $N_2(\cdot)$ are independent poisson processes with rates $\lambda p$ and $\lambda(1-p)$, respectively.
+  \end{enumerate}
+\end{proposition}
 
 \setcounter{section}{-1}
 \section{Reference}
@@ -379,9 +489,32 @@
   A \textit{Simple Random Walk} is a random walk which moves only one step at a time. (i.e. $X_{t+1}=X_t\pm1$). A probability $p$ is defined for $\prob(X_{t+1}=X_t+1)$, this means $1-p$ is the probability of stepping in the other direction. A \textit{Simple Random Walk} is \textit{Assymetric} if $p\neq p-1$.
 \end{definition}
 
+\begin{definition}{Matrix Exponential, $e^X$}
+  Let $X$ be a matrix then we define the \textit{Matrix Exponential} as $e^X:=I+X+\frac{X^2}{2!}+\dots$
+\end{definition}
+
 \subsection{Notation}
 \begin{tabular}{|c|c|}
-  $p_{x,y}$&$\prob(X_{t+1}=x|X_{t}=y)$ for a \textit{time homogenous markov process}
+  $p_{x,y}$&$\prob(X_{t+1}=x|X_{t}=y)$ for a \textit{time homogenous markov process}\\
 \end{tabular}
+
+\subsubsection{Asymptotic Notation}
+
+\begin{definition}{Oh Notation}
+  Let $f,g:\reals^+\to\reals$.
+  \par We say $f=o(g)$ (little oh of $g$) at 0 if $\frac{f(x)}{g(x)}\overset{x\to0}\longrightarrow0$.
+  \par We say $f=O(g)$ (big oh of $g$) at 0 if $\exists\ c>0$ st $|f(x)|\leq c|g(x)|$ in a neighbourhood of 0.
+  \par $f=o(g)$ at infinity and $f=O(g)$ at infinity are defined analogously.
+\end{definition}
+
+\begin{definition}{Omega Notation}
+  Let $f,g:\reals^+\to\reals$.
+  \par We say $g=\omega(g)$ if $o(f)$ and we say $f=\Omega(g)$ if $g=O(f)$.
+\end{definition}
+
+\begin{example}{Oh \& Omega Notation}
+  Define $f(x)=x,\ g(x)=\sin(x)$ and $h(x)=x^2$.\\
+  Then, $g=O(f)$ at 0 and $g=o(f)$ at infinity. $h=o(f)$ at 0 and $h=\omega(f)$ at infinity.
+\end{example}
 
 \end{document}

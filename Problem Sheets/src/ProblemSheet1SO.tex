@@ -1,0 +1,113 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm}
+\usepackage[section,nohyphen]{DomH}
+\headertitle{Stochastic Optimisation - Problem Sheet 1}
+
+\begin{document}
+
+\questionsfalse
+% \answersfalse
+
+\title{Stochastic Optimisation - Problem Sheet 1}
+\author{Dom Hutchinson}
+\date{\today}
+\maketitle
+
+
+\begin{question}{3)}
+  Let $X_1,X_2,\dots$ by iid random variables with distribution $\text{Bern}(p)$ with $p\in[0,1]$. Let $q\in[0,1]$ with $q>p$. Show that
+  \[ \prob\left(\sum_{i=1}^nX_i\right)>nq)\leq\text{exp}(-nK(q;p))\quad\text{where}\quad K(q;p)=q\ln\frac{q}p+(1-q)\ln\frac{1-q}{1-p} \]
+  with $x\ln x$ defined to be $0$ if $x=0$.
+\end{question}
+
+\begin{answer}{3)}
+  Let $X_1,X_2,\dots$ by iid random variables with distribution $\text{Bern}(p)$ with $p\in[0,1]$. Let $q\in[0,1]$ with $q>p$.\\
+  The moment generating function of $X$ is $\M_X(t):=\expect[e^{tX}]=(p+e^t+(1-p))$.\\
+  By applying \textit{Chernoff Bounds} we have that
+  \[\begin{array}{rcl}
+    \prob\left(\sum_{i=1}^nX_i>nq\right)&\leq&\inf_{\theta>0}e^{-nq\theta}(\expect[e^{\theta X}])^n\\
+    &=&\inf_{\theta>0}e^{-nq\theta}(pe^\theta+(1-p))^n
+  \end{array}\]
+  Consider the natural log of the right hand side and define \[f:=-nq\theta+\ln(pe^\theta+1-p) \]
+  Since the natural log is a monotonically increasing function, $\inf_{\theta>0}e^f$ is equal to the RHS of above.
+  We have
+  \[\begin{array}{rrcl}
+    &\frac{\partial f}{\partial\theta}&=&-nq+n\frac{pe^\theta}{pe^\theta+1-p}\\
+    \text{Setting}&\frac{\partial f}{\partial\theta}&=&0\\
+    \implies&0&=&-nq+n\frac{pe^\theta}{pe^\theta+1-p}\\
+    \implies&q&=&\frac{pe^\theta}{pe^\theta+1-p}\\
+    \implies&pe^\theta+1-p&=&\frac{p}qe^\theta\\
+    % \implies&1-p&=&\left(\frac{p}q-p)e^\theta\\
+    \implies&e^\theta&=&\frac{1-p}{\frac{p}q-p}\\
+    &&=&\frac{q-qp}{p-qp}\\
+    \text{Since}&q&>&p\\
+    \implies&q-qp&>&p-qp\\
+    \implies&\frac{q-qp}{p-qp}&>&1\\
+    \implies&\ln\left(\frac{q-qp}{p-qp}\right)&>&0
+  \end{array}\]
+  Thus $\underset{\theta;\theta>0}\argmin (f)=\ln\left(\frac{q-qp}{p-qp}\right)$. This means
+  \[\begin{array}{rrcl}
+    &\inf_{\theta>0}f&=&-nq\ln\left(\frac{q-qp}{p-qp}\right)+n\ln\left(p\cdot\frac{q-qp}{p-qp}+1-p\right)\\
+    &&=&-n\left[q\ln\left(\frac{q(1-p)}{p(1-q)}\right)-\ln\left(p\cdot\frac{q(1-p)}{p(1-q)}+1-p\right)\right]\\
+    &&=&-n\left[q\ln\left(\frac{q}p\right)+q\ln\left(\frac{1-p}{1-q}\right)-\ln\left(\frac{q(1-p)}{1-q}+1-p\right)\right]\\
+    &&=&-n\left[q\ln\left(\frac{q}p\right)-q\ln\left(\frac{1-q}{1-p}\right)-\ln\left(\frac{1-p}{1-q}\right)\right]\\
+    &&=&-n\left[q\ln\left(\frac{q}p\right)+(1-q)\ln\left(\frac{1-q}{1-p}\right)\right]\\
+    &&=&-nK(q;p)\\
+    \implies&\inf_{\theta>0}e^{-nq\theta}(pe^\theta+(1-p))^n&=&\exp(-nK(q;p))\\
+    \implies&\prob\left(\sum_{i=1}^nX_i>nq\right)&\leq&\exp(-nK(q;p))
+  \end{array}\]
+\end{answer}
+
+\begin{question}{6a)}
+  Let $Z\sim N(0,1)$. Show that the moment generating function of $Z$ is given by $\expect[e^{\theta Z}]=e^{\frac12\theta^2}$.
+\end{question}
+
+\begin{answer}{6a)}
+  Let $Z\sim N(0,1)$.
+  \[\begin{array}{rcl}
+    \expect[e^{\theta Z}]&=&\int_{-\infty}^\infty e^{\theta x}f_Z(x)dx\\
+    &=&\int_{-\infty}^\infty e^{\theta x}\frac1{\sqrt{2\pi}}e^{-\frac12x^2}dx\\
+    &=&\int_{-\infty}^\infty \frac1{\sqrt{2\pi}}e^{-\frac12(x^2-2x\theta)}dx\\
+    &=&\int_{-\infty}^\infty \frac1{\sqrt{2\pi}}e^{-\frac12(x-\theta)^2+\frac12\theta^2}dx\\
+    &=& e^{\frac12\theta^2}\int_{-\infty}^\infty \frac1{\sqrt{2\pi}}e^{-\frac12(x-\theta)^2}dx\\
+    &=& e^{\frac12\theta^2}\int_{-\infty}^\infty f_Y(x)dx\quad\text{where}\quad Y\sim N(\theta,1)\\
+    &=& e^{\frac12\theta^2}\cdot1\\
+    &=& e^{\frac12\theta^2}
+  \end{array}\]
+\end{answer}
+
+\begin{question}{6b)}
+  Let $X_1,X_2,\dots$ be iid random variables with distribution $N(\mu,\sigma^2)$ for $\mu,\sigma\in\reals$. Let $\gamma\in\reals$ st $\gamma>\mu$. Show that
+  \[ \prob\left(\sum_{i=1}^n>n\gamma\right)\leq\exp\left(-n\frac{(\gamma-\mu)^2}{2\sigma^2}\right) \]
+\end{question}
+
+\begin{answer}{6b)}
+  Let $X_1,X_2,\dots$ be iid random variables with distribution $N(\mu,\sigma^2)$ for $\mu,\sigma\in\reals$. Let $\gamma\in\reals$ st $\gamma>\mu$.\\
+  The moment generating function of $X$ is $\M_X(t):=\expect[e^{tX}]=e^{\mu\theta+\frac12\sigma^2\theta^2}$.\\
+  By applying \textit{Chernoff Bounds} we have that
+  \[\begin{array}{rcl}
+  \prob\left(\sum_{i=1}^nX_i>n\gamma\right)&\leq&\inf_{\theta>0}e^{-n\gamma\theta}(\expect[e^{X\theta}])^n\\
+  &=&\inf_{\theta>0}e^{-n\theta(\gamma-\mu-\frac12\sigma^2\theta)}
+  \end{array}\]
+  Consider the natural log of the right hand side and define $f:=-n\theta(\gamma-\mu-\frac12\sigma^2\theta)$.
+  \[\begin{array}{rrcl}
+    &\frac{\partial f}{\partial\theta}&=&-n(\gamma-\mu-\frac12\sigma^2\theta)-n\theta(-\frac12\sigma^2)\\
+    &&=&-n(\gamma-\mu-\sigma^2\theta)\\
+    \text{Setting}&\frac{\partial f}{\partial\theta}&=&0\\
+    \implies&\gamma-\mu-\sigma^2\theta&=&0\\
+    \implies&\theta&=&\frac{\gamma-\mu}{\sigma^2}\\
+    \text{Since}&\gamma>\mu&\&&\sigma^2>0\\
+    \implies&0&<&\frac{\gamma-\mu}{\sigma^2}=\theta
+  \end{array}\]
+  Thus $\underset{\theta;\theta>0}\argmin(f)=\frac{\gamma-\mu}{\sigma^2}$. This means
+  \[\begin{array}{rrcl}
+    &\inf_{\theta>0}f&=&-n\left(\frac{\gamma-\mu}{\sigma^2}\right)\left(\gamma-\mu-\frac12(\gamma-\mu)\right)\\
+    &&=&-n\frac{(\gamma-\mu)^2}{2\sigma^2}\\
+    \implies&\inf_{\theta>0}e^{-n\theta\left(\gamma-\mu-\frac12\sigma^2\theta\right)}&=&\exp\left(-n\frac{(\gamma-\mu)^2}{2\sigma^2}\right)\\
+    \implies&\prob\left(\sum_{i=1}^nX_i>n\gamma\right)&\leq&\exp\left(-n\frac{(\gamma-\mu)^2}{2\sigma^2}\right)
+  \end{array}\]
+\end{answer}
+
+\end{document}

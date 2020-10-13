@@ -106,6 +106,48 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 
 \subsection{Heuristic}
 
+\begin{remark}{How many tests?}
+  Suppose an agent is comparing two arms and is given a finite time horizon $T$ after in which they must choose the best arm. The obvious strategy is to perform each task $N$ times and then choose the arm with the greatest empirical mean. But, how do we choose $N$ to minimise regret over time $T$?
+\end{remark}
+
+\begin{theorem}{Chernoff Bound of a Binomial Random Variable}
+  Let $X\sim\text{Bin}(n,\alpha$ with $n\in\nats,\ \alpha\in(0,1)$. Then
+  \[ \forall\ \beta>\alpha\quad\prob(X\geq Xn)\leq e^{-nK(\beta;\alpha)} \]
+  where
+  \[ K(\beta;\alpha):=\begin{cases}\beta\ln\left(\frac\beta\alpha\right)+(1-\beta)\ln\left(\frac{1-\beta}{1-\alpha}\right)&\text{if }\beta\in[0,1]\\+\infty&\text{otherwise}\end{cases} \]
+  with $x\ln(x):=0$ if $x=0$.\\
+  Similarly
+  \[ \forall\ \beta<\alpha\quad\prob(X\leq\beta n)\leq e^{-nK(\beta;\alpha)} \]
+  Note that $K(\cdot;\cdot)$ is known as both \textit{relative entropy} and \textit{Kullback-Leibler Divergence}
+\end{theorem}
+
+\begin{proposition}{Bounds on testing}
+  Let $X_1(n)$ and $X_2(n)$ be sequences of iid \textit{bernoulli} random variables for the rewards of two arms, with means $\mu_1,\mu_2$ respectively. Without loss of generality, let $\mu_1>\mu_2$.\\
+  Let $N<T$ be the number of times each arm is tested.\\
+  Note that $S_1(n):=\sum_{t=1}^NX_1(t)$ and $S_2(n):=\sum_{t=1}^NX_2(t)$ are \textit{binomial} random variables with distributions $\text{Bin}(N,\mu_1),\ \text{Bin}(N,\mu_2)$ respectively. And, $S_1(n)$ and $S_2(n)$ are independent of each other. Thus for $\beta\in(\mu_2,\mu_1)$
+  \[\begin{array}{rcl}
+    \prob(S_1(N)<\beta N,\ S_2(N)>\beta N)&\leq&e^{-N(K(\beta;\mu_1)+K(\beta;\mu_2))}=e^{-NJ(\mu_1,\mu_2)}
+  \end{array}\]
+  where
+  \[ J(\mu_1,\mu_2)=\inf_{\beta\in[\mu_2,\mu_1]}\big(K(\beta;\mu_1)+K(\beta;\mu_2)\big) \]
+  The values of $\beta$ which solve $J(\cdot;\cdot)$ describe the most likely ways for the event $(S_1(N)<S_2(N)$ to occur (ie the wrong decision is made).
+\end{proposition}
+
+\begin{proposition}{Optimal $N$}
+  For the situation described in \texttt{Proposition 1.1} we want to find $N$ which minimises regret, given a total time horizon of $T$.
+  \par If the right decision is made in the end, regret only occurs during exploration and is equal to $N\cdot(\mu_1-\mu_2)$ (since the wrong arm is played $N$ times).
+  \par However, if the wrong decision is made in the end, regret is equal to $(T-N)\cdot(\mu_1-\mu_2)$.
+  \par Thus, the overall regret up to time $T$ is
+  \[\begin{array}{rcl}
+    \mathcal{R}(T)&=&\underbrace{(T-2N)(\mu_1-\mu_2)\prob\big(S_1(N)<S_2(N)\big)}_{\small\text{if wrong decision made}}+\underbrace{N(\mu_1-\mu_2)}_{\small\text{guaranteed regret}}\\
+    &\simeq&(\mu_1-\mu_2)(N+Te^{-NJ(\mu_1,\mu_2)})
+  \end{array}\]
+  This expression is minimised for $N$ close to the solution of $1=TJ(\mu_1,\mu_2)e^{-NJ(\mu_1,\mu_2)}$ (ie when $N=\frac{\ln T}{J(\mu_1,\mu_2)}+O(1)$).\\
+  The corresponding regret is
+  \[ \mathcal{R}(T)=\frac{\mu-1-\mu_2}{J(\mu_1,\mu_2)}\ln(T)+O(1) \]
+  If $\mu_1\simeq\mu_2$ then $J(\mu_1,\mu_2)\simeq(\mu_1-\mu-2)^2$ and the above regret becomes $\mathcal{R}(T)=\frac{\ln(T)}{\mu_1-\mu_2}+O(1)$.
+\end{proposition}
+
 \section{Probability}
 
 \begin{definition}{Random Process}

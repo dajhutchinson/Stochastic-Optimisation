@@ -209,6 +209,102 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \end{enumerate}
 \end{definition}
 
+\subsubsection{Analysis}
+
+\begin{theorem}{Upper Bound on Regret}
+  Consider a $k$-armed bandit and define $\Delta_i:=\mu_1-\mu_i$.
+  \par If the \textit{UCB($\alpha$)} algorithm is used, with $\alpha>1$, then the regret in the first $T$ rounds is bounded above by
+  \[ \mathcal{R}\leq\sum_{i=2}^K\left(\frac{\alpha+1}{\alpha-1}\Delta_i+\frac{2\alpha}{\Delta_i}\ln(T)\right) \]
+  \par This bounds grows logarithmically in $T$, which is very good.
+  \par If $\alpha$ is taken to be large, then the regret grows faster (bad). If $\alpha$ is small, the constant term dominates for smaller values of $T$ (constant term blows up close to 1).
+  \par Should choose a value a bit larger than 1 (often $\alpha=2$)
+\end{theorem}
+
+\begin{theorem}{When a sub-optimal arm is played}
+  Consider apply \textit{UCB($\alpha$)} to a $k$-armed bandit and define $\Delta_i:=\mu_1-\mu_i$.
+  Let $s\geq K$ (so we have completed the first stage of UCB) and suppose $I(s+1)=j\neq 1$ (ie arm at time $s+1$ is suboptimal). Then one of the following is true:
+  \begin{enumerate}
+    \item $\hat\mu_{1,N_1(s)}\leq\mu_1-\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}$. The sample mean reward on the optimal arm is much smaller than the true mean.
+    \item $\hat\mu_{j,N_j(s)}\geq\mu_j+\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}$. The sample mean reward on arm $j$ is much larger than its true mean.
+    \item $N_j(s)<\displaystyle\frac{2\alpha\ln(s)}{\Delta_j^2}$. Arm $j$ has been played very few times.
+  \end{enumerate}
+\end{theorem}
+
+\begin{proof}{Theorem 1.3}
+  \textit{This is a proof by contradiction}.\\
+  Suppose none of the three inequalities holds. Then
+  \[\begin{array}{rcll}
+    \underbrace{\hat\mu_{1,N_1(s)}+\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}}_{\tiny\text{UCB($\alpha$) index 1}}&>&\mu_1&\text{contradiction to i)}\\
+    &=&\mu_j+\Delta_j&\text{by def. of $\Delta_j$}\\
+    &\geq&\mu_j+\displaystyle\sqrt{\frac{2\alpha\ln(s)}{N_j(s)}}&\text{by iii)}\\
+    &\geq&\hat\mu_{1,N_1(s)}-\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}+\sqrt{\frac{2\alpha\ln(s)}{N_j(s)}}&\text{by ii)}\\
+    &=&\underbrace{\hat\mu_{j,N_j(s)}+\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}}__{\tiny\text{UCB($\alpha$) index j}}
+  \end{array}\]
+  But, this implies that the \textit{UCB($\alpha$)} index of arm 1 at the end of round $s$ is greater than that of arm $j$. Hence arm $j$ would not be played in time slot $s+1$.\proved
+
+\end{proof}
+
+\begin{theorem}{Counting Lemma}
+  Let $\{I(t)\}_{t\in\nats}$ be a $\{0,1\}$-valued sequence and $N(t):=\sum_{s=1}^tI(s)$. Then
+  \[ \forall\ t,u\in\nats\quad N(t)\leq u+\sum_{s=u+1}^tI(s)\indexed\{N(s-1)\geq u\} \]
+  with an empty sum defined to be zero.
+\end{theorem}
+
+\begin{proof}{Theorem 1.4}
+  Fix $t,u\in\nats$. There are two possibilities
+  \par\textit{Case 1} $N(t)\leq u$. (Have not reached $u$ yet)
+
+  \par\textit{Case 2} $\exists\ s\in[1,t]$ st $N(s)>u$. (Already reached $u$). Let $s^*$ denote the smallest such $s$. Then it must be true that $N(s^*-1)=u$ and $s^*\geq u+1$. Hence
+  \[\begin{array}{rcl}
+    N(t)&=&\displaystyle\sum_{s=1}^{s^*-1}I(s)+\sum_{s=s^*}^tI(s)\\
+    &=&\displaystyle N(s^*-1)+\sum_{s=s^*}^tI(s)\underbrace{\indexed\{N(s-1)\geq u\}}_{\tiny\text{true for all in sum}}\\
+    &\leq&\displaystyle u+\sum_{s=u+1}^tI(s)\indexed\{N(s-1)\geq u\}\quad\text{since }s\geq u+1
+  \end{array}\]
+  \proved
+\end{proof}
+
+\begin{theorem}{Concentration Inequalities for Sample Means}
+  \[\begin{array}{rcl}
+  \displaystyle\prob\left(\hat\mu_{j,N_j(s)}\geq u_j+\sqrt\frac{\alpha\ln s}{2N_j(s)}\right)&\leq&e^{-\alpha\ln s}=s^{-\alpha}\\
+  \displaystyle\prob\left(\hat\mu_{1,N_1(s)}\leq u_1-\sqrt\frac{\alpha\ln s}{2N_1(s)}\right)&\leq&e^{-\alpha\ln s}=s^{-\alpha}
+  \end{array}\]
+\end{theorem}
+
+\begin{proof}{Theorem 1.5}
+  The proof is immediate from \textit{Hoeffding's Inequality}, which is applicable since the $X_j$ are iid and take values in $\{0,1\}\subseteq[0,1]$.
+\end{proof}
+
+\begin{proof}{Theorem 1.2}
+  Fix $t\in\nats$ adn take $u_{t,j}:=\left\lceil\frac{2\alpha\ln(t)}{\Delta_j^2}\right\rceil$.\\
+  By \texttt{Theorem 1.4} we have that
+  \[ N_j(t)\leq u+\sum_{s=u+1}^t\indexed\{(N_j(s-1)\geq u_{t,j})\ \&\ (I(s)=j)\} \]
+  Both sides involve random variables. Taking expectations we get
+  \[ \expect[N_j(t)]\leq u+\sum_{s=u}^{t-1}\prob\big\{(N_j(s)\geq u_{y,j})\ \&\ (I(s+1)=j)\big\} \]
+  By \texttt{Theorem 1.3} and the definition of $u$, \textit{IF} $I(s+1)=j$\textit{ and }$N_j(s)\geq u$\textit{ then}
+  \[ \hat\mu_{1,N_1(s)}\leq u_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\quad\text{or}\quad\hat\mu_{j,N_j(s)}>\mu_j+\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}} \]
+  Thus
+  \[ \expect[N_j(t)]\leq u_{t,j}+\sum_{s=u_{t,j}}^{t-1}\left[\underbrace{\prob\left(\hat\mu_{1,N_1(s)}\leq\mu_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\right)}_{\tiny\text{$\hat\mu_1$ is unusually small}}+\underbrace{\prob\left(\hat\mu_{j,N_j(s)}>\mu_j-\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}\right)}__{\tiny\text{$\hat\mu_j$ is unusually large}}\right] \]
+  By \texttt{Theorem 1.5}
+  \[\begin{array}{rcl}
+  \expect[N_j(t)]&\leq&\displaystyle u+\sum_{s=u}^{t-1}2s^{-\alpha}\\
+  &\leq&u+\displaystyle\int_{u-1}^\alpha2s^{-\alpha}ds\quad\text{assumption $\alpha>1$ required here}\\
+  &=&u+\displaystyle\frac{2(u-1)^{-(\alpha-1)}}{\alpha-1}\\
+  &\leq&\displaystyle u+\frac{2}{\alpha-1}\quad\text{since }u\geq2\implies (u-1)^{-(\alpha-1)}\leq 1
+  \end{array}\]
+  Thus
+  \[ \forall\ j\in[2,K]\quad\expect[N_j(t)]\leq u+\frac2{\alpha-1}\leq\frac{2\alpha\ln(t)}{\Delta^2_j}+1+\frac2{\alpha-1} \]
+  A regret of $\Delta_j:=\mu_1-\mu_j$ is incurred every time arm $j$ is played. Hence the total regret up to time $t$ is bounded by
+  \[\begin{array}{rrl}
+    \mathcal{R}(t)&:=&\displaystyle\sum_{i=2}^K\Delta_i\expect[N_i(t)]\\
+    &\leq&\displaystyle\sum_{i=2}^K\left(\frac{2\alpha\ln(t)}{\Delta_i}+\frac{\alpha+1}{\alpha-1}\Delta_i\right)
+  \end{array}\]
+  \proved
+\end{proof}
+
+\begin{remark}{Is there an algorithm which achieves lower regret?}
+  No. There is no algorithm which has regret growing slower than $\ln(T)$.
+\end{remark}
+
 \section{Probability}
 
 \begin{definition}{Random Process}

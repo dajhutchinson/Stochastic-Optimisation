@@ -41,14 +41,6 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   There are a number of ways to formalise this objective.
 \end{definition}
 
-\begin{remark}{Assumptions}
-  For the \textit{Multi-Armed Bandit Problem} we make the following assumptions about the set up
-  \begin{itemize}
-    \item When action $i$ is played only the realisation of $X_i(t)$ is observed and none of $X_j(t),\ j\neq i$, are observed. Thus when the agent's $t^{th}$ action is played only the rewards of actions $\{1,\dots,t-1\}$ are known to the agent.
-    \item The agent has access to an external source of randomness which is used to choose it's next action.
-  \end{itemize}
-\end{remark}
-
 \begin{definition}{Strategy, $I(\cdot)$}
   Our agent's strategy $I:\nats\to[1,K]$ is a function which determines which action the agent shall make at a given point in time. The strategy can use the knowledge gained from previous actions \& their rewards only.
   \[ I(t)=I\big(t,\underbrace{\{I(s)\}_{\in[1,t)}}_\text{Prev. Actions},\underbrace{\{X_{I(s)}(s)\}_{\in[1,t)}}_\text{Prev. Rewards}\big)\in[1,K] \]
@@ -63,6 +55,33 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 
 \begin{remark}{It is not hard to find an \textit{Optimal Strategy} in the (very) long run, so we are going to look at \textit{Regret Minimisation First}.}
 \end{remark}
+
+\begin{proposition}{Mathematical Model \& Assumptions for Multi-Armed Bandit Problem}
+  Model:
+  \begin{itemize}
+    \item Bandit has $K$ bernoulli arms.
+    \item $X_i(t)\in\reals$ is the reward obtained by played arm $i\in[1,K]$ at time step $t\in\nats$.
+  \end{itemize}
+  Assumptions:
+  \begin{itemize}
+    \item $X_1(\cdot),X_2(\cdot),\dots$ are mutually independent sequences.
+    \item For each $i$ $\{X_i(t)\}_{t\in\nats}$ is a sequence of iid $\text{Bern}(\mu_i)$ random variables
+  \end{itemize}
+  We define the following quantities to make analysis easier
+  \begin{itemize}
+    \item $I(t)\in[1,K]$. The index of the arm played in time $t$;
+    \item $N_j(t):=\sum_{s=1}^t\indexed(I(s)=j)$. The number of times arm $j$ has been played in the first $t$ rounds;
+    \item $S_j(t):=\sum_{s=1}^tX_j(s)\indexed(I(s)=j)$. The total reward from arm $j$ in the first $t$ rounds. This is a Binomial random variable independent $\text{Bin}(N_j(t),\mu_j)$;
+    \item $\hat\mu_{j,n}:=\frac{S_j(t)}{N_j(t)}$. The sample mean reward from arm $j$ in the first $n$ plays of arm $j$.
+  \end{itemize}
+\end{proposition}
+
+\begin{definition}{Policy}
+  A \textit{policy} is a family of functions $f_t$ which specify what arm is to be played in round $t$. $f_t$ should depend on the information available at time $t$ $\big\{I(s),X_{I(s)}(s):s\in[1,t-1]\big\}$.
+  \par Randomised policies are allowed. So, in addition to the history up to time $t$, $f_t$ can depend upon a $U(t)\sim U[0,1]$ random variable which is independent of $X_i(\cdot)$. Thus
+  \[ I(t)=f_t\big(\underbrace{I(1),\dots,I(t-1)}_\text{arms chosen},\underbrace{X_{I(1)}(1),\dots,X_{I(t-1)}(t-1)}_\text{observed rewards},\underbrace{U(t)}_\text{randomness}\big) \]
+  We want to find the best policy (ie one which minimises the regret)
+\end{definition}
 
 \subsection{Regret Minimisation}
 
@@ -110,6 +129,16 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   Suppose an agent is comparing two arms and is given a finite time horizon $T$ after in which they must choose the best arm. The obvious strategy is to perform each task $N$ times and then choose the arm with the greatest empirical mean. But, how do we choose $N$ to minimise regret over time $T$?
 \end{remark}
 
+\begin{proposition}{Na\"ive Heuristic (Single Test)}
+  Consider a 2-armed bandit \& the following Heuristic
+  \begin{center}
+    \textit{Play each arm once. Pick the arm with the greatest sample mean reward (breaking ties arbitrarily) and playing that arm on all subsequent rounds.}
+  \end{center}
+  This heuristic picks the wrong arm with probability $\mu_2(1-\mu_1)$. In this case the wrong arm is played $T-1$ times, giving a bounded regret
+  \[ \mathcal{R}(T)\geq\underbrace{\mu_2(1-\mu_1)}_{\tiny\text{prob of wrong choice}}\cdot\underbrace{(\mu_1-\mu_2)}_{\tiny\text{Loss}}\cdot\underbrace{(T-1)}_{\tiny\text{\# steps}} \]
+  This regret grows linearly in $T$.
+\end{proposition}
+
 \begin{theorem}{Chernoff Bound of a Binomial Random Variable}
   Let $X\sim\text{Bin}(n,\alpha$ with $n\in\nats,\ \alpha\in(0,1)$. Then
   \[ \forall\ \beta>\alpha\quad\prob(X\geq Xn)\leq e^{-nK(\beta;\alpha)} \]
@@ -121,10 +150,12 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   Note that $K(\cdot;\cdot)$ is known as both \textit{relative entropy} and \textit{Kullback-Leibler Divergence}
 \end{theorem}
 
-\begin{proposition}{Bounds on testing}
-  Let $X_1(n)$ and $X_2(n)$ be sequences of iid \textit{bernoulli} random variables for the rewards of two arms, with means $\mu_1,\mu_2$ respectively. Without loss of generality, let $\mu_1>\mu_2$.\\
-  Let $N<T$ be the number of times each arm is tested.\\
-  Note that $S_1(n):=\sum_{t=1}^NX_1(t)$ and $S_2(n):=\sum_{t=1}^NX_2(t)$ are \textit{binomial} random variables with distributions $\text{Bin}(N,\mu_1),\ \text{Bin}(N,\mu_2)$ respectively. And, $S_1(n)$ and $S_2(n)$ are independent of each other. Thus for $\beta\in(\mu_2,\mu_1)$
+\begin{proposition}{Better Heuristic ($N$ Tests)}
+  Consider a 2-armed bandit problem \& the following heuristic
+  \begin{center}
+    \textit{Play each arm $N<\frac{T}2$. Pick the arm with the greatest sample mean reward (breaking ties arbitrarily) and playing that arm on all subsequent rounds.}
+  \end{center}
+  Note that $S_1(n)\ \&\ S_2(n)$ are \textit{binomial} random variables with distributions $\text{Bin}(N,\mu_1),\ \text{Bin}(N,\mu_2)$ respectively. And, $S_1(n)$ and $S_2(n)$ are independent of each other. Thus for $\beta\in(\mu_2,\mu_1)$
   \[\begin{array}{rcl}
     \prob(S_1(N)<\beta N,\ S_2(N)>\beta N)&\leq&e^{-N(K(\beta;\mu_1)+K(\beta;\mu_2))}=e^{-NJ(\mu_1,\mu_2)}
   \end{array}\]
@@ -134,12 +165,12 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 \end{proposition}
 
 \begin{proposition}{Optimal $N$}
-  For the situation described in \texttt{Proposition 1.1} we want to find $N$ which minimises regret, given a total time horizon of $T$.
+  For the situation described in \texttt{Proposition 1.2} we want to find $N$ which minimises regret, given a total time horizon of $T$.
   \par If the right decision is made in the end, regret only occurs during exploration and is equal to $N\cdot(\mu_1-\mu_2)$ (since the wrong arm is played $N$ times).
   \par However, if the wrong decision is made in the end, regret is equal to $(T-N)\cdot(\mu_1-\mu_2)$.
   \par Thus, the overall regret up to time $T$ is
   \[\begin{array}{rcl}
-    \mathcal{R}(T)&=&\underbrace{(T-2N)(\mu_1-\mu_2)\prob\big(S_1(N)<S_2(N)\big)}_{\small\text{if wrong decision made}}+\underbrace{N(\mu_1-\mu_2)}_{\small\text{guaranteed regret}}\\
+    \mathcal{R}(T)&=&\underbrace{(T-2N)(\mu_1-\mu_2)\prob\big(S_1(N)<S_2(N)\big)}_{\tiny\text{if wrong decision made}}+\underbrace{N(\mu_1-\mu_2)}_{\tiny\text{guaranteed regret}}\\
     &\simeq&(\mu_1-\mu_2)(N+Te^{-NJ(\mu_1,\mu_2)})
   \end{array}\]
   This expression is minimised for $N$ close to the solution of $1=TJ(\mu_1,\mu_2)e^{-NJ(\mu_1,\mu_2)}$ (ie when $N=\frac{\ln T}{J(\mu_1,\mu_2)}+O(1)$).\\
@@ -147,6 +178,36 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \[ \mathcal{R}(T)=\frac{\mu-1-\mu_2}{J(\mu_1,\mu_2)}\ln(T)+O(1) \]
   If $\mu_1\simeq\mu_2$ then $J(\mu_1,\mu_2)\simeq(\mu_1-\mu-2)^2$ and the above regret becomes $\mathcal{R}(T)=\frac{\ln(T)}{\mu_1-\mu_2}+O(1)$.
 \end{proposition}
+
+\subsection{UCB Algorithm}
+
+\begin{remark}{UCB Algorithm}
+  The \textit{Upper Confidence Bound Algorithm} is a \textit{frequentist} algorithm for solving the multi-armed bandit problem.
+\end{remark}
+
+\begin{remark}{Motivation}
+  The problem with the heuristics in \texttt{Proposition 1.2,1.3} treat the sample mean as the true mean, which is not great.
+  Suppose we observed sample mean reward for arm $i$ of $\hat\mu_{i,n}$ after $n$ plays. How far from the true value can $\mu_i$ be?
+  \[ \prob(\mu_i>\hat\mu_{i,n}+x)\leq e^{-2nx^2}\text{ by Hoeffding's Inequality} \]
+  Suppose the inequality holds with equality (ie most optimisitc outcome). Then
+  \[ \prob(\mu_i>\hat\mu_{i,n}+x)=d\Longleftrightarrow x=\sqrt{\frac1{2n}\ln\left(\frac1\delta\right)} \]
+  This suggests a heuristic:
+  \[\text{Play arm which maximises}\quad\hat\mu_{i,N_{i}(t)}+\sqrt{\frac1{2N_i(t)}\ln\left(\frac1\delta\right)}\]
+  where you choose $\delta$ based on how lucky you feel.
+  \par This heuristic allows for our choice to be changed any number of times.
+\end{remark}
+
+\begin{definition}{UCB($\alpha$) Algorithm}
+  Consider the set up of the multi-armed bandit problem in \texttt{Proposition 1.1} and wlog that $\mu_1>\mu_2\leq\dots\leq\mu_K$.\\
+  Consider a $k$-armed bandit and let $\alpha>0$.
+  \begin{enumerate}
+    \item In the first $K$ rounds, play each arm once.
+    \item At the end of each round $t\geq K$ compute the \textit{UCB($\alpha$)} index of each arm $i$ defined as
+    \[ \hat\mu_{i,N_i(t)}+\sqrt{\frac{\alpha\ln(t)}{2N_i(t)}} \]
+    \item In round $t+1$ play the arm with the greatest index (breaking ties arbitrarily)
+    \[ I(t+1)=\argmax\limits_{i\in[1,K]}\left\{\hat\mu_{i,N_i(t)}+\sqrt{\frac{\alpha\ln(t)}{2N_i(t)}}\right\} \]
+  \end{enumerate}
+\end{definition}
 
 \section{Probability}
 

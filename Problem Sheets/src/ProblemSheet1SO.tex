@@ -32,16 +32,16 @@
   \end{array}\]
   Consider the natural log of the right hand side and define \[f:=-nq\theta+\ln(pe^\theta+1-p) \]
   Since the natural log is a monotonically increasing function, $\inf_{\theta>0}e^f$ is equal to the RHS of above.
-  We have
+  First I shall derive $\underset{\theta;\theta>0}\argmin (f)$
   \[\begin{array}{rrcl}
-    &\frac{\partial f}{\partial\theta}&=&-nq+n\frac{pe^\theta}{pe^\theta+1-p}\\
+    &\frac{\partial f}{\partial\theta}&=&-nq+n\frac{pe^\theta}{pe^\theta+1-p}\\\\
     \text{Setting}&\frac{\partial f}{\partial\theta}&=&0\\
     \implies&0&=&-nq+n\frac{pe^\theta}{pe^\theta+1-p}\\
     \implies&q&=&\frac{pe^\theta}{pe^\theta+1-p}\\
     \implies&pe^\theta+1-p&=&\frac{p}qe^\theta\\
-    % \implies&1-p&=&\left(\frac{p}q-p)e^\theta\\
     \implies&e^\theta&=&\frac{1-p}{\frac{p}q-p}\\
     &&=&\frac{q-qp}{p-qp}\\
+    \implies&\theta&=&\ln\left(\frac{q-qp}{p-qp}\right)\\\\
     \text{Since}&q&>&p\\
     \implies&q-qp&>&p-qp\\
     \implies&\frac{q-qp}{p-qp}&>&1\\
@@ -91,13 +91,15 @@
   \prob\left(\sum_{i=1}^nX_i>n\gamma\right)&\leq&\inf_{\theta>0}e^{-n\gamma\theta}(\expect[e^{X\theta}])^n\\
   &=&\inf_{\theta>0}e^{-n\theta(\gamma-\mu-\frac12\sigma^2\theta)}
   \end{array}\]
-  Consider the natural log of the right hand side and define $f:=-n\theta(\gamma-\mu-\frac12\sigma^2\theta)$.
+  Consider the natural log of the right hand side and define $f:=-n\theta(\gamma-\mu-\frac12\sigma^2\theta)$.\\
+  Since the natural log is a monotonically increasing function, $\inf_{\theta>0}e^f$ is equal to the RHS of above.
+  First I shall derive $\underset{\theta;\theta>0}\argmin (f)$
   \[\begin{array}{rrcl}
     &\frac{\partial f}{\partial\theta}&=&-n(\gamma-\mu-\frac12\sigma^2\theta)-n\theta(-\frac12\sigma^2)\\
-    &&=&-n(\gamma-\mu-\sigma^2\theta)\\
+    &&=&-n(\gamma-\mu-\sigma^2\theta)\\\\
     \text{Setting}&\frac{\partial f}{\partial\theta}&=&0\\
     \implies&\gamma-\mu-\sigma^2\theta&=&0\\
-    \implies&\theta&=&\frac{\gamma-\mu}{\sigma^2}\\
+    \implies&\theta&=&\frac{\gamma-\mu}{\sigma^2}\\\\
     \text{Since}&\gamma>\mu&\&&\sigma^2>0\\
     \implies&0&<&\frac{\gamma-\mu}{\sigma^2}=\theta
   \end{array}\]

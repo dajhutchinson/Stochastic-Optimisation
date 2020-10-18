@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm}
+\usepackage[section,nohyphen]{DomH}
+\headertitle{Stochastic Optimisation - Problem Sheet 2}
+
+\begin{document}
+
+% \questionsfalse
+% \answersfalse
+
+\title{Stochastic Optimisation - Problem Sheet 2}
+\author{Dom Hutchinson}
+\date{\today}
+\maketitle
+
+
+\begin{question}{3.}
+
+\end{question}
+
+\begin{question}{3. (a)}
+  Show that, if arm 2 is played by the above algorithm in round $s+1$ (i.e. $I(s+1)=2$) then one of the following statements must be true.
+  \begin{enumerate}
+    \item $\displaystyle N_2(s)<\frac{2\alpha\ln(s)}{\Delta^2}$
+    \item $\displaystyle\hat\mu_{2,N_2(s)}\geq\mu_2+\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}$
+  \end{enumerate}
+\end{question}
+
+\begin{answer}{3. (a)}
+  \textit{This is a proof by contradiction}.
+  \par Suppose $I(s+1)=2$ but that none of the statements above hold. Then
+  \[\begin{array}{rrclcl}
+    &\hat\mu_{2,N_2(s)}-\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}&<&\mu_2&\quad&\text{by not ii)}\\
+    &&=&\mu_1-\Delta&&\text{by def. of }\Delta\\
+    &&\leq&\mu_1-\sqrt{\frac{2\alpha\ln(s)}{N_2(s)}}&&\text{by not i)}\\
+    \implies&\hat\mu_{2,N_2(s)}+\sqrt{\frac{2\alpha\ln(s)}{N_2(s)}}-\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}&<&\mu_1\\
+    \implies&\hat\mu_{2,N_2(s)}+\left(\sqrt2-\frac1{\sqrt2}\right)\sqrt{\frac{\alpha\ln(s)}{N_2(s)}}&<&\mu_1\\
+    \implies&\hat\mu_{2,N_2(s)}+\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}&<&\mu_1\\
+    \implies&i_2(s)&<&\mu_1
+  \end{array}\]
+  This means $I(s+1)=1$, which is a contradiction. Thus at least one of i) or ii) must be true.$\proved$
+\end{answer}
+
+\begin{question}{3. (b)}
+  Recall that $N_2(t)=\sum_{s=1}^t\identity\{I(S)=2\}$. For an arbitrary positive integer $u$ and any $t\in\nats$ explain why
+  \[ N_2(t)\leq u+\sum_{s=u+1}^t\identity\big\{\{N_2(s-1)\geq u\}\text{ and }\{I(s)=2\}\big\} \]
+\end{question}
+
+\begin{answer}{3. (b)}
+  TODO
+\end{answer}
+
+\begin{question}{3. (c)}
+  Define $u=\left\lceil(2\alpha\ln(t))/\Delta^2\right\rceil$. Using the answers to parts \texttt{(a)} and \texttt{(b)}, and relevant probability inequalities, show that
+  \[ \expect[N_2(t)\leq u+\sum_{s=u+1}^te^{-\alpha\ln(s)}] \]
+  Use this to show that $\expect[N_2(t)]\leq u+\frac1{\alpha-1}$.
+\end{question}
+
+\begin{answer}{3. (c)}
+  We have
+  \[ \expect[N_2(t)]\leq u+\sum_{s=u+1}^te^{-\alpha\ln(s)}] \]
+  Taking expectations of both sides
+  \[\begin{array}{rcl}
+  \expect[N_2(t)]&\leq&u+\sum_{s=u+1}^t\prob\left(\{N_2(s-1)\geq u\}\text{ and }\{I(s)=2\}\right)\\
+  &\leq&u+\sum_{s=u}^{t-1}\prob\left(\{N_2(s)\geq u\}\text{ and }\{I(s+1)=2\}\right)
+  \end{array}\]
+  If $N_2(s)\geq u$ and $I(s+1)=2$ then
+  \[ \hat\mu_{2,N_2(s)}\geq\mu_2+\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\text{ by a)} \]
+  Thus
+  \[ \expect(N_2(t))\leq u+\sum_{s=u}^{t-1}\prob\left(\hat\mu_{2,N_2(s)}\geq\mu_2+\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\right)\quad(1) \]
+  Let $X_1,\dots,X_{N_2}$ be the random variables for each time arm 2 was played. Consider
+  \[\begin{array}{rrclcl}
+  &\prob\left(\hat\mu_{2,N_2(s)}\geq\mu_2+\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\right)&=&\prob\left(\frac{1}{N_2}\sum_{i=1}^{N_2}X_i\geq\mu_2+\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\right)&\quad&\\
+  &&=&\prob\left(\sum_{i=1}^{N_2}(X_i-\mu_2)\geq N_2\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\right)\\
+  &&\leq&\text{exp}\left(-2\cdot N_2\cdot\frac{\alpha\ln(s)}{2N_2(s)}\right)&&\text{by Hoeffding's Ineq.}\\
+  &&=&\text{exp}(-\alpha\ln(s))\\
+  \implies&\expect[N_2(t)]&\leq&u+\sum_{s=u+1}^te^{-\alpha\ln(s)}&&\text{by (1)}
+  \end{array}\]
+  Further
+  \[\begin{array}{rcl}
+    \expect[N_2(t)]&\leq&u+\sum_{s=u+1}^te^{-\alpha\ln(s)}\\
+    &=&u+\sum_{s=u+1}^ts^{-\alpha}\\
+    &\leq&u+\int_u^\infty s^{-\alpha}ds\quad\text{since }\alpha>1\\
+    &=&u+\left[\frac{s^{-\alpha+1}}{-\alpha+1}\right]_u^\infty\\
+    &=&u-\frac{u^{-\alpha+1}}{-\alpha+1}\\
+    &=&u+\frac{u^{-\alpha+1}}{\alpha+1}
+  \end{array}\]
+  By the definition of $u$, $u>1$ thus $u^{-\alpha+1}<1$ since $\alpha>1$. Giving us
+  \[ \expect[N_2(t)]\leq u+\frac1{\alpha-1} \]
+\end{answer}
+
+\begin{question}{3. (d)}
+  Use the answer to \texttt{(c)} to show that the regret of this algorithm is bounded above as
+  \[ \mathcal{R}(T)\leq\frac{2\alpha\ln(T)}\Delta+\frac{\alpha}{\alpha-1}\Delta \]
+\end{question}
+
+\begin{answer}{3. (d)}
+  \[\begin{array}{rrlcl}
+  \mathcal{R}(T)&:=&\Delta\expect[N_2(t)]&\quad&\\
+  &\leq&\Delta\left(u+\frac1{\alpha-1}\right)&&\text{by 3. (c)}\\
+  &\leq&\Delta\left(\frac{2\alpha\ln(T)}{\Delta^2}+1+\frac1{\alpha-1}\right)&&\text{by def. of }u\\
+  &=&\frac{2\alpha\ln(T)}{\Delta}+\Delta\left(1+\frac1{\alpha-1}\right)\\
+  &=&\frac{2\alpha\ln(T)}{\Delta}+\frac{\Delta\alpha}{\alpha-1}\\
+  \end{array}\]
+\end{answer}
+
+
+\end{document}

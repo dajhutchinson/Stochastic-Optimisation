@@ -232,12 +232,13 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 
 \begin{proof}{Theorem 1.3}
   \textit{This is a proof by contradiction}.\\
-  Suppose none of the three inequalities holds. Then
+  Suppose $I(s+1)=j\neq1$ but that none of the three inequalities holds. Then
   \[\begin{array}{rcll}
-    \underbrace{\hat\mu_{1,N_1(s)}+\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}}_{\tiny\text{UCB($\alpha$) index 1}}&>&\mu_1&\text{contradiction to i)}\\
+    \underbrace{\hat\mu_{1,N_1(s)}+\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}}_{\tiny\text{UCB($\alpha$) index 1}}&>&\mu_1&\text{by not i)}\\
     &=&\mu_j+\Delta_j&\text{by def. of $\Delta_j$}\\
-    &\geq&\mu_j+\displaystyle\sqrt{\frac{2\alpha\ln(s)}{N_j(s)}}&\text{by iii)}\\
-    &\geq&\hat\mu_{1,N_1(s)}-\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}+\sqrt{\frac{2\alpha\ln(s)}{N_j(s)}}&\text{by ii)}\\
+    &\geq&\mu_j+\displaystyle\sqrt{\frac{2\alpha\ln(s)}{N_j(s)}}&\text{by not iii)}\\
+    &\geq&\hat\mu_{1,N_1(s)}-\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}+\sqrt{\frac{2\alpha\ln(s)}{N_j(s)}}&\text{by not ii)}\\
+    &\geq&\hat\mu_{1,N_1(s)}+\left(\sqrt2-\frac1{\sqrt2}\right)\sqrt{\dfrac{\alpha\ln(s)}{N_1(s)}}\\
     &=&\underbrace{\hat\mu_{j,N_j(s)}+\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}}__{\tiny\text{UCB($\alpha$) index j}}
   \end{array}\]
   But, this implies that the \textit{UCB($\alpha$)} index of arm 1 at the end of round $s$ is greater than that of arm $j$. Hence arm $j$ would not be played in time slot $s+1$.\proved
@@ -287,7 +288,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   By \texttt{Theorem 1.5}
   \[\begin{array}{rcl}
   \expect[N_j(t)]&\leq&\displaystyle u+\sum_{s=u}^{t-1}2s^{-\alpha}\\
-  &\leq&u+\displaystyle\int_{u-1}^\alpha2s^{-\alpha}ds\quad\text{assumption $\alpha>1$ required here}\\
+  &\leq&u+\displaystyle\int_{u-1}^\infty2s^{-\alpha}ds\quad\text{assumption $\alpha>1$ required here}\\
   &=&u+\displaystyle\frac{2(u-1)^{-(\alpha-1)}}{\alpha-1}\\
   &\leq&\displaystyle u+\frac{2}{\alpha-1}\quad\text{since }u\geq2\implies (u-1)^{-(\alpha-1)}\leq 1
   \end{array}\]

@@ -49,18 +49,28 @@
 \end{question}
 
 \begin{answer}{3. (b)}
-  TODO
+  Fix $t,u\in\nats$. We have two possibilities
+  \begin{itemize}
+    \item[\textit{Case 1}] $N_2(t)\leq u$ (i.e. Arm two has not been played $u$ times yet). The result trivially holds in this case.
+    \item[\textit{Case 2}] $\exists\ s\in[1,t]$ such that $N(s)>u$ (i.e. Arm two has been played at least $u$ times).\\ Let $s^*$ denote the smallest such $s$. Then it must be true that $N(s^*-1)=u$ and $s^*\geq u+1$. Hence
+    \[\begin{array}{rclcl}
+      N(t)&=&\sum_{s=1}^{s^*-1}I(s)+\sum_{s=s^*}^tI(s)&\quad&\\
+      &=&N(s^*-1)+\sum_{s=s^*}^tI(s)\underbrace{\identity\{N(s-1)\geq u\}}_\text{true for all in sum}\\
+      &\leq&u+\sum_{s=u+1}^t\identity\{N(s-1)\geq u\}&&\text{ since }s^*\geq u+1
+    \end{array}\]
+  \end{itemize}
+  Thus the result holds in all cases.$\hfill\proved$
 \end{answer}
 
 \begin{question}{3. (c)}
   Define $u=\left\lceil(2\alpha\ln(t))/\Delta^2\right\rceil$. Using the answers to parts \texttt{(a)} and \texttt{(b)}, and relevant probability inequalities, show that
-  \[ \expect[N_2(t)\leq u+\sum_{s=u+1}^te^{-\alpha\ln(s)}] \]
+  \[ \expect[N_2(t)\leq u+\sum_{s=u+1}^te^{-\alpha\ln(s)} \]
   Use this to show that $\expect[N_2(t)]\leq u+\frac1{\alpha-1}$.
 \end{question}
 
 \begin{answer}{3. (c)}
   We have
-  \[ \expect[N_2(t)]\leq u+\sum_{s=u+1}^te^{-\alpha\ln(s)}] \]
+  \[ \expect[N_2(t)]\leq u+\sum_{s=u+1}^te^{-\alpha\ln(s)} \]
   Taking expectations of both sides
   \[\begin{array}{rcl}
   \expect[N_2(t)]&\leq&u+\sum_{s=u+1}^t\prob\left(\{N_2(s-1)\geq u\}\text{ and }\{I(s)=2\}\right)\\

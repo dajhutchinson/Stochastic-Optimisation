@@ -240,10 +240,9 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     &\geq&\mu_j+\displaystyle\sqrt{\frac{2\alpha\ln(s)}{N_j(s)}}&\text{by not iii)}\\
     &\geq&\hat\mu_{1,N_1(s)}-\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}+\sqrt{\frac{2\alpha\ln(s)}{N_j(s)}}&\text{by not ii)}\\
     &\geq&\hat\mu_{1,N_1(s)}+\left(\sqrt2-\frac1{\sqrt2}\right)\sqrt{\dfrac{\alpha\ln(s)}{N_1(s)}}\\
-    &=&\underbrace{\hat\mu_{j,N_j(s)}+\displaystyle\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}}__{\tiny\text{UCB($\alpha$) index j}}
+    &=&\displaystyle\underbrace{\hat\mu_{j,N_j(s)}+\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}}_{\tiny\text{UCB($\alpha$) index j}}
   \end{array}\]
   But, this implies that the \textit{UCB($\alpha$)} index of arm 1 at the end of round $s$ is greater than that of arm $j$. Hence arm $j$ would not be played in time slot $s+1$.\proved
-
 \end{proof}
 
 \begin{theorem}{Counting Lemma}
@@ -317,7 +316,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   By \texttt{Theorem 1.3} and the definition of $u$, \textit{IF} $I(s+1)=j$\textit{ and }$N_j(s)\geq u$\textit{ then}
   \[ \hat\mu_{1,N_1(s)}\leq u_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\quad\text{or}\quad\hat\mu_{j,N_j(s)}>\mu_j+\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}} \]
   Thus
-  \[ \expect[N_j(t)]\leq u_{t,j}+\sum_{s=u_{t,j}}^{t-1}\left[\underbrace{\prob\left(\hat\mu_{1,N_1(s)}\leq\mu_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\right)}_{\tiny\text{$\hat\mu_1$ is unusually small}}+\underbrace{\prob\left(\hat\mu_{j,N_j(s)}>\mu_j-\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}\right)}__{\tiny\text{$\hat\mu_j$ is unusually large}}\right] \]
+  \[ \expect[N_j(t)]\leq u_{t,j}+\sum_{s=u_{t,j}}^{t-1}\left[\underbrace{\prob\left(\hat\mu_{1,N_1(s)}\leq\mu_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\right)}_{\tiny\text{$\hat\mu_1$ is unusually small}}+\underbrace{\prob\left(\hat\mu_{j,N_j(s)}>\mu_j-\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}\right)}_{\tiny\text{$\hat\mu_j$ is unusually large}}\right] \]
   By \texttt{Theorem 1.5}
   \[\begin{array}{rcl}
   \expect[N_j(t)]&\leq&\displaystyle u+\sum_{s=u}^{t-1}2s^{-\alpha}\\
@@ -345,28 +344,71 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \textit{Thompson Sampling} is a \textit{Bayesian} algorithm for the multi-armed bandit problem. It was one of the first algorithms for solving the problem, but remains on of the best as it is asymptotically optimal.
 \end{remark}
 
-\begin{proposition}{Thompson Sampling}
-  Consider a $K$-armed bandit with independent Bernoulli arms with parameters $\mu_1,\dots,\mu_K$. \textit{Thompson Sampling} follows the following process.
-  \begin{enumerate}
-    \item Define a prior distribution for the parameters.
-    \item Sample from each prior, to get a sample $(\hat\mu_1,\dots,\hat\mu_K)$.
-    \item Play the arm with the greatest sample value and compute a posterior distribution for that parameter, based on the observed reward.
-    \item Keep repeating ii)-iii) using the posterior distributions calculated from previous rounds.
-  \end{enumerate}
-\end{proposition}
-
 \begin{theorem}{Relationship between Beta \& Gamma Distribution}
   Let $X\sim\text{Gamma}(\alpha,\lambda)$ and $Y\sim\text{Gamma}(\beta,\lambda)$ (ie shared scale parameter but different shape parameters). Then
   \[ V:=\frac{X}{X+Y}\sim\text{Beta}(\alpha,\beta) \]
 \end{theorem}
 
 \begin{proof}{Theorem 1.7}
-
+  \everymath={\displaystyle}
+  Consider the map $(X,Y)\mapsto\frac{X}{X+Y}$. This maps $\reals^2\to\reals$ (reduces dimensions) and thus we cannot directly use the formula to compute the density of $V$.
+  \par We introduce an auxiliary random variable $W=X$ . Now $(V,W)=g(X,Y)=\left(\frac{X}{X+Y},X\right)$. Note that $X$ and $Y$ are non-negative random variables. Hence, $V\in[0,1]$ and $W\in\reals^+$.
+  \par For $(v,w)\in[0,1]\times\reals^+$ we want to find all solutions of $g(x,y)=(v,w)$. Clearly $(x,y)=\left(w,w\frac{1-v}v\right)$ in a unique solution. The joint density of $(V,W)$ is given by the formula
+  \[ f_{V,W}(v,w)=\sum_{(x,y):g(x,y)=(v,w)}\frac{f_{X,Y}(x,y)}{|\text{det}(J_g(x,y))|}\quad(1) \]
+  Using the density function for \textit{Gamma} random variables and the independence of $X$ and $Y$
+  \[ f_{X,Y}(x,y)=\frac1{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}y^{\beta-1}e^{-x-y} \]
+  Next, we compute the \textit{Jacobian} of $g$ and its determinant
+  \[ J_g(x,y)=\begin{pmatrix}\frac{y}{(x+y)^2}&\frac{-x}{(x+y)^2}\\1&0\end{pmatrix}\quad\implies\quad |\text{det}(J_g(x,y))|=\frac{x}{(x+y)^2} \]
+  Substituting the definition of $f_{X,Y}$, the results of the \textit{Jacobian} and the solution $(x,y)=\left(w,w\frac{1-v}v\right)$ into $(1)$ we get
+  \[ f_{V,W}(v,w)=\frac1{\Gamma(\alpha)\Gamma(\beta)}\frac{w}{v^2}w^{\alpha-1}\left(w\frac{1-v}v\right)^{\beta-1}e^{-w/v} \]
+  We are only interested in the marginal distribution of $V$
+  \[\begin{array}{rclcl}
+    f_V(v)&=&\int_{w=0}^\infty f_{V,W}(v,w)dw&\quad&\\
+    &=&\frac{(1-v)^{\beta-1}v^{\alpha}-1}{\Gamma(\alpha)\Gamma(\beta)}\int_{w=0}^\infty\left(\frac{w}v\right)^{\alpha+\beta-1}e^{-w/v}\frac{dw}v\\
+    &=&\frac{(1-v)^{\beta-1}v^{\alpha-1}}{\Gamma(\alpha)\Gamma(\beta)}\int_{u=0}^\infty u^{\alpha+\beta-1}e^{-u}du&&\text{where }u:=\frac{w}v\\
+    &=&\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}v^{\alpha-1}(1-v)^{\beta-1}\\
+    &\sim&\text{Beta}(\alpha,\beta)
+  \end{array}\]
+  \hfill\proved
 \end{proof}
 
-\begin{proposition}{Choosing the Prior Distribution for Thompson Sampling}
-
+\begin{proposition}{Thompson Sampling Algorithm}
+  Consider a $K$-armed bandit with independent Bernoulli arms with parameters $\mu_1,\dots,\mu_K$. \textit{Thompson Sampling} follows the following process.
+  \begin{enumerate}
+    \item Define a prior distribution $\text{Beta}(1,1)$ for the parameter of each arm.
+    \item At the start of round $t$, sample $\hat\mu_i(t)$ for $i\in[1,K]$, from the corresponding prior distributions.
+    \item Play the arm with the greatest sample value $I(t)\in\text{argmax}_{i\in[1,K]}\hat\mu_i(t)$ (breaking ties arbitrarily).
+    \item Compute a posterior distribution for that parameter, based on the observed reward. $\text{Beta}(\alpha+1,\beta)$ if a reward is given and $\text{Beta}(\alpha,\beta+1)$ it a reward is \underline{not} given. (The priors for the other arms are the same as their priors as no result was observed).
+    \item Keep repeating ii)-iv) using the posterior distributions calculated in round $t$ as the priors for round $t+1$.
+  \end{enumerate}
+  The endpoint of the algorithm is when time runs out.
 \end{proposition}
+
+\begin{proposition}{Choosing the Prior Distribution for Thompson Sampling}
+  We use \textit{Beta} distributions as the prior for the unknown parameters $\mu_i$ of the \textit{Bernoulli} reward distributions. This choice is convenient because, if the prior has a \textit{Beta} distribution then so does the posterior distribution, after observing the reward (i.e. it is a \textit{Conjugate Prior}).
+\end{proposition}
+
+\begin{remark}{Beta Distributions are conjugate priors for Bernoulli Random Variables}
+
+\end{remark}
+
+\begin{theorem}{Posterior from a Beta Distribution Prior of a Bernoulli Random Variable}
+  Let $X\sim\text{Bernoulli}(\mu)$ and assume a prior distribution $\mu\sim\text{Beta}(\alpha,\beta)$. Then, the posterior distribution of $\mu$ given $X=1$ is $\text{Beta}(\alpha+1,\beta)$ and given $X=0$ is $\text{Beta}(\alpha,\beta+1)$.
+\end{theorem}
+
+\begin{proof}{Theorem 1.8}
+  Let $f_\mu$ denote the density of $\mu$. By out assumption of a $\text{Beta}(\alpha,\beta)$ prior we have
+  \[ f_\mu(p)=\frac{\Gamma(\alpha+\beta)}{\gamma(\alpha)\Gamma(\beta)}p^{\alpha-1}(1-p)^{\beta-1}\quad\text{for }p\in[0,1] \]
+  Also $\prob(X=1|\mu=p)=p=1-\prob(X=0|\mu=p)$.
+  \par Hence, by \textit{Bayes's Theorem}, the posterior density conditional on $X=1$ satisfies
+  \[\begin{array}{rcl}
+  f_\mu(p|X=1)&\propto&f_\mu(p)\prob(X=1|p)\\
+  &\propto&p^\alpha(1-p)^{\beta-1}
+  \end{array}\]
+  Where the constant of proportionality is determined by the fact the density integrates to 1.
+  \par We can recognise this distribution as the pdf of a $\text{Beta}(\alpha+1,\beta)$. Similarly, it can be shown that $f_\mu(\cdot|X=0)$ is the density of a $\text{Beta}(alpha,\beta+1)$ random variable.
+  \hfill\proved
+\end{proof}
 
 \section{Probability}
 

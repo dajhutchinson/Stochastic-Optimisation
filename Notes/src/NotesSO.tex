@@ -339,6 +339,35 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   No. There is no algorithm which has regret growing slower than $\ln(T)$.
 \end{remark}
 
+\subsection{Thompson Sampling}
+
+\begin{remark}{Thompson Sampling}
+  \textit{Thompson Sampling} is a \textit{Bayesian} algorithm for the multi-armed bandit problem. It was one of the first algorithms for solving the problem, but remains on of the best as it is asymptotically optimal.
+\end{remark}
+
+\begin{proposition}{Thompson Sampling}
+  Consider a $K$-armed bandit with independent Bernoulli arms with parameters $\mu_1,\dots,\mu_K$. \textit{Thompson Sampling} follows the following process.
+  \begin{enumerate}
+    \item Define a prior distribution for the parameters.
+    \item Sample from each prior, to get a sample $(\hat\mu_1,\dots,\hat\mu_K)$.
+    \item Play the arm with the greatest sample value and compute a posterior distribution for that parameter, based on the observed reward.
+    \item Keep repeating ii)-iii) using the posterior distributions calculated from previous rounds.
+  \end{enumerate}
+\end{proposition}
+
+\begin{theorem}{Relationship between Beta \& Gamma Distribution}
+  Let $X\sim\text{Gamma}(\alpha,\lambda)$ and $Y\sim\text{Gamma}(\beta,\lambda)$ (ie shared scale parameter but different shape parameters). Then
+  \[ V:=\frac{X}{X+Y}\sim\text{Beta}(\alpha,\beta) \]
+\end{theorem}
+
+\begin{proof}{Theorem 1.7}
+
+\end{proof}
+
+\begin{proposition}{Choosing the Prior Distribution for Thompson Sampling}
+
+\end{proposition}
+
 \section{Probability}
 
 \begin{definition}{Random Process}
@@ -688,6 +717,53 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \end{enumerate}
 \end{proposition}
 
+\subsection{Transformation of Random Varaibles}
+
+\begin{example}{Discrete Case}
+  Consider rolling a fair die where $\Omega:=\{1,2,3,4,5,6\}$ and $\forall\ \omega\in\Omega\quad\prob(\omega)=\frac16$.
+  \par Let $X(\omega)=\omega\ \forall\ \omega\in\Omega$ so the pmf of $X$ is given by
+  \[ p_X(i)=\frac16\ \forall\ i\in\{1,\dots,6\} \]
+  \par Consider $Y:=X^2$. The pmf of $Y$ is straightforward to work out as each value of $X$ maps to a unique value of $Y$
+  \[ P_Y(i)=\frac16\text{ for }\sqrt{i}\in\{1,\dots,6\} \]
+  \par Consider $Z:=(X-2)^2$. This is not quite so simple as multiple values of $X$ map to the same value of $Z$.
+  \[ p_Z(1)=\frac26;\quad p_Z(i)=\frac16\text{ for }i\in\{0,4,9,16\} \]
+\end{example}
+
+\begin{example}{Continuous Case}
+  Let $X\sim\text{Uniform}[0,1]$ and define $Y:=2X$. We have
+  \[ f_X(x)=\begin{cases}1&x\in[0,1]\\0&\text{otherwise}\end{cases}\quad F_X(x)=\begin{cases}0&x<0\\x&x\in[0,1]\\1&x>1\end{cases} \]
+  Now consider $Y$ the cdf is
+  \[ F_Y(y):=\prob(Y\leq y)=\prob(2X\leq y)=\prob\left(X\leq\frac{y}2\right)=F_X\left(\frac{y}2\right) \]
+  We then obtain the pdf for $Y$ by differentiation and the chain rule.
+  \[f_Y(y)=F_Y'(y)=\underbrace{\frac12F_X'\left(\frac{y}2\right)}_\text{chain rule}=\frac12f_X\left(\frac{y}2\right)=\begin{cases}\frac12&\frac{y}2\in[0,1]\\0&\text{otherwise}\end{cases}  \]
+\end{example}
+
+\begin{proposition}{Increasing Functions}
+  Let $X$ be a random variable and $Y:=g(X)$ where $g:\reals\to\reals$ is a strictly increasing function. Then, $g$ is invertible on its range (denoted $g^{-1}$). Thus the cdfs for $X$ and $Y$ are related as
+  \[ F_Y(y)=\underbrace{\prob(g(X)\leq y)=\prob(X\leq g^{-1}(y))}_\text{as $g$ is increasing}=F_X(g^{-1}(y)) \]
+  Differentiating this gives us the pdfs
+  \[ f_Y(y)=f_X\left(g^{-1}(y)\right)\frac{dg^{-1}(y)}{dy}=\frac{f_X(x)}{g'(x)}\bigg|_{x=g^{-1}(y)} \]
+  The probability mass of $X$ in the interval $(x,x+dx)$ gets mapped to the interval $\big(g(x),g(x+dx)\big)$. By \textit{Taylor Expansion} of $g$ we get $g(x+dx)\simeq g(x)+g'(x)dx$
+\end{proposition}
+
+\begin{proposition}{General Mappings - Single Random Variable}
+  % NOTE is this only true for discrete case?
+  Let $X$ be a (discrete) random variable and define $Y:=g(x)$ for any $g:\reals\to\reals$ which is differentiable.
+  \par There is a contribution $\frac{f_X(x)}{|g'(x)|}$ from each $x$ such that $g(x)=y$. Where $g'(x)$ is positive or negative does not matter, as it only determines where the pre-image of $(y,y+dy)$ is of the form $(x,x+dx)$ or $(x-dx,x)$. Only the relative widths of the intervals matters for the contribution.
+  \par By summing the contributions from all solutions of $g(x)=y$ we get
+  \[ p_Y(y)=\sum_{x:g(x)=y}\frac{f_X(x)}{|g'(x)|} \]
+  This formula is valid so long as the set $\{x:g(x)=y\}$ is countable. If it is not countable, then $Y$ is a continuous RV (or is a mixed random variable)
+\end{proposition}
+
+\begin{proposition}{General Mappings - Random Vectors}
+  Consider the random vector $\X:=(X_1,\dots,X_d)$ with joint density $f_\X$ and define $\mathbf{Y}:=g(\X)$ for any differentiable $g:\reals^d\to\reals^d$.
+  \par Let $J_g(\x)$ denote the \textit{Jacobian} of $g$ at $\x$. Then
+  \[ f_\mathbf{Y}(\mathbf{y})=\sum_{\x\in\reals^d:g(\x)=\mathbf{y}}\frac{f_\X(\x)}{|\text{det}(J_g(\x))} \]
+  Let $\x$ solve $g(\x)=\mathbf{y}$. In a neighbourhood of $\x$, $g$ is approximately a linear function. By \textit{Taylor Expansion}
+  \[ g(\x')\simeq f(\x)+J_g(\x)(\x'-\x)=\mathbf{y}+J_g(\x)(\x'-\x) \]
+  for $\x'$ in a small enough neighbourhood of $\x$.
+\end{proposition}
+
 \newpage
 \setcounter{section}{-1}
 \section{Reference}
@@ -731,6 +807,16 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   For two distributions $\text{Bern}(p)$ and $\text{Bern}(q)$
   \[ K(q;p)\geq2(q-p)^2 \]
 \end{theorem}
+
+\begin{definition}{Jacobian Matrix}
+  The \textit{Jacobian Matrix} is the first-order partial-derivatives of a multidimensional function $\mathbf{f}:\reals^n\to\reals^m$ wrt each parameter.
+  \[ J_f:=\begin{pmatrix}
+    \frac{\partial f_1}{\partial x_1}&\frac{\partial f_1}{\partial x_2}&\dots&\frac{\partial f_1}{\partial x_n}\\
+    \frac{\partial f_2}{\partial x_1}&\frac{\partial f_2}{\partial x_2}&\dots&\frac{\partial f_2}{\partial x_n}\\
+    \vdots&\vdots&\ddots&\vdots\\
+    \frac{\partial f_m}{\partial x_1}&\frac{\partial f_m}{\partial x_2}&\dots&\frac{\partial f_m}{\partial x_n}
+  \end{pmatrix}\]
+\end{definition}
 
 \subsection{Notation}
 \begin{tabular}{|c|l|}

@@ -399,6 +399,10 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   We can see that the node and edge-based models are equivalent by think of the processes $N_{vw}$ as being obtained by Bernoulli splittings of the node poisson processes $N_v$, each with probability $\frac1n$.
 \end{proposition}
 
+\begin{remark}{Discrete Time Formulation}
+  In the discrete time formulation it is possible for more than one node to learn a rumour at any one time.
+\end{remark}
+
 \begin{proposition}{Analysis of Rumour Spreading}
   Define quantity $T_k:=\inf{t\geq0:\text{at least }k\text{nodes know the rumour by time}t}$ (the earliest time at which $k$ nodes know the rumour). Then $T_1=0$ be definition of the problem. We are generally interested in $T_n$ (time taken for all nodes to learn the rumour).
 \end{proposition}
@@ -407,6 +411,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   Consider $T_{k+1}-T_k$.
   \par At time $T_k$, there are $k$ nodes which know the rumour and $n-k$ nodes do not. We are only interest in edges from informed nodes to uniformed nodes, as these ones will increase the number of nodes which know the rumour when they fire. There are $k(n-k)$ such nodes. Communications on each edge form a poisson process of rate $\frac1n$ and they are mutually independent, so their superposition is a poisson process of rate $\frac{k(n-k)}n$. Thus
   \[ (T_{k+1}-T_k)\sim\text{Exp}\left(\frac{k(n-k)}n\right) \]
+  This relies on the memoryless property of the exponential distribution.
 \end{proposition}
 
 \begin{proposition}{Mean Rumour Spreading Time, $\expect[T_n]$}
@@ -420,8 +425,60 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     &&=&2\sum_{k=1}^{n-1}\frac1k\\
     &&\sim&2\ln(n)&\text{as }n\to\infty
   \end{array}\]
-  So the expected rumour spread time grows with $\ln(n)$ (ie slowly).
+  So the expected rumour spread time grows with $\ln(n)$ (ie slowly). Rumours spread quickly.
 \end{proposition}
+
+\begin{proposition}{Variance of Rumour Spreading Time}
+  \everymath={\displaystyle}
+  The variance of an $\text{Exp}(\lambda)$ rv is $1/\lambda^2$. Hence
+  \[ \var(T_{k+1}-T_k)=\left(\frac1k+\frac1{n-k}\right)^2 \]
+  Since the random variables $(T_{k+1}-T_k)$ are mutually independent
+  \[\begin{array}{rcl}
+    \var(T_n)&=&\sum_{k=1}^n\left[\left(\frac1k+\frac1{n-k}\right)^2\right]\\
+    &=&\sum_{k=1}^n\left[\frac1{k^2}+\frac{1}{(n-k)^2}+\underbrace{\frac2n\left(\frac1k+\frac1{n-k}\right)}_{=2\frac{1}{k(n-k)}}\right]\\
+    &=&\frac{\pi^2}3+O\left(\frac{ln(n)}n\right)
+  \end{array}\]
+  The $O(\cdot)$ term disappears as $n\to\infty$
+\end{proposition}
+
+\begin{proposition}{Asymptotic Behaviour of Rumour Spreading Time}
+  We have that
+  \[\begin{array}{rcl}
+    \expect\left[\dfrac{T_n}{2\ln(n)}\right]&\underset{n\to\infty}\longrightarrow&1\\
+    \var\left(\dfrac{T_n}{2\ln(n)}\right)&\underset{n\to\infty}\longrightarrow&0
+  \end{array}\]
+  By \textit{Chebyshev's Inequality} we get that $\forall\ \varepsilon>0$ and large enough $n$ that
+  \everymath={\displaystyle}
+  \[\begin{array}{rcl}
+    \prob\left(\left|\frac{T_n}{2\ln(n)}-1\right|>\varepsilon\right)&\leq&\prob\left(\left|\frac{T_n}{2\ln(n)}-\expect\left[\frac{T_n}{2\ln(n)}\right]\right|>\frac\varepsilon2\right)\\
+    &\leq&\frac{\varepsilon^2}4\var\left(\frac{T_n}{2\ln(n)}\right)\\
+    &\underset{n\to\infty}\longrightarrow&0\text{for any fixed }\varepsilon>0
+  \end{array}\]
+  This result shows that $\frac{T_n}{2\ln(n)}\to_\prob1$ (converges in probability to 1).
+\end{proposition}
+
+\begin{definition}{First Passage Percolation on $K_n$}
+  \textit{First Passage Percolation} is another problem. Let $K_n$ be the complete graph with $n$ nodes and model the weight $W(u,v)$ of each edge with iid rv $\text{Exp}(1)$.
+  \par For a fixed node $u$, \textit{First Passage Percolation} tasks us with finding the shortest (minimum weight) path from $u$ to all over nodes
+  \[ D(u,v)=\min_{u=v_1,\dots,v_k=v}\sum_{i=1}^{k-1}W(v_i,v_{i+1}) \]
+  We are interest in the random variable $D_u:=\max_{v\in V}D(u,v)$ (the greatest cost to a node, using the cheapest path to that node).
+\end{definition}
+
+\begin{remark}{First Passage Percolation \& Rumour Spreading are Equivalent}
+  The random variables $T_n$ (in rumour spreading) and $D_u$ (in first passage percolation) have the same distribution, up to a scale factor. Moreover, $T_n$ is equal in distribution to $nD_u$.
+\end{remark}
+
+\subsection{Rumour Spreading on General Graphs}
+
+\begin{definition}{Model for Rumour Spreading on General Graphs}
+  Let $G=(V,E)$ be an arbitrary directed graph with $|V|=n$.
+  \begin{itemize}
+    \item Initially, a single node knows the rumour.
+    \item There are independent poisson processes on each edge of the graph The intensity of the poisson process $N_{vw}(\cdot)$ on edge $(v,w)$ is denoted $\lambda_{vw}$ and $\Lambda:=\{\lambda_{v,w}\}_{u,w\in V}$
+    \item Node $v$ communicates the rumour to node $w$ at the points of the Poisson process $N_{v,w}(\cdot)$ increments, \underline{if} $v$ already knows the rumour at these points.
+  \end{itemize}
+  What can we say about the time $T_n$ until all nodes know the rumour?
+\end{definition}
 
 \section{Probability}
 

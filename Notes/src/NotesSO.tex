@@ -352,15 +352,18 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 \begin{proof}{Theorem 1.7}
   \everymath={\displaystyle}
   Consider the map $(X,Y)\mapsto\frac{X}{X+Y}$. This maps $\reals^2\to\reals$ (reduces dimensions) and thus we cannot directly use the formula to compute the density of $V$.
-  \par We introduce an auxiliary random variable $W=X$ . Now $(V,W)=g(X,Y)=\left(\frac{X}{X+Y},X\right)$. Note that $X$ and $Y$ are non-negative random variables. Hence, $V\in[0,1]$ and $W\in\reals^+$.
+  \par We introduce an auxiliary random variable $W=X$ . Now $(X,Y)\mapsto(V,W):=g(X,Y)=\left(\frac{X}{X+Y},X\right)$. Note that $X$ and $Y$ are non-negative random variables. Hence, $V\in[0,1]$ and $W\in\reals^+$.
   \par For $(v,w)\in[0,1]\times\reals^+$ we want to find all solutions of $g(x,y)=(v,w)$. Clearly $(x,y)=\left(w,w\frac{1-v}v\right)$ in a unique solution. The joint density of $(V,W)$ is given by the formula
   \[ f_{V,W}(v,w)=\sum_{(x,y):g(x,y)=(v,w)}\frac{f_{X,Y}(x,y)}{|\text{det}(J_g(x,y))|}\quad(1) \]
   Using the density function for \textit{Gamma} random variables and the independence of $X$ and $Y$
   \[ f_{X,Y}(x,y)=\frac1{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}y^{\beta-1}e^{-x-y} \]
   Next, we compute the \textit{Jacobian} of $g$ and its determinant
-  \[ J_g(x,y)=\begin{pmatrix}\frac{y}{(x+y)^2}&\frac{-x}{(x+y)^2}\\1&0\end{pmatrix}\quad\implies\quad |\text{det}(J_g(x,y))|=\frac{x}{(x+y)^2} \]
+  \[ J_g(x,y)=\begin{pmatrix}\frac{y}{(x+y)^2}&\frac{-x}{(x+y)^2}\\1&0\end{pmatrix}\quad\implies\quad |\text{det}(J_g(x,y))|=\frac{x}{(x+y)^2}=\frac{v^2}w \]
   Substituting the definition of $f_{X,Y}$, the results of the \textit{Jacobian} and the solution $(x,y)=\left(w,w\frac{1-v}v\right)$ into $(1)$ we get
-  \[ f_{V,W}(v,w)=\frac1{\Gamma(\alpha)\Gamma(\beta)}\frac{w}{v^2}w^{\alpha-1}\left(w\frac{1-v}v\right)^{\beta-1}e^{-w/v} \]
+  \[\begin{array}{rcl}
+    f_{V,W}(v,w)&=&\frac{1}{v^2/w}\frac1{\Gamma(\alpha)\Gamma(\beta)}w^{\alpha-1}e^{-w}\left(\frac{w(1-v)}{v}\right)^{\beta-1}e^{-w(1-v)/v}\\
+    &=&\frac1{\Gamma(\alpha)\Gamma(\beta)}\frac{w}{v^2}w^{\alpha-1}\left(w\frac{1-v}v\right)^{\beta-1}e^{-w/v}
+  \end{array}\]
   We are only interested in the marginal distribution of $V$
   \[\begin{array}{rclcl}
     f_V(v)&=&\int_{w=0}^\infty f_{V,W}(v,w)dw&\quad&\\
@@ -371,6 +374,10 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \end{array}\]
   \hfill\proved
 \end{proof}
+
+\begin{remark}{$\text{Beta}(1,1)$ is equivalent to $\text{Uniform}[0,1]$}
+
+\end{remark}
 
 \begin{proposition}{Thompson Sampling Algorithm}
   Consider a $K$-armed bandit with independent Bernoulli arms with parameters $\mu_1,\dots,\mu_K$. \textit{Thompson Sampling} follows the following process.
@@ -389,7 +396,10 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 \end{proposition}
 
 \begin{remark}{Beta Distributions are conjugate priors for Bernoulli Random Variables}
+\end{remark}
 
+\begin{remark}{Thompson Sampling on other Reward Distributions}
+  \textit{Thompson Sampling} can be extended to non-bernoulli reward distributions. However, the ease of implementation depends on how easy it is to sample from the posterior distribution. \textit{Conjugate priors} should be used to make this easier. Bounds on the regret are not known in all cases.
 \end{remark}
 
 \begin{theorem}{Posterior from a Beta Distribution Prior of a Bernoulli Random Variable}
@@ -407,6 +417,65 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \end{array}\]
   Where the constant of proportionality is determined by the fact the density integrates to 1.
   \par We can recognise this distribution as the pdf of a $\text{Beta}(\alpha+1,\beta)$. Similarly, it can be shown that $f_\mu(\cdot|X=0)$ is the density of a $\text{Beta}(alpha,\beta+1)$ random variable.
+  \hfill\proved
+\end{proof}
+
+\begin{theorem}{}
+  Let $X\sim\text{Beta}(\alpha,\beta)$ for $\alpha,\beta\in\nats$ and $Y\sim\text{Bin}(\alpha+\beta-1,p)$ for $p\in(0,1)$. Then
+  \[ \prob(X>p)=\prob(Y\leq\alpha-1) \]
+\end{theorem}
+
+\begin{proof}{Theorem 1.9}
+  Consider this result. Let $\{N_t\}_{t\geq0}$ be a poisson process with intensity $\lambda>0$ and $n,t\in\nats$.Then, conditional on the event $N_t=n$, the unordered increment times on $[0,t]$ are mutually independent and uniformly distributed on $[0.t]$.
+  \par Let $X\sim\text{Beta}(\alpha,\beta)$ then we can write $X=\frac{V}{V+W}$ where $V\sim\text{Gamma}(\alpha,\ganna),\ W\sim\text{Gamma}(\beta,\gamma)$. If $\alpha,\beta$ are integered values then we can interpret $V$ as the time of the $\alpha^{th}$ increment of a unit rate Poisson process and $(V+W)$ as the time of the $(\alpha+\beta)^{th}$ increment.
+  \par Consequently, conditional on $(V+W)=\tau$, the poisson process $N_t$ has exactly $\alpha+\beta-1$ increments in the interval $[0,\tau)$. By the fact result above, the unordered times of these increments are iid uniformly distributed on $[0,\tau)$.
+  \par The event $\{X>p\}$ is the same as the event $\{V>p\tau\}$, conditional on $(V+W)=\tau$. This means that at most $\alpha=1$ increments occur in $[0,p\tau]$. As the increments are IID uniform in $[0,\tau)$ and there are $\alpha+\beta-1$ in total, the number of increments in $[0,p\tau]$  has a $\text{Bin}(\alpha+\beta-1,p)$ distribution.
+  \par THus the events $\{X>p\},\ \{V>p\tau|V+W=\tau\}$ and $\{Y\leq\alpha-1\}$ all have the same probability.\hfill\proved
+\end{proof}
+
+\subsubsection{Analysis}
+
+\begin{theorem}{Bound on Regret}
+  The regret of \textit{Thompson Sampling} applied to a multi-armed bandit with two \textit{Bernoulli} arms is bounded as
+  \[ \mathcal{R}(T)\leq\frac{40\ln(T)}\Delta+c \]
+  where $\Delta$ is the arm gap and $c$ is some arbitrary constant which depends on $\Delta$ (but, importantly, not $T$).
+  \par The proof to this is not given in full, but some useful lemmas are shown.
+\end{theorem}
+
+\begin{remark}{Posterior Distribution over Time}
+  As the number of times each arm is played increases, its posterior distribution concentrates increasingly sharply around the true parameter value.
+\end{remark}
+
+\begin{proposition}{Number of times wrong arm is played}
+  In the analysis of a multi-armed bandit with two \textit{Bernoulli arms} we assume that the second arm (with parameter $\mu_2$) is the worse of the two arms. Thus to bound regret it suffices to bound the number of times the second arm is played.
+  \par Fix a time horizon $T$ and define $L=\left\lceil\frac{24\ln(T)}{\Delta^2}\right\rceil,\ \tau=\inf\{t\in[0,T]:N_2(t)\geq L\}$. Then, for $\tau\leq t\leq T$
+  \[ \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\leq\frac2{T^3} \]
+  Where $\theta_2(t)$ is the value sampled from the prior of arm 2 at time $t$.
+\end{proposition}
+
+\begin{proof}{Proposition 1.9}
+  By the definition of $\tau$ if $t\geq\tau$ then $N_2(t)\geq L$. Thus
+  \everymath={\displaystyle}
+  \[\begin{array}{rlll}
+  &\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\\
+  =&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)+\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)\\
+  \leq&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\big|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)+\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)&(1)\\
+  \end{array}\]
+  We now bound these two terms.
+  \par Firstly, conditional on the number of times the second arm is player $N_2(T)$, the total reward from these plays $S_2(t)$ is the sum of $N_2(t)$ independent $\text{Bern}(\mu_2)$ random variables. Hence, using \textit{Hoeffding's Inequality} we have
+  \[ \prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\big|N_2(t)\right)\leq\exp\left(-2N_2(t)\frac{\Delta^2}{16}\right) \]
+  As we have assumed that $N_2(t)\geq L\geq\frac1{\Delta^2}(24\ln(T))$ we can conclude that
+  \[ \prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\big\right)\leq\exp\left(-3\ln(T))=\frac1{T^3}\quad(2) \]
+  Next, we note that conditional on $S_2(t)$ and $N_2(t)$, the distribution of $\theta_2(t)$ is $\text{Beta}(S_2(t)+1,N_2(t)-S_2(t)+1)$. Consequently, by \texttt{Theorem 1.9}, we have that
+  \[ \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2)=\prob\left(\text{Bin}\left(N_2(t)+1,\mu_2+\frac\Delta2)\leq S_2(t)) \]
+  Applying \textit{Hoeffding's inequality} to the RH term, we see that for $N_2(t)\geq L$ we have
+  \[\begin{array}{rcl}
+    \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)&\leq&\exp\left(-2\big(N_2(t)+1\big)\frac{\Delta^2}{16}\right)\\
+    &\leq&\exp\left(-\frac{L\Delta^2}8\right)\\
+    &\leq&\frac1{T^3}&(3)
+  \end{array}\]
+  Substituting $(2)$ and $(3)$ into $(1)$, we can conclude that if $t\geq\tau$ (ie $N_2(t)\geq L$) then
+  \[ \prob(\theta_2(t)\geq\mu_2+\frac\Delta2)\leq2\frac1{T^3} \]
   \hfill\proved
 \end{proof}
 

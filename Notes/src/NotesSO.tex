@@ -264,6 +264,33 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \proved
 \end{proof}
 
+\begin{proof}{Theorem 1.2}
+  Fix $t\in\nats$ adn take $u_{t,j}:=\left\lceil\frac{2\alpha\ln(t)}{\Delta_j^2}\right\rceil$.\\
+  By \texttt{Theorem 1.4} we have that
+  \[ N_j(t)\leq u+\sum_{s=u+1}^t\indexed\{(N_j(s-1)\geq u_{t,j})\ \&\ (I(s)=j)\} \]
+  Both sides involve random variables. Taking expectations we get
+  \[ \expect[N_j(t)]\leq u+\sum_{s=u}^{t-1}\prob\big\{(N_j(s)\geq u_{y,j})\ \&\ (I(s+1)=j)\big\} \]
+  By \texttt{Theorem 1.3} and the definition of $u$, \textit{IF} $I(s+1)=j$\textit{ and }$N_j(s)\geq u$\textit{ then}
+  \[ \hat\mu_{1,N_1(s)}\leq u_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\quad\text{or}\quad\hat\mu_{j,N_j(s)}>\mu_j+\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}} \]
+  Thus
+  \[ \expect[N_j(t)]\leq u_{t,j}+\sum_{s=u_{t,j}}^{t-1}\left[\underbrace{\prob\left(\hat\mu_{1,N_1(s)}\leq\mu_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\right)}_{\tiny\text{$\hat\mu_1$ is unusually small}}+\underbrace{\prob\left(\hat\mu_{j,N_j(s)}>\mu_j-\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}\right)}_{\tiny\text{$\hat\mu_j$ is unusually large}}\right] \]
+  By \texttt{Theorem 1.6}
+  \[\begin{array}{rcl}
+  \expect[N_j(t)]&\leq&\displaystyle u+\sum_{s=u}^{t-1}2s^{-\alpha}\\
+  &\leq&u+\displaystyle\int_{u-1}^\infty2s^{-\alpha}ds\quad\text{assumption $\alpha>1$ required here}\\
+  &=&u+\displaystyle\frac{2(u-1)^{-(\alpha-1)}}{\alpha-1}\\
+  &\leq&\displaystyle u+\frac{2}{\alpha-1}\quad\text{since }u\geq2\implies (u-1)^{-(\alpha-1)}\leq 1
+  \end{array}\]
+  Thus
+  \[ \forall\ j\in[2,K]\quad\expect[N_j(t)]\leq u+\frac2{\alpha-1}\leq\frac{2\alpha\ln(t)}{\Delta^2_j}+1+\frac2{\alpha-1} \]
+  A regret of $\Delta_j:=\mu_1-\mu_j$ is incurred every time arm $j$ is played. Hence the total regret up to time $t$ is bounded by
+  \[\begin{array}{rrl}
+    \mathcal{R}(t)&:=&\displaystyle\sum_{i=2}^K\Delta_i\expect[N_i(t)]\\
+    &\leq&\displaystyle\sum_{i=2}^K\left(\frac{2\alpha\ln(t)}{\Delta_i}+\frac{\alpha+1}{\alpha-1}\Delta_i\right)
+  \end{array}\]
+  \proved
+\end{proof}
+
 \subsubsection{Improvements?}
 
 \begin{remark}{The regret of UCB grows logarithmically with $T$. No other algorithm can do better.}
@@ -305,33 +332,6 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 
 \begin{proof}{Theorem 1.5}
   The proof is immediate from \textit{Hoeffding's Inequality}, which is applicable since the $X_j$ are iid and take values in $\{0,1\}\subseteq[0,1]$.
-\end{proof}
-
-\begin{proof}{Theorem 1.2}
-  Fix $t\in\nats$ adn take $u_{t,j}:=\left\lceil\frac{2\alpha\ln(t)}{\Delta_j^2}\right\rceil$.\\
-  By \texttt{Theorem 1.4} we have that
-  \[ N_j(t)\leq u+\sum_{s=u+1}^t\indexed\{(N_j(s-1)\geq u_{t,j})\ \&\ (I(s)=j)\} \]
-  Both sides involve random variables. Taking expectations we get
-  \[ \expect[N_j(t)]\leq u+\sum_{s=u}^{t-1}\prob\big\{(N_j(s)\geq u_{y,j})\ \&\ (I(s+1)=j)\big\} \]
-  By \texttt{Theorem 1.3} and the definition of $u$, \textit{IF} $I(s+1)=j$\textit{ and }$N_j(s)\geq u$\textit{ then}
-  \[ \hat\mu_{1,N_1(s)}\leq u_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\quad\text{or}\quad\hat\mu_{j,N_j(s)}>\mu_j+\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}} \]
-  Thus
-  \[ \expect[N_j(t)]\leq u_{t,j}+\sum_{s=u_{t,j}}^{t-1}\left[\underbrace{\prob\left(\hat\mu_{1,N_1(s)}\leq\mu_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\right)}_{\tiny\text{$\hat\mu_1$ is unusually small}}+\underbrace{\prob\left(\hat\mu_{j,N_j(s)}>\mu_j-\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}\right)}_{\tiny\text{$\hat\mu_j$ is unusually large}}\right] \]
-  By \texttt{Theorem 1.5}
-  \[\begin{array}{rcl}
-  \expect[N_j(t)]&\leq&\displaystyle u+\sum_{s=u}^{t-1}2s^{-\alpha}\\
-  &\leq&u+\displaystyle\int_{u-1}^\infty2s^{-\alpha}ds\quad\text{assumption $\alpha>1$ required here}\\
-  &=&u+\displaystyle\frac{2(u-1)^{-(\alpha-1)}}{\alpha-1}\\
-  &\leq&\displaystyle u+\frac{2}{\alpha-1}\quad\text{since }u\geq2\implies (u-1)^{-(\alpha-1)}\leq 1
-  \end{array}\]
-  Thus
-  \[ \forall\ j\in[2,K]\quad\expect[N_j(t)]\leq u+\frac2{\alpha-1}\leq\frac{2\alpha\ln(t)}{\Delta^2_j}+1+\frac2{\alpha-1} \]
-  A regret of $\Delta_j:=\mu_1-\mu_j$ is incurred every time arm $j$ is played. Hence the total regret up to time $t$ is bounded by
-  \[\begin{array}{rrl}
-    \mathcal{R}(t)&:=&\displaystyle\sum_{i=2}^K\Delta_i\expect[N_i(t)]\\
-    &\leq&\displaystyle\sum_{i=2}^K\left(\frac{2\alpha\ln(t)}{\Delta_i}+\frac{\alpha+1}{\alpha-1}\Delta_i\right)
-  \end{array}\]
-  \proved
 \end{proof}
 
 \begin{remark}{Is there an algorithm which achieves lower regret?}
@@ -416,7 +416,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   &\propto&p^\alpha(1-p)^{\beta-1}
   \end{array}\]
   Where the constant of proportionality is determined by the fact the density integrates to 1.
-  \par We can recognise this distribution as the pdf of a $\text{Beta}(\alpha+1,\beta)$. Similarly, it can be shown that $f_\mu(\cdot|X=0)$ is the density of a $\text{Beta}(alpha,\beta+1)$ random variable.
+  \par We can recognise this distribution as the pdf of a $\text{Beta}(\alpha+1,\beta)$. Similarly, it can be shown that $f_\mu(\cdot|X=0)$ is the density of a $\text{Beta}(\alpha,\beta+1)$ random variable.
   \hfill\proved
 \end{proof}
 
@@ -435,6 +435,11 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 
 \subsubsection{Analysis}
 
+\begin{remark}{Analysis of Thompson Sampling is Hard}
+  The main challenge is to deal with the situation where there is an initial run of bad luck on the optimal arm. This causes the posterior for the optimal arm to be biased towards small values. Hence, the optimal arm is not played very often meaning it takes a long time to recover from the initial bad luck.
+  \par For contrast, we only need to worry about plays of sub-optimal arms after they have been played sufficiently often, by which time the posterior is concentrated around the true parameter value.
+\end{remark}
+
 \begin{theorem}{Bound on Regret}
   The regret of \textit{Thompson Sampling} applied to a multi-armed bandit with two \textit{Bernoulli} arms is bounded as
   \[ \mathcal{R}(T)\leq\frac{40\ln(T)}\Delta+c \]
@@ -450,7 +455,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   In the analysis of a multi-armed bandit with two \textit{Bernoulli arms} we assume that the second arm (with parameter $\mu_2$) is the worse of the two arms. Thus to bound regret it suffices to bound the number of times the second arm is played.
   \par Fix a time horizon $T$ and define $L=\left\lceil\frac{24\ln(T)}{\Delta^2}\right\rceil,\ \tau=\inf\{t\in[0,T]:N_2(t)\geq L\}$. Then, for $\tau\leq t\leq T$
   \[ \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\leq\frac2{T^3} \]
-  Where $\theta_2(t)$ is the value sampled from the prior of arm 2 at time $t$.
+  Where $\theta_i(t)$ is the value sampled from the prior of $\mu_i$ at time $t$.
 \end{proposition}
 
 \begin{proof}{Proposition 1.9}
@@ -465,19 +470,87 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \par Firstly, conditional on the number of times the second arm is player $N_2(T)$, the total reward from these plays $S_2(t)$ is the sum of $N_2(t)$ independent $\text{Bern}(\mu_2)$ random variables. Hence, using \textit{Hoeffding's Inequality} we have
   \[ \prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\big|N_2(t)\right)\leq\exp\left(-2N_2(t)\frac{\Delta^2}{16}\right) \]
   As we have assumed that $N_2(t)\geq L\geq\frac1{\Delta^2}(24\ln(T))$ we can conclude that
-  \[ \prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\big\right)\leq\exp\left(-3\ln(T))=\frac1{T^3}\quad(2) \]
+  \[ \prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\right)\leq\exp\left(-3\ln(T)\right)=\frac1{T^3}\quad(2) \]
   Next, we note that conditional on $S_2(t)$ and $N_2(t)$, the distribution of $\theta_2(t)$ is $\text{Beta}(S_2(t)+1,N_2(t)-S_2(t)+1)$. Consequently, by \texttt{Theorem 1.9}, we have that
-  \[ \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2)=\prob\left(\text{Bin}\left(N_2(t)+1,\mu_2+\frac\Delta2)\leq S_2(t)) \]
+  \[ \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)=\prob\left(\text{Bin}\left(N_2(t)+1,\mu_2+\frac\Delta2\right)\leq S_2(t)\right) \]
   Applying \textit{Hoeffding's inequality} to the RH term, we see that for $N_2(t)\geq L$ we have
-  \[\begin{array}{rcl}
+  \[\begin{array}{rcll}
     \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)&\leq&\exp\left(-2\big(N_2(t)+1\big)\frac{\Delta^2}{16}\right)\\
     &\leq&\exp\left(-\frac{L\Delta^2}8\right)\\
     &\leq&\frac1{T^3}&(3)
   \end{array}\]
   Substituting $(2)$ and $(3)$ into $(1)$, we can conclude that if $t\geq\tau$ (ie $N_2(t)\geq L$) then
-  \[ \prob(\theta_2(t)\geq\mu_2+\frac\Delta2)\leq2\frac1{T^3} \]
+  \[ \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\leq\frac2{T^3} \]
   \hfill\proved
 \end{proof}
+
+\subsection{Genie Analysis}
+
+\begin{remark}{Genie}
+  Here we analyse a simpler version of Thompson Sampling for a 2-armed bandit. We assume that the value of $\mu_1$ is known, but it is not known whether it is greater than $\mu_2$.
+  \par This means we now only have a prior/posterior for $\mu_2$ and we compare $\theta_2(t)$ (the value sampled from the prior of $\mu_2$) to the true value of $\mu_1$.
+  \par It is likely that this scenario should be more successful than the standard scenario, thus we can only find an upper bound on the regret of the normal scenario.
+\end{remark}
+
+\begin{theorem}{Times Sub-optimal arm is played}
+  Fix $T\in\nats$ and define $L:=\left\lceil\dfrac{2\ln(T)}{\Delta^2}\right\rceil,\ \tau:=\inf\{t\in[1,T]:N_2(t)\geq L\}$.
+  $\tau$ is the first time that arm two has been played at least $L$ times. The number of plays of arm two after $\tau$ is bounded as
+  \[ \forall\ t\geq\tau\quad \prob(\theta_2(t)\geq\mu_1)\leq\frac2T \]
+  This means $\expect[\text{plays of arm two after time }\tau]=(T-\tau)\frac{2}T\leq2$
+\end{theorem}
+
+\begin{proof}{Theorem 1.11}
+  Define the events
+  \[ A_t:=\{\theta_2(t)\geq\mu_1\}\quad B_t:=\left\{\dfrac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta2\right\} \]
+  $A_t$ is the event that the sample from the prior of $\mu_2$ is greater than $\mu_1$. $B_t$ is the event the observed rewards from arm 2 at closer to $\mu_2$ than $\mu_1$.
+  \par If $t\geq\tau$, then $N_2(t)\geq L$ and Hoeffding's inequality yields
+  \[\begin{array}{rclll}
+    \prob(B_t^c)&\leq&\exp\left(-2N_t\frac{\Delta^2}4\right)&\quad&\\
+    &\leq&\exp\left(-\frac{\Delta^2L}2\right)&&\text{by def. }L\\
+    &\leq&e^{-\ln(T)}\\
+    &=&\frac1T
+  \end{array}\]
+  We can bound $\prob(A_t)$ as follows
+  \[\begin{array}{rcl}
+    \prob(A_t)&=&\prob(A_t\cap B_t)+\prob(A_t\cap B_t^c)\\
+    &=&\prob(A_t|B_t)\prob(B_t)+\prob(A_t|B_t^c)\prob(B_t^c)\\
+    &\leq&\prob(A_t|B_t)+\prob(B_t^c)
+  \end{array}\]
+  We now want to bound $\prob(A_t|B_t)$.
+  \par Since $\theta_2(t+1)$ is sampled from the posterior distribution of $\mu_2$ after $t$ rounds we have
+  \[ \theta_2(t+1)\sim\text{Beta}\left(1+\underbrace{S_2(t)}_\text{\# successes},1+\underbrace{N_2(t)-S_2(t)}_\text{\# failures}\right) \]
+  Hence, by \texttt{Theorem 1.9}
+  \[ \prob\big(\theta_2(t+1)\geq\mu_1\big|S_2(t),N_2(t)\big)=\prob\big(\text{Bin}(N_2(t)+1,\mu_1)\leq S_2(t)\big) \]
+  By Hoeffding's inequality, if $S_2(t)<\mu_1\cdot N_2(t)$, then
+  \[ \prob\big(\text{Bin}(N_2(t)+1,\mu_1)\leq S_2(t)\big)\leq\exp\left(-2N_2(t)\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)^2\right) \]
+  Conditioning on the event $B_t$, we have
+  \[\begin{array}{rcl}
+    S_2(t)&\leq&\left(\mu_2+\frac\Delta2\right)N_2(t)\\
+    &=&\left(\mu_1-\frac\Delta2\right)N_2(t)
+  \end{array}\]
+  Hence
+  \[\begin{array}{rcl}
+    \prob(A_t|B_t,N_2(t))&=&\prob(\theta_2(t+1)\geq\mu_1|B_t,N_2(t))\\
+    &\leq&\exp\left(-\dfrac{2N_2(t)\Delta^2}4\right)
+  \end{array}\]
+  Recall, by the definition of $\tau$, $\forall\ t\geq\tau,\ N_2(t)\geq L$.\\
+  Hence, $\forall\ t\geq\tau$
+  \[\begin{array}{rcl}
+    \prob(A_t|B_t)&\leq&\exp\left(-\frac{L\Delta^2}2\right)\\
+    &\leq&e^{-\ln T}\\
+    &=&\frac1T
+  \end{array}\]
+  We have already showed $\forall\ t\geq\tau,\ \prob(B_t^c)\leq\frac1T$.
+  \par Combining these results, we get
+  \[ \forall\ t\geq\tau,\quad\prob(A_t)\leq\prob(A_t|B_t)+\prob(B_t^c)\leq\frac2T \]
+  This is claim on \texttt{Theorem 1.11} \proved
+\end{proof}
+
+\begin{proposition}{Bound of Regret}
+  Using \texttt{Theorem 1.11}  above we can bound the regret as
+  \[ \mathcal{R}(T)\leq\Delta\cdot(L+2) \]
+  where $L+2$ is the most time arm two is played in the first $T$ time steps.
+\end{proposition}
 
 \section{Probability}
 

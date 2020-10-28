@@ -112,9 +112,70 @@
   &\leq&\Delta\left(u+\frac1{\alpha-1}\right)&&\text{by 3. (c)}\\
   &\leq&\Delta\left(\frac{2\alpha\ln(T)}{\Delta^2}+1+\frac1{\alpha-1}\right)&&\text{by def. of }u\\
   &=&\frac{2\alpha\ln(T)}{\Delta}+\Delta\left(1+\frac1{\alpha-1}\right)\\
-  &=&\frac{2\alpha\ln(T)}{\Delta}+\frac{\Delta\alpha}{\alpha-1}\\
+  &=&\frac{2\alpha\ln(T)}{\Delta}+\frac{\Delta\alpha}{\alpha-1}
   \end{array}\]
 \end{answer}
 
+\begin{question}{4.}
+  Consider a bandit with two independent Gaussian arms. Rewards on arm $i$ constitute a sequence of iid $N(\mu_i,1)$ random variables.
+\end{question}
+
+\begin{question}{4. (a)}
+  Let $\hat\mu_{i,n}$ denote the sample mean reward on arm $i$ after $n$ plays of this arms. Using a resulting from Homework 1, show that
+  \[ \prob\left(\hat\mu_{i,n}<\mu_i+\sqrt{\frac{\alpha\ln(t}{2n}}\right)\leq\exp\left(-\frac{\alpha\ln(t)}4\right) \]
+  Express the last quantity as power of $t$.
+\end{question}
+
+\begin{answer}{4. (a)}
+  Let $\hat\mu_{i,n}$ be the sample mean reward on arm $i$ after $n$ plays of that arms.
+  \par From \textit{Problem Sheet 1 6b)}, for $X_i\iid\text{Normal}(\mu,\sigma^2)$ and $\gamma>\mu_i$ we have that
+  \[ \prob(\hat\mu>\gamma)=\prob\left(\sum_{i=1}^n X_i>n\gamma\right)\leq\exp\left(-n\frac{(\gamma-\mu)^2}{2\sigma^2}\right) \]
+  Applying this result to this scenario
+  \[ \prob(\hat\mu_{i,n}>\gamma)\leq\exp\left(-n\frac{(\gamma-\mu_i)^2}2\right) \]
+  By defining $\gamma=\mu_i+\sqrt{\frac{\alpha\ln(t)}{2n}}$ with $\alpha>0$.
+  \par Note that $\gamma>\mu_i$ so we can use the above inequality
+  \[\begin{array}{rcl}
+  \prob\left(\hat\mu_{i,n}>\mu_i+\sqrt{\frac{\alpha\ln(t)}{2n}}\right)&\leq&\exp\left(-\frac{n}2\cdot\frac{\alpha\ln(t)}{2n}\right)\\
+  &=&\exp\left(-\frac{\alpha\ln(t)}4\right)\\
+  &=&t^{-\alpha/4}
+  \end{array}\]
+\end{answer}
+
+\begin{question}{4. (b)}
+  Explain in a few sentences why the same bound holds the probability of the event that $\hat\mu_{i,n}<\mu_i-\sqrt{\frac{\alpha\ln(t)}{2n}}$
+\end{question}
+
+\begin{answer}{4. (b)}
+  The result from \textit{Problem Sheet 1 6b)} is derived from the Chernoff Bound for IID random variables when $\left\{\sum X_i\geq nc\right\}$ and considers $\inf_{\theta>0}e^{-n\theta c}(\expect[e^{\theta X}])^n$. The result requires $c>\mu_i$ in order to fulfil the restriction on the infinum (i.e. $\theta>0$).
+  \par To derive a similar result to \textit{Question 4. (a)} for the event $\textstyle\left\{\hat\mu_{i,n}<\mu_i-\sqrt{\frac{\alpha\ln(t)}{2n}}\right\}$ we define $c=\mu_i-\sqrt{\frac{\alpha\ln(t)}{2n}}$, meaning $c<\mu_i$ and that $\theta<0$.
+  \par The Chernoff Bound for this complementary event considers the infinum of the same expression, except with the restriction that $\theta<0$ (rather than $\theta>0$). Given our definition of $c$ and the resulting value of $\theta$, the same value for the infinum is found. Meaning the same bound is derived for both the event and its compliment.
+\end{answer}
+
+\begin{question}{4. (c)}
+  Replicate the analysis of the UCB algorithm to obtain a regret bound of the form $\mathcal{R}(T)\leq c_1+c_2\ln(T)$ where $c_1$ and $c_2$ are constants that may depend on $\alpha,\mu_1$ and $\mu_2$. Find explicit expressions for these constants.
+  \par The analysis will not work for all $\alpha>1$. You will need $\alpha$ to be bigger than some other number. Find that number.
+\end{question}
+
+\begin{answer}{4. (c)}
+  Assume WLOG $\mu_1>\mu_2$ and define $\Delta=\mu_1-\mu_2$. Let $N_2(t)$ be the number of times arm 2 is played in the first $t$ steps. Define $u_t=\left\lceil\frac{2\alpha\ln(t)}{\Delta^2}\right\rceil$. We have
+  \[ N_2(t)\leq u+\sum_{s=u-1}^t\identity\left(\left\{N_2(s-1)\geq u_t\right\}\text{ and }\{I(s)=j\}\right) \]
+  Taking expectations of both side we get
+  \[ \expect[N_2(t)]\leq u_t+\sum_{s=u_t}^{t-1}\prob\left(\{N_2(s-1)\geq u_t\}\text{ and }\{I(s)=j\}\right) \]
+  By ....... % TODO
+  \[\begin{array}{rcl}
+    \expect[N_2(t)]&\leq&u_t+\sum_{s=u_t}^{t-1}\left[\prob\left(\hat\mu_{1,N_1(s)}\leq\mu_1-\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\right)+\prob\left(\hat\mu_{2,N_2(s)}>\mu_2-\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\right)\right]\\
+    &\leq&u_t+\sum_{s=u_t}^{t-1}2t^{-\alpha/4}\text{ by 4. (a)}\\
+    &\leq&u+int_{u_t-1}^\infty2t^{-\alpha/4}dt\\
+    &=&u+2\left[\frac{t^{-\frac\alpha4+1}}{1-\frac\alpha4}\right]\limits_{u_t-1}^\infty\\
+    &=&u-\frac{2(u-1)^{-\frac\alpha4+1}}{-\frac{\alpha}4+1}\\
+    &\leq&u+\frac{2}{\frac\alpha4-1}\\
+    &=&u+\frac8{\alpha-4}\\
+    &\leq&\frac{2\alpha\ln(t)}{\Delta^2}+1+\frac8{\alpha-4}\text{ by def. of }u\\
+    &=&\frac{2\alpha\ln(t)}{\Delta^2}+\frac{\alpha+4}{\alpha-4}
+  \end{array}\]
+  In this scenario $\mathcal{R}(T)=\Delta\expect[N_2(T)]$. Thus, using the results above
+  \[ \mathcal{R}(T)\leq\frac{2\alpha\ln(T)}{\Delta}+\Delta\frac{\alpha+4}{\alpha-4} \]
+  This requires $\alpha>4$.
+\end{answer}
 
 \end{document}

@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm}
+\usepackage[section,nohyphen]{DomH}
+\headertitle{Stochastic Optimisation - Assessed Problem Sheet 1}
+
+\setlength{\parskip}{.2\baselineskip}%
+\setlength{\parindent}{0pt}%
+
+\begin{document}
+
+% \questionsfalse
+% \answersfalse
+
+\title{Stochastic Optimisation - Assessed Problem Sheet 1}
+\author{Dom Hutchinson}
+\date{\today}
+\maketitle
+
+
+\begin{question}{1.}
+  There are 100 attendees at a party, and they drink 3.5 glasses of champagne on average. Assuming that everybody drinks at least one glass of champagne, find the best upper bound that you can on the number of attendees who drink 6 or more glasses of champagne.
+  \par What is the best lower bound you can find? Justify your answer briefly.
+\end{question}
+
+\begin{answer}{1.}
+  \everymath={}
+  Let $X_1,\dots,X_n$ be IID random variables each modelling how many drinks each attendee drank \underline{after} their first (We assume all attendees have at least one drink). For this scenario we have that $\expect[X_i]=\frac72-1=\frac52$ and $X_i\geq0$ for all $i$.
+  \par Thus, by \textit{Markov's Inequality}, we have that
+  \[ \forall\ i\in[1,100]\quad\prob(X_i\geq6-1)\leq\frac{\expect[X_i]}{6-1}=\frac{5/2}5=\frac12 \]
+  Then, out of the 100 attendees at most $100\times\frac12=50$ attendees had at least 6 drinks.
+  \par Consider a scenario where fifty guests drink 3 drinks and the other fifty drink 4 drinks. This scenarios fulfils the requirements that all attendees have at least one drink and on average each has $\frac72$ drinks. In this scenario no attendees have at least 6 drinks, thus the lower bound for the number of attendees who have at least 6 drink is 0.
+  \par The number of attendees who have at least 6 drinks is between 0 and 50.
+\end{answer}
+
+\begin{question}{2.}
+  Consider a Bayesian approach to the problem of inferring the mean of a Poisson distribution with unknown mean. More precisely, suppose $X\sim\text{Poisson}(\lambda)$, where $\lambda$ is unknown. Let $\pi_0$ denote the prior distribution of $\lambda$. Let $\pi_1(\cdot|n)$ denote the posterior distribution, conditional on observing a sample of $X$ which takes the value $n$. In other words
+  \[ \pi_1(\lambda|n)\propto \pi_0(\lambda)p_\lambda(n) \]
+  where $p_\lambda$ denotes the probability mass function of a $\text{Poisson}(\lambda)$ random variable.
+  \par Show that, if we take $\pi_0$ to be a Gamma distribution with shape parameter $\alpha$ and rate parameter $\beta$, denoted $\text{Gamma}(\alpha,\beta)$, then $\pi_1(\cdot|n)$ is the density of a $\text{Gamma}(\alpha+n,\beta+1)$ random variable.
+\end{question}
+
+\begin{answer}{2.}
+  Let $X\sim\text{Poisson}(\lambda)$ where $\lambda$ is unknown, $\pi_0$ be the prior distribution for $\lambda$ and $\pi_1(\cdot|n)$ be the posterior distribution for $\lambda$, given the value $n$ was sampled from $X$. This means
+  \[ \pi_1(\lambda|n)\propto\pi_0(\lambda)p_\lambda(n) \]
+  where $p_\lambda(n):=\prob(X=n)$ given $X\sim\text{Poisson}(\lambda)$.
+  \par Suppose $\pi_0\sim\text{Gamma}(\alpha,\beta)$ and note that
+  \[ p_\lambda(n)=\frac{\lambda^ne^{-\lambda}}{n!}\quad\text{and}\quad \pi_0(\lambda)=\frac{\lambda^{\alpha-1}e^{-\lambda\beta}}{\Gamma(\alpha)\beta^\alpha} \]
+  By consider only the terms involving $\lambda$ we have that
+  \[ p_\lambda(n)\propto\lambda^ne^{-\lambda}\quad\text{and}\quad \pi_0(\lambda)\propto\lambda^{\alpha-1}e^{-\lambda\beta} \]
+  Now consider the distribution of the posterior $\pi_1(\cdot|n)$
+  \[\begin{array}{rcl}
+      \pi_1(\lambda|n)&\propto&\pi_0(\lambda)p_\lambda(n)\\
+      &\propto&\left(\lambda^{\alpha-1}e^{-\lambda\beta}\right)\cdot\left(\lambda^ne^{-\lambda}\right)\\
+      &=&\lambda^{n+\alpha-1}e^{-\lambda(\beta+1)}
+  \end{array}\]
+  By comparing this expression to that of a Gamma distribution we have that
+  \[ \pi_1(\lambda|n)\sim\text{Gamma}(\alpha+n,\beta+1) \]
+\end{answer}
+
+\begin{question}{3.}
+  Use the answer to the last question to formulate a version of the Thompson sampling algorithm for a two-armed bandit, where the rewards from arm $I$ are IID $\text{Poisson}(\lambda_i)$ random variables, with unknown means $\lambda_1,\lambda_2$. The rewards from the two arms are independent.
+  \par Explain your algorithm in sufficient detail to enable a non-expert to implement it. You may assume that the non-expert has access to a software package that will generate independent random variables with specified parameters from any commonly used probability distributions.
+\end{question}
+
+\begin{answer}{3.}
+  Consider a two-armed bandit where the rewards from each arm are modelled by IID random variables $X_1,X_2$ each with distribution $\text{Poisson}(\lambda_i)$ with means $\lambda_1,\lambda_2$ unknown.
+  \par Here I give a version of the Thompson Sampling algorithm for solving the multi-armed bandit problem for this bandit, with a round limit $T$.
+  \renewcommand{\theenumi}{\Roman{enumi}}
+  \begin{enumerate}
+    \item Define a $\text{Gamma}(\alpha,\beta)$ distribution prior for the mean of each arm, with the values of $\alpha,\beta$ chosen arbitrarily (Perhaps $\alpha=\beta=1$).
+    \item To start the $t^\text{th}$ round, sample $\hat\mu_1(t)$ from the prior for arm one and $\hat\mu_2(t)$ from the prior for arm two.
+    \item If $\hat\mu_1(t)\geq\hat\mu_2(t)$ then play arm one; otherwise, play arm two. Let $n$ denote the observed reward from the played arm.
+    \item Suppose the prior for the mean of the played arm at the start of this round was a $\text{Gamma}(\alpha_t,\beta_t)$ distribution. Define the posterior for the mean of the played arm to be a $\text{Gamma}(\alpha_t+n,\beta_t+1)$ distribution.
+    \item For the non-played arm, define the posterior for its mean to be the same as its prior at the start of this round.
+    \item Repeat steps II.-V. until $T$ rounds have been played. Use the posteriors from round $t$ as the priors for round $t+1$.
+  \end{enumerate}
+  \textit{N.B.} After round $t$ the posterior for the mean of arm $i$ will be a $\text{Gamma}(\alpha+Y_t,\beta+N_t)$ distribution where $Y_t$ is the sum-total reward received from playing arm $i$ in the first $t$ rounds and $N_t$ is the number of times arm $i$ was played in the first $t$ rounds.
+\end{answer}
+
+\end{document}

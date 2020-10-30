@@ -17,7 +17,6 @@
 
 
 \begin{question}{3.}
-
 \end{question}
 
 \begin{question}{3. (a)}
@@ -146,9 +145,9 @@
 \end{question}
 
 \begin{answer}{4. (b)}
-  The result from \textit{Problem Sheet 1 6b)} is derived from the Chernoff Bound for IID random variables when $\left\{\sum X_i\geq nc\right\}$ and considers $\inf_{\theta>0}e^{-n\theta c}(\expect[e^{\theta X}])^n$. The result requires $c>\mu_i$ in order to fulfil the restriction on the infinum (i.e. $\theta>0$).
-  \par To derive a similar result to \textit{Question 4. (a)} for the event $\textstyle\left\{\hat\mu_{i,n}<\mu_i-\sqrt{\frac{\alpha\ln(t)}{2n}}\right\}$ we define $c=\mu_i-\sqrt{\frac{\alpha\ln(t)}{2n}}$, meaning $c<\mu_i$ and that $\theta<0$.
-  \par The Chernoff Bound for this complementary event considers the infinum of the same expression, except with the restriction that $\theta<0$ (rather than $\theta>0$). Given our definition of $c$ and the resulting value of $\theta$, the same value for the infinum is found. Meaning the same bound is derived for both the event and its compliment.
+  The result from \textit{Problem Sheet 1 6b)} is derived from the Chernoff Bound for IID random variables when $\left\{\sum X_i\geq nc\right\}$ and considers $\inf_{\theta>0}e^{-n\theta c}(\expect[e^{\theta X}])^n$. The result requires $c>\mu_i$ in order to fulfil the restriction on the infimum (i.e. $\theta>0$).
+  \par To derive a similar result to \textit{Question 4. (a)} for the event $\textstyle\left\{\hat\mu_{i,n}<\mu_i-\sqrt{\frac{\alpha\ln(t)}{2n}}\right\}$ we define $c=\mu_i-\sqrt{\frac{\alpha\ln(t)}{2n}}$, meaning $c<\mu_i$ and thus $\theta<0$, for the $\theta$ in the infimum.
+  \par The Chernoff Bound for this complementary event considers the infimum of the same expression, except with the restriction that $\theta<0$ (rather than $\theta>0$). Given our definition of $c$ and the resulting value of $\theta$, the same value for the infimum is found. Meaning the same bound is derived for both the event and its compliment.
 \end{answer}
 
 \begin{question}{4. (c)}
@@ -161,16 +160,16 @@
   \[ N_2(t)\leq u+\sum_{s=u-1}^t\identity\left(\left\{N_2(s-1)\geq u_t\right\}\text{ and }\{I(s)=j\}\right) \]
   Taking expectations of both side we get
   \[ \expect[N_2(t)]\leq u_t+\sum_{s=u_t}^{t-1}\prob\left(\{N_2(s-1)\geq u_t\}\text{ and }\{I(s)=j\}\right) \]
-  By ....... % TODO
+  By considering the two cases where the sub-optimal arm is played: $\hat\mu_1$ is significantly lower than $\mu_1$; or $\hat\mu_2$ is significantly higher than $\mu_2$.
   \[\begin{array}{rcl}
     \expect[N_2(t)]&\leq&u_t+\sum_{s=u_t}^{t-1}\left[\prob\left(\hat\mu_{1,N_1(s)}\leq\mu_1-\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\right)+\prob\left(\hat\mu_{2,N_2(s)}>\mu_2-\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}\right)\right]\\
-    &\leq&u_t+\sum_{s=u_t}^{t-1}2t^{-\alpha/4}\text{ by 4. (a)}\\
-    &\leq&u+int_{u_t-1}^\infty2t^{-\alpha/4}dt\\
-    &=&u+2\left[\frac{t^{-\frac\alpha4+1}}{1-\frac\alpha4}\right]\limits_{u_t-1}^\infty\\
-    &=&u-\frac{2(u-1)^{-\frac\alpha4+1}}{-\frac{\alpha}4+1}\\
-    &\leq&u+\frac{2}{\frac\alpha4-1}\\
-    &=&u+\frac8{\alpha-4}\\
-    &\leq&\frac{2\alpha\ln(t)}{\Delta^2}+1+\frac8{\alpha-4}\text{ by def. of }u\\
+    &\leq&u_t+\sum_{s=u_t}^{t-1}2t^{-\alpha/4}\text{ by \textit{Question 4. (a)}}\\
+    &\leq&u+\int_{u_t-1}^\infty2t^{-\alpha/4}dt\\
+    &=&u_t+2\left[\frac{t^{-\frac\alpha4+1}}{1-\frac\alpha4}\right]\limits_{u_t-1}^\infty\\
+    &=&u_t-\frac{2(u_t-1)^{-\frac\alpha4+1}}{-\frac{\alpha}4+1}\\
+    &\leq&u_t+\frac{2}{\frac\alpha4-1}\\
+    &=&u_t+\frac8{\alpha-4}\\
+    &\leq&\frac{2\alpha\ln(t)}{\Delta^2}+1+\frac8{\alpha-4}\text{ by def. of }u_t\\
     &=&\frac{2\alpha\ln(t)}{\Delta^2}+\frac{\alpha+4}{\alpha-4}
   \end{array}\]
   In this scenario $\mathcal{R}(T)=\Delta\expect[N_2(T)]$. Thus, using the results above

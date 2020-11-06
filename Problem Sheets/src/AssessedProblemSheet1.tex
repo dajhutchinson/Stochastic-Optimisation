@@ -10,7 +10,7 @@
 
 \begin{document}
 
-% \questionsfalse
+\questionsfalse
 % \answersfalse
 
 \title{Stochastic Optimisation - Assessed Problem Sheet 1}
@@ -29,9 +29,10 @@
   Let $X_1,\dots,X_n$ be IID random variables each modelling how many drinks each attendee drank \underline{after} their first (We assume all attendees have at least one drink). For this scenario we have that $\expect[X_i]=\frac72-1=\frac52$ and $X_i\geq0$ for all $i$.
   \par Thus, by \textit{Markov's Inequality}, we have that
   \[ \forall\ i\in[1,100]\quad\prob(X_i\geq6-1)\leq\frac{\expect[X_i]}{6-1}=\frac{5/2}5=\frac12 \]
-  Then, out of the 100 attendees at most $100\times\frac12=50$ attendees had at least 6 drinks.
-  \par Consider a scenario where fifty guests drink 3 drinks and the other fifty drink 4 drinks. This scenarios fulfils the requirements that all attendees have at least one drink and on average each has $\frac72$ drinks. In this scenario no attendees have at least 6 drinks, thus the lower bound for the number of attendees who have at least 6 drink is 0.
-  \par The number of attendees who have at least 6 drinks is between 0 and 50.
+  Meaning, out of the 100 attendees at most $100\times\frac12=50$ attendees had at least 6 drinks.
+
+  \par Consider a scenario where fifty guests drank 3 drinks and the other fifty drank 4 drinks. This scenarios fulfils the requirements that all attendees have at least one drink and on average each attendee had $\frac72$ drinks. In this scenario no attendees have at least 6 drinks, thus the lower bound for the number of attendees who had at least 6 drink is 0.
+  \par The number of attendees who had at least 6 drinks is between 0 and 50.
 \end{answer}
 
 \begin{question}{2.}
@@ -47,9 +48,9 @@
   where $p_\lambda(n):=\prob(X=n)$ given $X\sim\text{Poisson}(\lambda)$.
   \par Suppose $\pi_0\sim\text{Gamma}(\alpha,\beta)$ and note that
   \[ p_\lambda(n)=\frac{\lambda^ne^{-\lambda}}{n!}\quad\text{and}\quad \pi_0(\lambda)=\frac{\lambda^{\alpha-1}e^{-\lambda\beta}}{\Gamma(\alpha)\beta^\alpha} \]
-  By consider only the terms involving $\lambda$ we have that
+  As we are considering proportionality wrt $\lambda$, we can ignore terms which do not involve $\lambda$. Giving
   \[ p_\lambda(n)\propto\lambda^ne^{-\lambda}\quad\text{and}\quad \pi_0(\lambda)\propto\lambda^{\alpha-1}e^{-\lambda\beta} \]
-  Now consider the distribution of the posterior $\pi_1(\cdot|n)$
+  Using these results we can build an expression for the posterior $\pi_1(\cdot|n)$
   \[\begin{array}{rcl}
       \pi_1(\lambda|n)&\propto&\pi_0(\lambda)p_\lambda(n)\\
       &\propto&\left(\lambda^{\alpha-1}e^{-\lambda\beta}\right)\cdot\left(\lambda^ne^{-\lambda}\right)\\

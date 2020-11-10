@@ -75,7 +75,7 @@
     \item If $\hat\mu_1(t)\geq\hat\mu_2(t)$ then play arm one; otherwise, play arm two. Let $n$ denote the observed reward from the played arm.
     \item Suppose the prior for the mean of the played arm at the start of this round was a $\text{Gamma}(\alpha_t,\beta_t)$ distribution. Define the posterior for the mean of the played arm to be a $\text{Gamma}(\alpha_t+n,\beta_t+1)$ distribution.
     \item For the non-played arm, define the posterior for its mean to be the same as its prior at the start of this round.
-    \item Repeat steps II.-V. until $T$ rounds have been played. Use the posteriors from round $t$ as the priors for round $t+1$.
+    \item Repeat steps II.-V. until $T$ rounds have been played. Use the posteriors produced in round $t$ as the priors for round $t+1$.
   \end{enumerate}
   \textit{N.B.} After round $t$ the posterior for the mean of arm $i$ will be a $\text{Gamma}(\alpha+Y_t,\beta+N_t)$ distribution where $Y_t$ is the sum-total reward received from playing arm $i$ in the first $t$ rounds and $N_t$ is the number of times arm $i$ was played in the first $t$ rounds.
 \end{answer}

@@ -274,7 +274,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \[ \hat\mu_{1,N_1(s)}\leq u_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\quad\text{or}\quad\hat\mu_{j,N_j(s)}>\mu_j+\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}} \]
   Thus
   \[ \expect[N_j(t)]\leq u_{t,j}+\sum_{s=u_{t,j}}^{t-1}\left[\underbrace{\prob\left(\hat\mu_{1,N_1(s)}\leq\mu_1-\sqrt{\frac{\alpha\ln(s)}{2N_1(s)}}\right)}_{\tiny\text{$\hat\mu_1$ is unusually small}}+\underbrace{\prob\left(\hat\mu_{j,N_j(s)}>\mu_j-\sqrt{\frac{\alpha\ln(s)}{2N_j(s)}}\right)}_{\tiny\text{$\hat\mu_j$ is unusually large}}\right] \]
-  By \texttt{Theorem 1.6}
+  By \textit{Hoeffding's Inequality}
   \[\begin{array}{rcl}
   \expect[N_j(t)]&\leq&\displaystyle u+\sum_{s=u}^{t-1}2s^{-\alpha}\\
   &\leq&u+\displaystyle\int_{u-1}^\infty2s^{-\alpha}ds\quad\text{assumption $\alpha>1$ required here}\\
@@ -318,7 +318,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 
 \begin{proposition}{Comparing to Lower bound of UCB($\alpha$)}
   We showed that the regret of the \textit{UCB($\alpha$)} algorithm satisfies
-  \[ \underset{T\to\infty}{\lim\inf}\frac{\mathcal{R}(T)}{\ln(T)}\leq\sum_{i;\mu_i<\mu^*}\frac2{\mu^*-\mu_i} \]
+  \[ \underset{T\to\infty}{\lim\sup}\frac{\mathcal{R}(T)}{\ln(T)}\leq\sum_{i;\mu_i<\mu^*}\frac2{\mu^*-\mu_i} \]
   To compare this to the result in \texttt{Proposition 1.5} we use \textit{Pinsker's Inequality}. (Proof in homework).
   \par We see thjat the upper bound on the regret achieved by \textit{UCB($\alpha$)} is approximately four times greater than the lower bound on the best regret achievable by any algorithm. This is very good.
 \end{proposition}

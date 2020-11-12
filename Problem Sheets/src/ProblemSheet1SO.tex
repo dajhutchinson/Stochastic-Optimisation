@@ -7,7 +7,7 @@
 
 \begin{document}
 
-\questionsfalse
+% \questionsfalse
 % \answersfalse
 
 \title{Stochastic Optimisation - Problem Sheet 1}
@@ -15,14 +15,114 @@
 \date{\today}
 \maketitle
 
+\begin{question}{1.}
+  Let $X_1\sim\text{Poisson}(X_1)$ and $X_2\sim\text{Poisson}(X_2)$ be independent random variables. Using generation functions, show that $(X_1+X_2)$ is a Poisson random variable with mean $(\lambda_1+\lambda_2)$
+\end{question}
 
-\begin{question}{3)}
+\begin{answer}{1.}
+  Let $X_1\sim\text{Poisson}(\lambda_1)$ and $X_2\sim\text{Poisson}(\lambda_2)$ be independent random variables. The moment generating function for these random variables is
+  \[ M_{X_i}(t):=\expect[e^{X_i}t]=e^{\lambda_i(e^t-1)} \]
+  Now consider the moment generating function for \[ (X_1+X_2) \]
+  \[\begin{array}{rcl}
+    M_{X_1+X_2}(t)&:=&\expect[e^{(X_1+X_2)t}]\\
+    &=&\expect[e^{X_1t}e^{X_2t}]\\
+    &=&\expect[e^{X_1t}]\expect[e^{X_2t}]\text{ by independence}\\
+    &=&e^{\lambda_1(e^t-1)}e^{\lambda_2(e^t-1)}\\
+    &=&e^{(\lambda_1\lambda_2)(e^t-1)}
+  \end{array}\]
+  This is equivalent to the moment generating function of a $\text{Poisson}(\lambda_1+\lambda_2)$ distribution. Thus
+  \[ (X_1+X_2)\sim\text{Poisson}(\lambda_1+\lambda_2) \]
+\end{answer}
+
+\begin{question}{2 (a) i)}
+  Let $T\sim\text{Exp}(\mu)$. Show that $\expect[T]=\frac1\mu]$ and that $\mu T$ has an exponential distribution with parameter $1$.
+\end{question}
+
+\begin{answer}{2 (a) i)}
+  First I derive the expected value of $T$
+  \[\begin{array}{rrl}
+    \expect[T]&:=&\int_{-\infty}^\infty xf_X(x)dx\\
+    &=&\int_{-\infty}^0 x\cdot\mu e^{-\mu x}dx\\
+    &=&[-xe^{-\mu x}]\limits_0^\infty+\int_0^\infty e^{-\mu x}dx\text{ by integration by parts}\\
+    &=&0+\left[-\frac1\mu e^{-\mu x}\right]\limits_0^\infty\\
+    &=&0+\left[0-\left(-\frac1\mu\right)\right]\\
+    &=&\frac1\mu
+  \end{array}\]
+  Now I derive the distribution of $(\mu T)$. Note the moment generating function of $T$ is
+  \[ M_T(t):=\expect[e^{tT}]=\frac\mu{\mu-t} \]
+  Now consider the moment generating function of $(\mu T)$.
+  \[\begin{array}{rcl}
+    M_{\mu T}(t)&:=&\expect[e^{t\mu T}]\\
+    &=&\frac{\mu}{\mu-t\mu}\\
+    &=&\frac1{1-t}
+  \end{array}\]
+  This is equivalent to the moment generating function of a $\text{Exponential}(1)$ distribution. Thus
+  \[ (\mu T)\sim\text{Exponential}(1) \]
+\end{answer}
+
+\begin{question}{2 (a) ii)}
+  Let $T\sim\text{Exp}(\mu)$. Show that $T$ is \textit{memoryless}. i.e.
+  \[ \forall\ t,u>-\quad\prob(T>t+u|T>u)=\prob(T>t) \]
+\end{question}
+
+\begin{answer}{2 (a) ii)}
+  \[\begin{array}{rcl}
+    \prob(T>t+u|T>u)&=&\frac{\prob(T>t+u,t>u)}{\prob(T>u)}\\
+    &=&\frac{\prob(T>t+u)}{\prob(T>u)}\text{ since }\{T>t+u\}\subset\{T>u\}\\
+    &=&\frac{e^{-\mu(t+u)}}{e^{-\mu u}}\\
+    &=&e^{-\mu t}\\
+    &=&\prob(T>t)
+  \end{array}\]
+\end{answer}
+
+\begin{question}{2 (b) i)}
+  Let $T_1\sim\text{Exp}(\lambda_1)$ and $T_2\sim\text{Exp}(\lambda_2)$ be independent random variables and define $T:=\min\{T_1,T_2\}$.
+  \par Show that $T$ is an exponential random variable with parameter $(\lambda_1+\lambda_2)$
+\end{question}
+
+\begin{answer}{2 (b) i)}
+  \[\begin{array}{rcl}
+    \prob(T\leq t)&=&\prob(\min\{T_1,T_2\}\leq t)\\
+    &=&1-\prob(\min\{T_1,T_2)>t\\
+    &=&1-\prob(T_1>t,T_2>t)\\
+    &=&1-\prob(T_1>t)\prob(T_2>t)\text{ by independence}\\
+    &=&1-e^{-\lambda_1t}e^{-\lambda_2t}\\
+    &=&1-e^{-(\lambda_1+\lambda_2)t}
+  \end{array}\]
+  This is equivalent to the CDF of a $\text{Exponential}(\lambda_1+\lambda_2)$ distribution. Thus
+  \[ T\sim\text{Exp}(\lambda_1+\lambda_2) \]
+\end{answer}
+
+\begin{question}{2 (b) ii)}
+  Let $T_1\sim\text{Exp}(\lambda_1)$ and $T_2\sim\text{Exp}(\lambda_2)$ be independent random variables and define $T:=\min\{T_1,T_2\}$.
+  \par Show that the probability that $T=T_1$ is $\frac{\lambda_1}{\lambda_1+\lambda_2}$ and that this is independent of the value of $T$.
+\end{question}
+
+\begin{answer}{2 (b) ii)}
+  \[\begin{array}{rcl}
+    \prob(T=T_1)&=&\prob(\min\{T_1,T_2\}=T_1)\\
+    &=&\prob(T_1\leq T_2)\\
+    &=&\int_0^\infty\int_0^t f_{T_1,T_2}(s,t)ds\ dt\\
+    &=&\int_0^\infty f_{T_2}(t)\int_0^t f_{T_1}(s)ds\ dt\text{ by independence}\\
+    &=&\int_0^\infty\lambda_2e^{-\lambda_2 t}\int_0^t\lambda_1e^{-\lambda_1 s}ds\ dt\\
+    &=&\int_0^\infty\lambda_2e^{-\lambda_2 t}[e^{-\lambda_1 s}]\limits_0^t dt\\
+    &=&\int_0^\infty\lambda_2e^{-\lambda_2 t}[1-e^{-\lambda_1 t}] dt\\
+    &=&\lambda_2\int_0^\infty e^{-\lambda_2 t}[1-e^{-\lambda_1 t}] dt\\
+    &=&\lambda_2\left(\int_0^\infty e^{-\lambda_2 t}dt-\int_0^\infty e^{-(\lambda_1+\lambda_2) t} dt\right)\\
+    &=&\lambda_2\left(\left[-\frac{1}{\lambda_2}e^{-\lambda_2t}\right]_0^\infty-\left[-\frac1{\lambda_1+\lambda_2}e^{-(\lambda_1+\lambda_2)t}\right]\limits_0^\infty\right)\\
+    &=&\lambda_2\left(\left[0+\frac1{\lambda_2}\right]-\left[0+\frac1{\lambda_1+\lambda_2}\right]\right)\\
+    &=&1-\frac{\lambda_2}{\lambda_1+\lambda_2}\\
+    &=&\frac{\lambda_1}{\lambda_1+\lambda_2}
+  \end{array}\]
+\end{answer}
+
+\begin{question}{3.}
   Let $X_1,X_2,\dots$ by iid random variables with distribution $\text{Bern}(p)$ with $p\in[0,1]$. Let $q\in[0,1]$ with $q>p$. Show that
   \[ \prob\left(\sum_{i=1}^nX_i\right)>nq)\leq\text{exp}(-nK(q;p))\quad\text{where}\quad K(q;p)=q\ln\frac{q}p+(1-q)\ln\frac{1-q}{1-p} \]
   with $x\ln x$ defined to be $0$ if $x=0$.
 \end{question}
 
-\begin{answer}{3)}
+\begin{answer}{3.}
   Let $X_1,X_2,\dots$ by iid random variables with distribution $\text{Bern}(p)$ with $p\in[0,1]$. Let $q\in[0,1]$ with $q>p$.\\
   The moment generating function of $X$ is $\M_X(t):=\expect[e^{tX}]=(p+e^t+(1-p))$.\\
   By applying \textit{Chernoff Bounds} we have that
@@ -57,6 +157,84 @@
     &&=&-nK(q;p)\\
     \implies&\inf_{\theta>0}e^{-nq\theta}(pe^\theta+(1-p))^n&=&\exp(-nK(q;p))\\
     \implies&\prob\left(\sum_{i=1}^nX_i>nq\right)&\leq&\exp(-nK(q;p))
+  \end{array}\]
+\end{answer}
+
+\begin{question}{4.}
+  Let $X_1,X_2,\dots$ be IID Poisson random variables with parameter $\lambda\in\reals^+$. Suppose $\mu\in\reals^+$ is greater than $\lambda$. Show that
+  \[ \prob\left(\sum_{i=1}^nX_i<n\mu\right)\leq\exp(-nI(x;\lambda))\quad\text{where}\quad I(\mu;\lambda):=\mu\ln\left(\frac\mu\lambda\right)-\mu+\lambda \]
+\end{question}
+
+\begin{answer}{4.}
+  Let $X_1,X_2,\dots$ be IID Poisson random variables with parameter $\lambda\in\reals^+$. Suppose $\mu\in\reals^+$ is greater than $\lambda$.\\
+  Note that the moment generating function of each $X_i$ is
+  \[ M_{X_i}(\theta):=\expect[e^{\theta X}]=e^{\lambda(e^\theta-1)} \]
+  Chernoff Bounds state that
+  \[\begin{array}{rcl}
+    \prob\left(\sum_{i=1}^nX_i<n\mu\right)&\leq&\underset{\theta<0}\inf e^{-n\mu\theta}M_X(\theta)^n\\
+    &=&\underset{\theta<0}\inf e^{-n\mu\theta}e^{n\lambda(e^\theta-1)}\\
+    &=&\underset{\theta<0}\inf e^{n[\lambda(e^\theta-1)-\mu\theta]}
+  \end{array}\]
+  Consider the natural log of the right hand side and define
+  \[ f:=n[\lambda(e^\theta-1)-\mu\theta] \]
+  Since the natural log is a monotonically increasing function, $\inf_{\theta>0}e^f$ is equal to the RHS of above. First I shall derive $\underset{\theta;\theta<0}\argmin(f)$
+  \[\begin{array}{rrcl}
+    &\frac{\partial f}{\partial \theta}&=&n(\lambda e^\theta-\mu)\\
+    \text{Setting}&\frac{\partial f}{\partial \theta}&=&0\\
+    \implies&n(\lambda e^\theta-\mu)&=&0\\
+    \implies&e^\theta&=&\frac\mu\lambda\\
+    \implies&\theta&=&\ln\left(\frac\mu\lambda\right)\\\\
+    \text{Since}&\mu&<&\lambda\\
+    \implies&\frac\mu\lambda&<&0\\
+    \implies&\ln\left(\frac\mu\lambda\right)&>&0
+  \end{array}\]
+  Thus $\underset{\theta;\theta<0}\argmin(f)=\ln\left(\frac\mu\lambda\right)$. This means
+  \[\begin{array}{rrcl}
+    &\inf_{\theta<0}n[\lambda(e^\theta-1)-\mu\theta]&=&n\left(\lambda\left(\frac\mu\lambda-1\right)-\mu\ln\left(\frac\mu\lambda\right)\right)\\
+    &&=&n(\mu-\lambda)-n\mu\ln\left(\frac\mu\lambda\right)\\
+    &&=&-n(\mu\ln\left(\frac\mu\lambda\right)+\lambda-\mu)\\
+    &&=&-nI(\mu;\lambda)\\
+    \implies&\inf_{\theta<0}e^{n[\lambda(e^\theta-1)-\mu\theta]}&=&\exp(-nI(\mu;\lambda))\\
+    \implies&\prob\left(\sum_{i=1}^nX_i<n\mu\right)&\leq&\exp(-nI(\mu;\lambda))
+  \end{array}\]
+\end{answer}
+
+\begin{question}{5.}
+  Let $X_1,X_2,\dots$ be IID exponential random variables with parameter $\lambda\in\reals^+$. Suppose $x\in\reals^+$ is greater than $\frac1\lambda$. Show that
+  \[ \prob\left(\sum_{i=1}^nX_i>nx\right)\leq\exp(-nJ(x;\lambda))\quad\text{where}\quad J(x;\lambda):=\lambda x-1-\ln(\lambda x) \]
+\end{question}
+
+\begin{answer}{5.}
+  Let $X_1,X_2,\dots$ be IID exponential random variables with parameter $\lambda\in\reals^+$. Suppose $x\in\reals^+$ is greater than $\frac1\lambda$.\\
+  Note that the moment generating function of each $X_i$ is
+  \[ M_{X_i}(\theta):=\expect[e^{\theta X_i}]=\frac\lambda{\lambda-\theta}\text{ for }\theta<\lambda \]
+  Chernoff Bounds state that
+  \[\begin{array}{rcl}
+    \prob\left(\sum_{i=1}^nX_i>nx\right)&\leq&\underset{\theta>0}\inf e^{-nx\theta}M_X(\theta)^n\\
+    &=&\underset{\theta>0}\inf e^{-nx\theta}\left(\frac{\lambda}{\lambda-\theta}\right)^n
+  \end{array}\]
+  Consider the natural log of the right hand side and define
+  \[ f:=-nx\theta+n[\ln(\lambda)-\ln(\lambda-\theta)] \]
+  Since the natural log is a monotonically increasing function, $\inf_{\theta>0}e^f$ is equal to the RHS of above. First I shall derive $\underset{\theta;\theta<0}\argmin(f)$
+  \[\begin{array}{rrcl}
+    &\frac{\partial f}{\partial \theta}&=&-nx+n\left[0-\frac{-1}{\lambda-\theta}\right]\\
+    &=&-nx+\frac{n}{\lambda-\theta}\\
+    \text{Setting}&\frac{\partial f}{\partial \theta}&=&0\\
+    \implies&n\left(-x+\frac1{\lambda-\theta}\right)&=&0\\
+    \implies&\frac1x&=&\lambda-\theta\\
+    \implies&\theta&=&\lambda-\frac1x\\\\
+    \text{Since}&x&>&\frac1\lambda\\
+    \implies&\lambda>\frac1x\\
+    \implies&\lambda-\frac1x&>&0
+  \end{array}\]
+  Thus $\underset{\theta;\theta>0}\argmin f=\lambda-\frac1x$. This means
+  \[\begin{array}{rrcl}
+    &\underset{\theta>0}\inf f&=&-nx\left(\lambda-\frac1x\right)+n\left[\ln(\lambda)-\ln\left(\lambda-\lambda+\frac1x\right)\right]\\
+    &&=&-n\left[x\lambda-1-\left(\ln(\lambda)-\ln\left(\frac1x\right)\right)\right]\\
+    &&=&-n[n\lambda-1-\ln(x\lambda)]\\
+    &&=&-nJ(x;\lambda)\\
+    \implies&\underset{\theta>0}e^{-nx\theta\left(\frac\lambda{\lambda-\theta}\right)^n}&=&\exp(-nJ(x;\lambda))\\
+    \implies&\prob\left(\sum_{i=1}^nX_i>nx\right)&\leq&\exp(-nJ(x;\lambda))
   \end{array}\]
 \end{answer}
 
@@ -110,6 +288,44 @@
     \implies&\inf_{\theta>0}e^{-n\theta\left(\gamma-\mu-\frac12\sigma^2\theta\right)}&=&\exp\left(-n\frac{(\gamma-\mu)^2}{2\sigma^2}\right)\\
     \implies&\prob\left(\sum_{i=1}^nX_i>n\gamma\right)&\leq&\exp\left(-n\frac{(\gamma-\mu)^2}{2\sigma^2}\right)
   \end{array}\]
+\end{answer}
+
+\begin{question}{7.}
+  Let $\X$ be a random vector in $\reals^d$ with moment generating function
+  \[ M_\X(\pmb\theta):=\expect[\exp(\langle\pmb\theta,\X\rangle)]=\expect[exp(\pmb\theta^T\X)]\quad\text{for }\pmb\theta\in\reals^d \]
+  Let $H(\pmb\theta,y)$ denote the half-space in $\reals^d$ given by $H(\pmb\theta,y):=\{\x\in\reals^d:\langle\pmb\theta,\x\rangle\geq y\}$
+  Show that
+  \[ \forall\ \eta>0\quad\prob(\X\in H(\pmb\theta,y))\leq e^{-\eta y}M_\X(\eta\pmb\theta) \]
+\end{question}
+
+\begin{answer}{7.}
+  Define $Y=\pmb\theta^T\X$, thus $(\eta Y)=(\eta\pmb\theta)^T\X$. This means the following events are equivalent
+  \[ \{\X\in H(\pmb\theta,y)\}\Leftrightarrow\{\pmb\theta^T\X\geq y\}\Leftrightarrow \{\eta(\pmb\theta^T\X)=:\eta Y\geq\eta y\}\ \forall\ \eta\geq0 \]
+  Thus
+  \[\begin{array}{rcl}
+    \prob(\X\in H(\pmb\theta,y))&\leq&\prob(\eta Y\geq\eta y)\\
+    &\leq&\prob(e^{\eta Y}\geq e^{\eta y})\\
+    &\leq&\frac{\expect[\exp(\eta Y)]}{e^{\eta y}}\text{ by Markov's Inequality}\\
+    &=&e^{-\eta y}M_\X(\eta\pmb\theta)
+  \end{array}\]
+\end{answer}
+
+\begin{question}{8.}
+  Let $X_1,X_2,\dots$ be IID random variables with mean $\mu$ and taking values in the interval $[a,b]$ where $a$ and $b$ are finite. Show that
+  \[ \prob\left(\sum_{i=1}^n(X_i-\mu)>nt\right)\leq\exp\left(-\frac{2nt^2}{(b-a)^2}\right) \]
+\end{question}
+
+\begin{answer}{8.}
+  Let $X_1,X_2,\dots$ be IID random variables with mean $\mu$ and taking values in the interval $[a,b]$ where $a$ and $b$ are finite.\\
+  Define random variable $Y_i:=\frac{X_i-a}{b-a}$. Note that $Y_i\in[0,1]$ and $Y_i$ has mean $\mu_Y:=\frac{\mu-a}{b-a}$. By Hoeffding's Inequality
+  \[\begin{array}{rrcl}
+    &\prob\left(\sum_{i=1}^n(Y_i-\mu_Y)?ns\right)&\leq&\exp(-2ns^2)\ \forall\ s>0\\
+    \implies&\prob\left(\sum_{i=1}^n\left(\frac{X_i-a}{b-a}-\frac{\mu-a}{b-a}\right)>ns\right)&\leq&\exp(-2ns^2)\\
+    \implies&\prob\left(\frac1{b-a}\sum_{i=1}^n(X_i\mu)>ns\right)&\leq&\exp(-2ns^2)\\
+    \implies&\prob\left(\sum_{i=1}^n(X_i\mu)>(b-a)ns\right)&\leq&\exp(-2ns^2)\text{ since }b>a\\
+  \end{array}\]
+  By defining $t:=s(b-a)$, and noting that $s=\frac{t}{b-a}$, we get the desired result
+  \[ \prob\left(\sum_{i=1}^n(X_i)-n\mu>tn\right)\leq\exp\left(-2n\frac{t^2}{(b-a)^2}\right) \]
 \end{answer}
 
 \end{document}

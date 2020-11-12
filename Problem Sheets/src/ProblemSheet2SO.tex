@@ -1,7 +1,8 @@
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
-\usepackage{amsmath,amsfonts,fancyhdr,bbm}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm,tikz}
+\usetikzlibrary{arrows,automata}
 \usepackage[section,nohyphen]{DomH}
 \headertitle{Stochastic Optimisation - Problem Sheet 2}
 
@@ -15,8 +16,128 @@
 \date{\today}
 \maketitle
 
+\begin{question}{1.}
+  Consider a bandit with two independent arms, where the rewards from arm $i$ are i.i.d. with a $\text{Normal}(i, i)$ distribution, $i\in\{1,2\}$. In other words, rewards from arm $i$ are normally distributed with mean $i$ and variance $i$, so that the second arm has the larger mean reward.
+  \par Fix a time horizon $T$, and consider the heuristic which first plays each arm exactly $n$ times, and subsequently plays the arm with the higher sample mean reward.
+\end{question}
+
+\begin{question}{1. (a)}
+  Let $\hat\mu_{1,n}$ and $\hat\mu_{2,n}$ denote the samples means of the first $n$ plays of arm 1 and 2 respectively. Using the answer to \texttt{Problem Sheet 1 Q6 (b)}, obtain an upper bound on
+  \[ \prob(\hat\mu_{1,n}\geq\hat\mu_{2,n}) \]
+\end{question}
+
+\begin{answer}{1. (a)}
+  Let random variables $X_i(t)\sin\text{Normal}(i,i)$ for $i\in\{1,2\}$ model the reward received from arm $i$ at time $t$ and $\hat\mu_{i,n}$ denote the sample mean from the first $n$ times arm $i$ is played.
+  \par Define random variable $X(t):=X_1(t)-X_2(t)$ which has distribution $\text{Normal}(1-2,1+2)=\text{Normal(-1,3)}$ and $\hat\mu_n:=\frac1n\sum_{i=1}^nX(t)=\hat\mu_{1,n}-\hat\mu_{2,n}$. Thus
+  \[\begin{array}{rcl}
+    \prob(\hat\mu_{1,n}\geq\hat\mu_{2,n})&=&\prob(\hat\mu_{1,n}-\hat\mu_{2,n}\geq0)\\
+    &=&\prob(\hat\mu_n\geq0)\\
+    &=&\prob\left(\frac1n\sum_{i=1}^nX_i\geq0\right)\\
+    &=&\prob\left(\sum_{i=1}^nX_i\geq0\right)
+  \end{array}\]
+  \texttt{Problem Sheet 1 Q6 b)} states that for IID random variables $X_1,X_2,\dots$ with distribution $\text{Normal}(\mu,\sigma^2)$ and for $\gamma>\mu$, the following bound exists.
+  \[ \prob\left(\sum_{i=1}^nX_i\geq n\gamma\right)\leq\exp\left(-n\frac{(\gamma-\mu)^2}{2\sigma^2}\right) \]
+  By defining $\gamma=0$ and noting that $\gamma>\mu=-1$ we can apply this result to the inequality above.
+  \[\begin{array}{rrcl}
+    &\prob\left(\sum_{i=1}^nX_i\geq0\right)&\leq&\exp\left(-n\frac{(0-(-1))^2}{2\cdot3}\right)\\
+    &&=&\exp\left(-\frac{n}6\right)\\
+    \implies&\prob(\hat\mu_{1,n}\geq\hat\mu_{2,n})&\leq&\exp\left(-\frac{n}6\right)
+  \end{array}\]
+\end{answer}
+
+\begin{question}{1. (b)}
+  Using the answer to the last part, find an upper bound on the regret, $\R(T)$, of this heuristic. Optimize this upper bound over $n$, treating $n$ as if it were a real number, and approximating quantities like $T-n$ by $T$, on the assumption that $n$ is much smaller than $T$.
+\end{question}
+
+\begin{answer}{1. (b)}
+  The algorithm here can be considered to have two stages: learning; and post-learning. During the learning phase we are guaranteed to play the sub-optimal arm $n$ times, but we play the same arm throughout the post-learning phase and thus regret only increases if the wrong arm is made (ie if $\hat\mu_{1,n}\geq\hat\mu_{2,n}$).\\
+  Note that the post-learning phase consists of $(T-2n)$ rounds and the loss incurred from playing the sub-optimal arm is $2-1=1$.
+  \[\begin{array}{rcl}
+    \R_T&=&\underbrace{1\cdot n}_\text{learning}+\underbrace{1\cdot(T-2n)\prob(\hat\mu_{1,n}\geq\hat\mu_{2,n})}_\text{wrong choice made}\\
+    &=&n+(T-2n)\prob(\hat\mu_{1,n}\geq\hat\mu_{2,n})\\
+    &\leq&n+(T-2n)e^{-n/6}\text{ by \texttt{1. (a)}}
+  \end{array}\]
+  Since $n\ll T$ we can approximate $(T-2n)\simeq T$ giving
+  \[ \R_T\leq n+Te^{-n/6} \]
+  We want to find the $n$ which minimises this expression.
+  \[\begin{array}{rrcl}
+    &\frac{\partial }{\partial n}\left(n+Te^{-n/6}\right)&=&1-\frac16Te^{-n/6}\\
+    &\frac{\partial^2 }{\partial n^2}\left(n+Te^{-n/6}\right)&=&\frac1{36}Te^{-n/6}\geq0\ \forall\ T,n\in\nats\\
+    \text{Setting}&\frac{\partial }{\partial n}\left(n+Te^{-n/6}\right)&=&0\\
+    \implies&1-\frac16Te^{-\hat{n}/6}&=&0\\
+    \implies&e^{-\hat{n}/6}&=&\frac6T\\
+    \implies&\frac{-\hat{n}}6&=&\ln(6)-\ln(T)\\
+    \implies&\hat{n}&=&6[\ln(T)-\ln(6)]\\
+    &&=&6\ln\left(\frac{T}6\right)
+  \end{array}\]
+  Since the second derivative is positive, this $\hat{n}$ minimises the bound on regret. Giving
+  \[ \R_T\leq6\ln\left(\frac{T}6\right)+T\exp\left(-\ln\left(\frac{T}6\right)\right)=6\ln\left(\frac{T}6\right)-\frac{T^2}6 \]
+\end{answer}
+
+\begin{question}{2.}
+  Consider a bandit with two independent Bernoulli arms, with parameters $\mu_1>\mu_2$. Consider the following simple heuristic for this problem:
+  \begin{itemize}
+    \item Play arm 1 in the first round.
+    \item If you obtained a reward of 1 in the previous round, play the same arm. Otherwise, switch to the other arm.
+  \end{itemize}
+  Obtain an approximate expression for the regret of this heuristic up to some large time $T$.
+  \par You do not need to be very precise in your calculations. I am looking for good intuition, and the correct scaling of the regret with $T$ as $T$ tends to infinity. Feel free to look up results you need, such as the means of well-known distributions. You do not need to calculate them from scratch.
+\end{question}
+
+\begin{answer}{2.}
+  Let $\mu_1>\mu_2$ and note that this algorithm can be summarised by the following automata
+  \begin{center}
+    \begin{tikzpicture}[->,node distance=3cm]
+    \node[state] (1)              {1};
+    \node[state] (2) [right of=1] {2};
+
+    \path (1) edge [loop above] node {$\mu_1$}   (1)
+              edge [bend left,above]  node {$1-\mu_1$} (2)
+          (2) edge [loop above] node {$\mu_2$}   (2)
+              edge [bend left,below]  node {$1-\mu_2$} (1);
+  \end{tikzpicture}
+  \end{center}
+  and transition matrix
+  \[ P=\begin{pmatrix}\mu_1&1-\mu_1\\1-\mu_2&\mu_2\end{pmatrix} \]
+  A stationary distribution $\pi$ of the transition matrix $P$ gives the proportion of times each arm is played in the long run. Let $\pi$ be a stationary distribution for $P$
+  \[\begin{array}{rrcl}
+    &\pi&=&\pi P\\
+    \implies&(\pi_1,\ \pi_2)&=&\big(\pi_1,\ \pi_2\big)\begin{pmatrix}\mu_1&1-\mu_1\\1-\mu_2&\mu_2\end{pmatrix}\\
+    \implies&(\pi_1,\ \pi_2)&=&\big(\mu_1\pi_1+\pi_2(1-\mu_2),\ \pi_1(1-\mu_1)+\pi_2\mu_2\big)\\
+    \implies&\pi_1&=&\mu_1\pi_1+\pi_2(1-\mu_2)\\
+    \implies&\pi_1(1-\mu_1)&=&\pi_2(1-\mu_2)\\
+    \implies&\pi_1&=&\pi_2\frac{1-\mu_2}{1-\mu_1}
+  \end{array}\]
+  By the definition of a stationary distribution $\pi_1+\pi_2=1\implies\pi_2=1-\pi_1$. Substituting this result back in we can get explicit results for $\pi_1$ and $\pi_2$.
+  \[\begin{array}{rrcl}
+    &\pi_1&=&(1-\pi_1)\frac{1-\mu_2}{1-\mu_1}\\
+    \implies&\pi_1\left(1+\frac{1-\mu_2}{1-\mu_1}\right)&=&\frac{1-\mu_2}{1-\mu_1}\\
+    \implies&\pi_1\left(\frac{2-\mu_1-\mu_2}{1-\mu_1}\right)&=&\frac{1-\mu_2}{1-\mu_1}\\
+    \implies&\pi_1&=&\frac{1-\mu_2}{2-\mu_1-\mu_2}\\
+    &\pi_2&=&1-\pi_1\\
+    \implies&\pi_2&=&1-\frac{1-\mu_2}{2-\mu_1-\mu_2}\\
+    &&=&\frac{1-\mu_1}{2-\mu_1-\mu_2}
+  \end{array}\]
+  We can now create an approximate expression for the regret $\R_T$ over time horizon $T$.
+  \[\begin{array}{rcl}
+    \R_T&=&(\mu_1-\mu_2)\expect(\text{times arm 2 played})\\
+    &=&(\mu_1-\mu_2)[T\prob(\text{arm 2 played})]\\
+    &=&(\mu_1-\mu_2)T\pi_2\\
+    &=&T(\mu_1-\mu_2)\frac{1-\mu_1}{2-\mu_1-\mu_2}
+  \end{array}\]
+\end{answer}
 
 \begin{question}{3.}
+  Consider a bandit with two independent Bernoulli arms, with mean rewards $\mu_1>\mu_2$ Define $\Delta:=\mu_1-\mu_2$. Let $N_i(t)$ denote the number of times that arm $i$ has been played in the first $t$ rounds, where $i\in\{1,2\}$ and $t\in\nats$. Let  $\hat\mu_{i,s}$ denote the empirical (or sample) mean reward obtained in the first $s$ plays of arm $i$.
+  \par Suppose a genie tells you the value of $\mu_1$, the mean reward on arm 1 (but not that arm 1 is better). Then, the appropriate modification to the $UCB(\alpha)$ algorithm is as follows:
+  \begin{itemize}
+    \item Play arm 2 in the first round.
+    \item At the end of round $t$, calculate the index of arm 2, defined answer
+    \[ \iota_2(t):=\hat\mu_{2,N_2(t)}+\sqrt{\frac{\alpha\ln(t)}{2N_2(t)}} \]
+    The index of arm 1 is always $\mu_1$, which is known.
+    \item In round $t+1$, play the arm with the greater index, breaking ties in favour of arm 2.
+  \end{itemize}
+  Assume that $\alpha>1$
 \end{question}
 
 \begin{question}{3. (a)}
@@ -39,12 +160,12 @@
     \implies&\hat\mu_{2,N_2(s)}+\sqrt{\frac{\alpha\ln(s)}{2N_2(s)}}&<&\mu_1\\
     \implies&i_2(s)&<&\mu_1
   \end{array}\]
-  This means $I(s+1)=1$, which is a contradiction. Thus at least one of i) or ii) must be true.$\proved$
+  This means $I(s+1)=1$, which is a contradiction. Thus at least one of i) or ii) must be true.
 \end{answer}
 
 \begin{question}{3. (b)}
-  Recall that $N_2(t)=\sum_{s=1}^t\identity\{I(S)=2\}$. For an arbitrary positive integer $u$ and any $t\in\nats$ explain why
-  \[ N_2(t)\leq u+\sum_{s=u+1}^t\identity\big\{\{N_2(s-1)\geq u\}\text{ and }\{I(s)=2\}\big\} \]
+  Recall that $N_2(t)=\sum_{s=1}^t\indexed\{I(S)=2\}$. For an arbitrary positive integer $u$ and any $t\in\nats$ explain why
+  \[ N_2(t)\leq u+\sum_{s=u+1}^t\indexed\big\{\{N_2(s-1)\geq u\}\text{ and }\{I(s)=2\}\big\} \]
 \end{question}
 
 \begin{answer}{3. (b)}
@@ -54,11 +175,11 @@
     \item[\textit{Case 2}] $\exists\ s\in[1,t]$ such that $N(s)>u$ (i.e. Arm two has been played at least $u$ times).\\ Let $s^*$ denote the smallest such $s$. Then it must be true that $N(s^*-1)=u$ and $s^*\geq u+1$. Hence
     \[\begin{array}{rclcl}
       N(t)&=&\sum_{s=1}^{s^*-1}I(s)+\sum_{s=s^*}^tI(s)&\quad&\\
-      &=&N(s^*-1)+\sum_{s=s^*}^tI(s)\underbrace{\identity\{N(s-1)\geq u\}}_\text{true for all in sum}\\
-      &\leq&u+\sum_{s=u+1}^t\identity\{N(s-1)\geq u\}&&\text{ since }s^*\geq u+1
+      &=&N(s^*-1)+\sum_{s=s^*}^tI(s)\underbrace{\indexed\{N(s-1)\geq u\}}_\text{true for all in sum}\\
+      &\leq&u+\sum_{s=u+1}^t\indexed\{N(s-1)\geq u\}&&\text{ since }s^*\geq u+1
     \end{array}\]
   \end{itemize}
-  Thus the result holds in all cases.$\hfill\proved$
+  Thus the result holds in all cases.$\hfill$
 \end{answer}
 
 \begin{question}{3. (c)}
@@ -157,7 +278,7 @@
 
 \begin{answer}{4. (c)}
   Assume WLOG $\mu_1>\mu_2$ and define $\Delta=\mu_1-\mu_2$. Let $N_2(t)$ be the number of times arm 2 is played in the first $t$ steps. Define $u_t=\left\lceil\frac{2\alpha\ln(t)}{\Delta^2}\right\rceil$. We have
-  \[ N_2(t)\leq u+\sum_{s=u-1}^t\identity\left(\left\{N_2(s-1)\geq u_t\right\}\text{ and }\{I(s)=j\}\right) \]
+  \[ N_2(t)\leq u+\sum_{s=u-1}^t\indexed\left(\left\{N_2(s-1)\geq u_t\right\}\text{ and }\{I(s)=j\}\right) \]
   Taking expectations of both side we get
   \[ \expect[N_2(t)]\leq u_t+\sum_{s=u_t}^{t-1}\prob\left(\{N_2(s-1)\geq u_t\}\text{ and }\{I(s)=j\}\right) \]
   By considering the two cases where the sub-optimal arm is played: $\hat\mu_1$ is significantly lower than $\mu_1$; or $\hat\mu_2$ is significantly higher than $\mu_2$.
@@ -176,5 +297,78 @@
   \[ \mathcal{R}(T)\leq\frac{2\alpha\ln(T)}{\Delta}+\Delta\frac{\alpha+4}{\alpha-4} \]
   This requires $\alpha>4$.
 \end{answer}
+
+\begin{question}{5.}
+  Let $X\sim\text{Bern}(p)$ and $Y\sim\text{Bern}(q)$ with $p,q\in[0,1]$. Recall that the KL-Divergence of a $\text{Bern}(q)$ distribution wrt a $\text{Bern}(p)$ distribution is defined as
+  \[ KL(q;p):=q\ln\left(\frac{q}p\right)+(1-q)\ln\left(\frac{1-q}{1-p}\right) \]
+  with $x\ln(x)$ defined to be zero if $x$ is zero. Recall also that the total variation distance between these distributions, denoted $d_{TV}(\text{Bern}(q),\text{Bern}(p)):=|q-p|$. Prove \textit{Pinsker's Inequality} which states
+  \[ KL(q;p)\geq2\big(\text{Bern}(q),\text{Bern}(p)\big)^2\]
+\end{question}
+
+\begin{answer}{5.}
+  Fix the value of $p$ and define the consider the following function
+  \[\begin{array}{rrl}
+    f(q)&:=&KL(q;p)-2(q-p)^2\\
+    &=&q\ln\left(\frac{q}p\right)+(1-q)\ln\left(\frac{1-q}{1-p}\right)-2(q-p)^2\text{ by def of }KL
+  \end{array}\]
+  I will show that this function is convex
+  \[\begin{array}{rcl}
+    f'(q)&=&\ln\left(\frac{q}p\right)+q\cdot\frac{1/p}{q/p}-\ln\left(\frac{1-q}{1-p}\right)+(1-q)\frac{-1/(1-p)}{(1-q)/(1-p)}-4(q-p)\\
+    &=&\ln\left(\frac{q}p\right)-\ln\left(\frac{1-q}{1-p}\right)-4(q-p)\\
+    f''(q)&=&\frac{1/p}{q/p}-\frac{-1/(1-p)}{(1-q)/(1-p)}-4\\
+    &=&\frac1q+\frac1{1-q}-4\\
+    &=&\frac1{q(1-q)}-4
+  \end{array}\]
+  Note $\underset{q\in(0,1)}\min\frac1{q(1-q)}=\frac1{\frac12(1-\frac12)}=4$. Thus $\frac1{q(1-q)}\geq 4\ \forall\ q\in(0,1)$.
+  Further, $f''(q)\geq0$ for the whole domain $q\in(0,1)$, meaning $f(q)$ is convex.
+  \par Now note that $f'(p)=0$ (ie the minimum occurs when $q=p$) and that $f(p)=0$ (ie $\underset{q\in(0,1)}\min f(q)=0$), this means $f(q)\geq f(p)=0\ \forall\ q\in(0,1)$.
+  \par Using this inequality we can finally derive \textit{Pinsker's Inequality} for Bernoulli random variables
+  \[\begin{array}{rrcl}
+    &f(q)&\geq&0\\
+    \implies&K(q;p)-2(q-p)^2&\geq&0\\
+    \implies&K(q;p)&\geq&2(q-p)^2=2|q-p|^2\\
+    &&=&2d_{TV}(\text{Bern}(q),\text{Bern}(p))^2
+  \end{array}\]
+  This is \textit{Pinsker's Inequality} for Bernoulli random variables.
+\end{answer}
+
+% \begin{question}{6.}
+%   Let $X$ and $Y$ be random variables with probability distributions $P$ and $Q$ respectively. Suppose $P$ and $Q$ have densities $p$ and $q$ wrt a reference measure $m$ (Usually $m$ is Lebesgue measure on the real line). Then the KL-Divergence of $Q$ wrt $P$ is defined as
+%   \[ KL(Q;P):=\int q(x)\ln\left(\frac{q(x)}{p(x)}\right)dm(x) \]
+%   (If $M $ is the Lebesgue measure, we just write $dx$ instead of $dm(x)$).
+%   \par In the following you may use, without proof, the fact which follows from Jensen's inequality
+%   \[ KL(Q,P)\geq 0\quad\forall\ Q,P \]
+%   The total variation distance between $P$ and $Q$ (which is symmetric) is defined as
+%   \[ d_{TV}(Q,P):=\sup_A|Q(A)-P(A)| \]
+%   where $P(A)$ and $Q(A)$ are the probabilities of the event set $A$ under the probability measure $P$ and $Q$. The supremum is taken over all measure sets $A$
+% \end{question}
+%
+% \begin{question}{6. (a)}
+%   Let $A^*:=\{x:q(x)\geq p(x)\}$. Explain why $d_{TV}(Q,P)=Q(A^*)-P(A^*)$. Maybe use a Venn diagram (a formal prove is not required).
+% \end{question}
+%
+% \begin{answer}{6. (a)}
+%   TODO
+% \end{answer}
+%
+% \begin{question}{6. (b)}
+%   For any measureable set $A$ such that $P(A)$ is not equal to zero \underline{or} one. Show that
+%   \[ KL(Q,P)\geq K(Q(A),P(A)) \]
+%   where the term on the right refers to the KL-Divergence of a $\text{Bern}(Q(A))$ distribution wrt a $\text{Bern}(P(A))$ distribution.
+%
+% \end{question}
+%
+% \begin{answer}{6. (b)}
+%   TODO
+% \end{answer}
+%
+% \begin{question}{6. (c)}
+%   Using the answers from the last two parts, prove the general version of Pinsker's inequality, which states that for any two probability measures $P$ and $Q$ (ie not just Bernoulli)
+%   \[ KL(Q;P)\geq 2(d_{TV}(Q,P))^2 \]
+% \end{question}
+%
+% \begin{answer}{6. (c)}
+%   TODO
+% \end{answer}
 
 \end{document}

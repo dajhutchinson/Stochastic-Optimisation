@@ -168,24 +168,24 @@
 
 \subsubsection{Special Cases}
 
-\begin{theorem}{Chernoff Bound - Binomial Random Variable}
-  Let $X\sim\text{Bin}(n,\alpha)$ with $n\in\nats,\ \alpha\in(0,1)$.
-  \[\begin{array}{rl}
-    \forall\ \beta>\alpha&\prob(X\geq\beta n)\leq e^{-nK(\beta;\alpha)}\\
-    \forall\ \beta<\alpha&\prob(X\leq\beta n)\leq e^{-nK(\beta;\alpha)}
-  \end{array}\]
-  where
-  \[ K(\beta;\alpha):=\begin{cases}\beta\ln\left(\frac\beta\alpha\right)+(1-\beta)\ln\left(\frac{1-\beta}{1-\alpha}\right)&\text{if }\beta\in[0,1]\\+\infty&\text{otherwise}\end{cases} \]
-  with $x\ln(x):=0$ if $x=0$. Note that $K(\cdot;\cdot)$ is the \textit{Kullback-Leibler Divergence} for two \textit{Binomial Random Variables}.
-\end{theorem}
+  \begin{theorem}{Chernoff Bound - Binomial Random Variable}
+    Let $X\sim\text{Bin}(n,\alpha)$ with $n\in\nats,\ \alpha\in(0,1)$.
+    \[\begin{array}{rl}
+      \forall\ \beta>\alpha&\prob(X\geq\beta n)\leq e^{-nK(\beta;\alpha)}\\
+      \forall\ \beta<\alpha&\prob(X\leq\beta n)\leq e^{-nK(\beta;\alpha)}
+    \end{array}\]
+    where
+    \[ K(\beta;\alpha):=\begin{cases}\beta\ln\left(\frac\beta\alpha\right)+(1-\beta)\ln\left(\frac{1-\beta}{1-\alpha}\right)&\text{if }\beta\in[0,1]\\+\infty&\text{otherwise}\end{cases} \]
+    with $x\ln(x):=0$ if $x=0$. Note that $K(\cdot;\cdot)$ is the \textit{Kullback-Leibler Divergence} for two \textit{Binomial Random Variables}.
+  \end{theorem}
 
-\begin{theorem}{Heoffding's Inequality - Binomial Random Variables}
-  Let $X\sim\text{Bin}(n,p)$ with $n\in\nats$ and $p\in[0,1]$
-  \[\begin{array}{rl}
-    \forall\ \varepsilon>0&\prob(X\leq(p-\varepsilon)n)\leq\exp\left(-2n\varepsilon^2\right)\\
-    \forall\ \varepsilon>0&\prob(X\geq(p+\varepsilon)n)\leq\exp\left(-2n\varepsilon^2\right)
-  \end{array}\]
-\end{theorem}
+  \begin{theorem}{Heoffding's Inequality - Binomial Random Variables}
+    Let $X\sim\text{Bin}(n,p)$ with $n\in\nats$ and $p\in[0,1]$
+    \[\begin{array}{rl}
+      \forall\ \varepsilon>0&\prob(X\leq(p-\varepsilon)n)\leq\exp\left(-2n\varepsilon^2\right)\\
+      \forall\ \varepsilon>0&\prob(X\geq(p+\varepsilon)n)\leq\exp\left(-2n\varepsilon^2\right)
+    \end{array}\]
+  \end{theorem}
 
 \subsection{Transformation of Random Variables}
 
@@ -193,25 +193,25 @@
 
 % \subsection*{Continuous Random Variables}
 
-\begin{theorem}{Monotone Functions}
-  Let $X$ be a random variable and $g$ be a differentiable and strictly \underline{monotone} function.\\
-  Define $Y:=g(X)$. Then
-  \[ f_Y(y)=f_X(g^{-1}(y))\frac{1}{|g'(g^{-1}(y))} \]
-\end{theorem}
+  \begin{theorem}{Monotone Functions}
+    Let $X$ be a random variable and $g$ be a differentiable and strictly \underline{monotone} function.\\
+    Define $Y:=g(X)$. Then
+    \[ f_Y(y)=f_X(g^{-1}(y))\frac{1}{|g'(g^{-1}(y))} \]
+  \end{theorem}
 
-\begin{theorem}{Non-Monotone Functions}
-  Let $X$ be a random variable and $g$ be a differentiable and \underline{non}-monotone function.\\
-  Define $Y:=g(X)$.\\
-  Since $g$ is not monotone, then for a fixed $y$ there are multiple $x$ which solve $y=g(x)$. (Think trig functions). In this case we have to sum the probability contribution from each of these $x$s
-  \[ f_Y(y)=\sum_{x\in\{x:g(x)=y\}}f_X(x)\frac{1}{|g'(x)|} \]
-\end{theorem}
+  \begin{theorem}{Non-Monotone Functions}
+    Let $X$ be a random variable and $g$ be a differentiable and \underline{non}-monotone function.\\
+    Define $Y:=g(X)$.\\
+    Since $g$ is not monotone, then for a fixed $y$ there are multiple $x$ which solve $y=g(x)$. (Think trig functions). In this case we have to sum the probability contribution from each of these $x$s
+    \[ f_Y(y)=\sum_{x\in\{x:g(x)=y\}}f_X(x)\frac{1}{|g'(x)|} \]
+  \end{theorem}
 
-\begin{theorem}{Joint Distributions}
-  Let $\X:=\{X_1,\dots,X_n\}$ be random variables on the same sample space and $g:\reals^n\to\reals^n$ be a differentiable function.\\
-  Define $\mathbf{Y}=(Y_1,\dots,Y_n):=g(X_1,\dots,X_n)$. Then
-  \[ f_\mathbf{Y}(\mathbf{y})=\sum_{\x\in\{\x:g(\x)=\mathbf{y}\}}f_\X(\x)\frac1{|\text{det}(J_g(\x))} \]
-  where $\text{det}(J_g(\x))$ denotes the determinant of the Jacobian of $g$ wrt $\x$ (See \texttt{Definition 0.1}).
-\end{theorem}
+  \begin{theorem}{Joint Distributions}
+    Let $\X:=\{X_1,\dots,X_n\}$ be random variables on the same sample space and $g:\reals^n\to\reals^n$ be a differentiable function.\\
+    Define $\mathbf{Y}=(Y_1,\dots,Y_n):=g(X_1,\dots,X_n)$. Then
+    \[ f_\mathbf{Y}(\mathbf{y})=\sum_{\x\in\{\x:g(\x)=\mathbf{y}\}}f_\X(\x)\frac1{|\text{det}(J_g(\x))} \]
+    where $\text{det}(J_g(\x))$ denotes the determinant of the Jacobian of $g$ wrt $\x$ (See \texttt{Definition 0.1}).
+  \end{theorem}
 
 % \subsection{Markov Process} %TODO
 
@@ -350,7 +350,7 @@
     \par Noting that \textit{Hoeffding's Inequality} states
     \[ \prob(\mu_i>\hat\mu_{i,n}+x)\leq e^{-2nx^2} \]
     We can use this to find an upper-bound of a $1-\delta$ confidence interval for the value of $\mu_i$. This can be done by setting $\delta=e^{-2nx^2}$, rearranging to get $x=\sqrt{\frac1{2n}\ln\left(\frac1\delta\right)}$, and substituting this value of $x$ into \textit{Hoeffding's Inequality} to get an upper bound on $\mu_i$
-    \[ \prob(\mu_i>\hat\mu_{i,n}+\sqrt{\frac1{2n}\ln\left(\frac1\delta\right)}\right)\leq e^{-2nx^2} \]
+    \[ \prob\left(\mu_i>\hat\mu_{i,n}+\sqrt{\frac1{2n}\ln\left(\frac1\delta\right)}\right)\leq e^{-2nx^2} \]
     Here $\delta$ is a value we choose from $[0,1]$ depending upon the setting.
   \end{remark}
 
@@ -369,7 +369,7 @@
       \item In rounds $t\in(K,T]$:
       \begin{enumerate}
         \item Play the arm $i$ which maximises $UCB(\alpha,i)$.
-        \[ I(t)=\argmax\limits_{i\in[1,K]}UCB(\alpha,i):=\argmax\limits_{i\in[1,K]}\left\{\hat\mu_{i,N_i(t-1)}+\sqrt{\frac{\alpha\ln(t)}{2N_i(t-1)}}\right\} \]
+        \[ I(t)=\underset{i\in[1,K]}{\argmax}UCB(\alpha,i):=\underset{i\in[1,K]}{\argmax}\left\{\hat\mu_{i,N_i(t-1)}+\sqrt{\frac{\alpha\ln(t)}{2N_i(t-1)}}\right\} \]
         \item Update the $UCB(\alpha,i)$ value for the played arm.
       \end{enumerate}
     \end{enumerate}
@@ -424,21 +424,21 @@
   \end{proof}
 
   \begin{theorem}{Counting Lemma}
-    Let $\{I(t)\}_{t\in\nats}$ be a $\{0,1\}$-valued sequence and $N_i(t):=\sum_{s=1}^t\identity{I(s)=i}$. Then
+    Let $\{I(t)\}_{t\in\nats}$ be a $\{0,1\}$-valued sequence and $N_i(t):=\sum_{s=1}^t\indexed{I(s)=i}$. Then
     \[ \forall\ t,u\in\nats\quad N_i(t)\leq u+\sum_{s=u+1}^t\indexed\big\{(N(s-1)\geq u)\ \&\ (I(s)=i)\big\} \]
     with an empty sum defined to be zero.
     \par Note that $\big\{(N(s-1)\geq u)\ \&\ (I(s)=i)\big\}$ is the event where: arm $i$ has been played at least $u$ times so far \underline{and} is played this turn.
   \end{theorem}
 
   \begin{proof}{Theorem 2.3}
-    Fix $t,u\in\nats$. There are two possibilities
+    Fix $t,u\in\nats$. There are two cases
     \par\textit{Case 1} $N_i(t)\leq u$. (ie Have not reached $u$ yet). The result holds trivially here.
 
     \par\textit{Case 2} $\exists\ s\in[1,t]$ st $N_i(s)>u$. (ie Already reached $u$).\\
     Let $s^*$ denote the smallest such $s$. Then it must be true that $N(s^*-1)=u$ and $s^*\geq u+1$. Hence
     \everymath={\displaystyle}
     \[\begin{array}{rcl}
-      N_i(t)&=&\sum_{s=1}^{s^*-1}\identiy{I(s)=i}+\sum_{s=s^*}^t\identity{I(s)=i}\\
+      N_i(t)&=&\sum_{s=1}^{s^*-1}\indexed{I(s)=i}+\sum_{s=s^*}^t\indexed{I(s)=i}\\
       &=&\underbrace{N(s^*-1)}_{\tiny\text{by def.}}+\sum_{s=s^*}^t\indexed\{\underbrace{(N(s-1)\geq u)}_{\tiny\text{true for all in sum}}\ \&\ (I(s)=i)\}\\
       &=&u+\sum_{s=s^*}^t\indexed\{(N(s-1)\geq u)\ \&\ (I(s)=s)\}\\
       &\leq&\displaystyle u+\sum_{s=u+1}^t\indexed\{(N(s-1)\geq u)\ \&\ (I(s)=s)\}
@@ -497,7 +497,7 @@
     \[\begin{array}{rcl}
       \underset{T\to\infty}{\lim\inf}\dfrac{\R_T}{\ln(T)}&=&\underset{T\to\infty}{\lim\inf}\frac1{\ln(T)}\sum_{i\in\{i:\mu_i<\mu^*\}}\Delta_i\expect[N_i(T)]\quad\text{ by def }\R_T\\
       &=&\sum_{i\in\{i:\mu_i<\mu^*\}}\Delta_i\left[\underset{T\to\infty}{\lim\inf}\frac{\expect[N_i(T)]}{\ln(T)}\right]\\
-      &\geq&\sum_{i\in\{i:\mu_i<\mu^*\}}\frac{\Delta_i}{K(\mu_i;\mu^*)}\quad\text{by \mathit{Lai \& Robbins Theorem}}
+      &\geq&\sum_{i\in\{i:\mu_i<\mu^*\}}\frac{\Delta_i}{K(\mu_i;\mu^*)}\quad\text{by \textit{Lai \& Robbins Theorem}}
     \end{array}\]
   \end{proposition}
 
@@ -520,13 +520,11 @@
 
 \subsection{Thompson Sampling}
 
-\begin{remark}{Thompson Sampling}
-  \textit{Thompson Sampling} is a \textit{Bayesian} algorithm for the multi-armed bandit problem. It was one of the first algorithms for solving the problem, but remains on of the best as it is asymptotically optimal.
-\end{remark}
+  \begin{remark}{Thompson Sampling}
+    \textit{Thompson Sampling} is a \textit{Bayesian} algorithm for the multi-armed bandit problem. It was one of the first algorithms for solving the problem, but remains on of the best as it is asymptotically optimal.
+  \end{remark}
 
 \subsubsection{Algorithm}
-
-\subsubsection*{Bernoulli Arms}
 
   \begin{definition}{Thompson Sampling Algorithm - Bernoulli Arms}
     Consider the st up of a $K$-Armed bandit in \texttt{Proposition 2.1} with Bernoulli Arms.\\
@@ -552,15 +550,257 @@
 
   \begin{remark}{Choosing Priors for Thompson Sampling Algorithm}
     In the \textit{Thompson Sampling Algorithm} we choose priors which are \textit{conjugate} with the distribution of the arms of the bandit so the priors and posteriors are from the same family.
-    \par In the case of Bernoulli arms, Beta priors are conjugate. (See \texttt{Theorem2.5} )
+    \par For the \textit{Multi-Armed Bandit Problem} we are only interested in estimated the mean reward of a random variable. Here I list some sets of conjugate priors which can be used in \textit{Thompson Sampling} the means of specific distributions. See \texttt{Section 0.4} for a list of conjugate priors and their proofs.
   \end{remark}
 
-  \begin{theorem}{Beta are Conjugate Priors for Bernoulli Observations}
-    Let $X\sim\text{Bern}(\mu)$, let $\pi_0\sim\text{Beta}(\alpha,\beta)$ be the prior for $\mu$ and $\pi_1(\cdot|x)$ be the posterior distribution for $\mu$ given $x$ was observed. Then
-    \[ \pi_1(\mu|x)\sim\begin{cases}\text{Beta}(\alpha+1,\beta)&\text{if }x=1\\\text{Beta}(\alpha,\beta+1)&\text{if }x=0\end{cases} \]
+\subsubsection{Genie Analysis}
+
+  \begin{remark}{Genie}
+    Analysing \textit{Thompson Sampling} is hard as it is difficult to account for the scenario where there is an initial run of bad luck on the optimal arm.
+    \par In this section I analyse a simpler version of the Thompson Sampling algorithm for a 2-armed bandit. Consider the following scenario
+    \begin{quote}
+      The value of $\mu_1$ is known, but the value of $\mu_2$ is unknown. Further, it is unknown whether $\mu_1$ or $\mu_2$ is greater (ie it is not known which is the optimal arm). We only define a prior \& posterior for $\mu_2$ and we play arm 2 if the value $\theta_2(t)$ sampled from its prior is greater than the true value of $\mu_1$.
+    \end{quote}
+    \par It is likely that this scenario should be more successful (have lower regret)%TODO is this correct?
+     than the standard scenario, thus we can only find an upper bound on the regret of the normal scenario.
+  \end{remark}
+
+  \begin{theorem}{Times Sub-Optimal arm is played}
+    Suppose WLOG that arm two is the suboptimal arm (ie $\mu_1\geq\mu_2$) and consider a time horizon $T\in\nats$. Define $L:=\left\lceil\dfrac{2\ln(T)}{\Delta^2}\right\rceil\ \&\ \tau:=\inf\{t\in[1,T]:N_2(t)\geq L\}$ (The round in which arm 2 is played for the $L^{th}$ time). The probability arm two is played in any given round after round $\tau$ is bounded as
+    \[ \forall\ t\geq\tau\quad\prob(\theta_2(t)\geq\mu_1)\leq\frac2T \]
+    Futher, we can bound the expected number of times for arm two to be played after round $\tau$
+    \[\begin{array}{rcl}
+      \expect[\#\text{ plays of arm two after round }\tau]&=&\underbrace{(T-\tau)}_{\#\ Rounds}\cdot\prob(\theta_2(t)\geq\mu_1)\\
+      &\leq&(T-\tau)\frac{2}T\\
+      &\leq&2
+    \end{array}\]
   \end{theorem}
 
   \begin{proof}{Theorem 2.5}
+    \everymath={\displaystyle}
+    Consider a time horizon $T\in\nats$ and define the quantities $L:=\left\lceil\dfrac{2\ln(T)}{\Delta^2}\right\rceil$ \&  ${\tau:=\inf\{t\in[1,T]:N_2(t)\geq L\}}$.\\
+    Define the events
+    \[ A_t:=\{\theta_2(t)\geq\mu_1\}\quad B_t:=\left\{\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta2\right\} \]
+    $A_t$ is the event that the sample from the prior of $\mu_2$ in round $t$ is greater than $\mu_1$ (ie arm two is played in round $t$). $B_t$ is the event the average observed rewards from arm 2 up to round $t$ is closer to $\mu_2$ than $\mu_1$.
+    We can bound $\prob(A_t)$ as follows
+    \[\begin{array}{rcll}
+      \prob(A_t)&=&\prob(A_t\cap B_t)+\prob(A_t\cap B_t^c)\\
+      &=&\prob(A_t|B_t)\prob(B_t)+\prob(A_t|B_t^c)\prob(B_t^c)\\
+      &\leq&\prob(A_t|B_t)+\prob(B_t^c)&(1)
+    \end{array}\]
+    The inequality occurs since $\prob(X)\geq\prob(X)\prob(Y)$ for all events $X,Y$.
+    \par We shall derive bounds, which are independent of the which round it is, for the two RH terms in the final expression separately. First I bound $\prob(B_t^c)$.
+    \par If $t\geq\tau$, then $N_2(t)\geq L$ and Hoeffding's inequality yields
+    \[\begin{array}{rclll}
+      \prob(B_t^c)&\equiv&\prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta2\right)\\
+      &\equiv&\prob\left(\hat\mu_2(t)>\mu_2+\frac\Delta2\right)\\
+      &\leq&\exp\left(-2N_t\frac{\Delta^2}4\right)&\text{ by Hoeffding's Ineq.}\\
+      &\leq&\exp\left(-L\frac{\Delta^2}2\right)&\text{ since }N_2(t)\geq L\\
+      &\leq&\exp\left(-\frac{2\ln(T)}{\Delta^2}\cdot\frac{\Delta^2}2\right)=e^{-\ln(T)}&\text{ by def. }L\\
+      &=&\frac1T&(2)
+    \end{array}\]
+    Now I bound $\prob(A_t|B_t)$. Let $\theta_2(t+1)$ is the value sampled from the posterior distribution of $\mu_2$ after $t$ rounds, thus, by \texttt{Proof 0.2}, it has the following distribution
+    \[ \theta_2(t+1)\sim\text{Beta}\big(1+\underbrace{S_2(t)}_\text{\# successes},1+\underbrace{N_2(t)-S_2(t)}_\text{\# failures}\big) \]
+    Hence, by \texttt{Theorem 0.3}, the following events are equivalent
+    \[ \big\{A_{t+1}\big|S_2(t),N_2(t)\big\}:= \big\{\theta_2(t+1)\geq\mu_1\big|S_2(t),N_2(t)\big\}\equiv\big\{\text{Bin}(N_2(t)+1,\mu_1)\leq S_2(t)\big\} \]
+    By applying the result in \texttt{Theorem 1.9}, for Hoeffding's Inequality on a binomial random variable, we can derive an explicit upper-bound on the probability of the RH event occurring.
+    \[\begin{array}{rrcl}
+      &\prob\left(\text{Bin}\left(N_2(t)+1,\mu_1\right)\leq S_2(t)\right)&\leq& \exp\left(-2(N_2(t)+1)\varepsilon^2\right)\text{ by \texttt{Theorem 1.9}}\\
+      \text{where}&(N_2(t)+1)(\mu_1-\varepsilon)&=&S_2(t)\\
+      \implies&\varepsilon&=&\mu_1-\frac{S_2(t)}{N_2(t)+1}\text{ since }N_2(t),S_2(t)\in\nats\\
+      &&\geq&\mu_1-\frac{S_2(t)}{N_2(t)}\text{ noting }\mu_1<\frac{S_2(t)}{N_2(t)}\\
+      \implies&\exp(-\varepsilon^2)&\leq&\exp\left(-\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)^2\right)
+    \end{array}\]
+    Note that $\textstyle\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)\in[0,1]$ by definition of the terms and ${\forall\ x\in[0,1],\ \left(e^{-x}\right)^n\geq\left(e^{-x}\right)^{n+1}}$. Using these results we derive an upper-bound on the binomial random variable and the equivalent event $A_{t+1}$.
+    \[\begin{array}{rrcl}
+      &\prob\big(\text{Bin}(N_2(t)+1,\mu_1)\leq S_2(t)\big)&\leq&\exp\left(-2N_2(t)\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)^2\right)\\
+      \implies&\prob(A_{t+1}|S_2(t),N_2(t))&\leq&\exp\left(-2N_2(t)\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)^2\right)\\
+    \end{array}\]
+    Consider the following restatement of event $B_t$
+    \[\begin{array}{rl}
+      &\bigg\{\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta2\bigg\}\\
+      \Longleftrightarrow&\bigg\{\frac{S_2(t)}{N_2(t)}\leq\mu_1-\frac\Delta2\bigg\}\text{ by def. }\Delta\\
+      \Longleftrightarrow&\bigg\{\frac\Delta2\leq\mu_1-\frac{S_2(t)}{N_2(t)}\bigg\}
+    \end{array}\]
+    Hence, we can state a bound for $A_t$ given $B_t$ and $N_2(t)$
+    \[ \prob\big(A_t|B_t,N_2(t)\big)\leq\exp\left(-2N_2(t)\left(\dfrac\Delta2\right)^2\right)=\exp\left(-2N_2(t)\dfrac{\Delta^2}4\right) \]
+    By the definition of $\tau$, $\forall\ t\geq\tau,\ N_2(t)\geq L$. Hence we can derive a bound for $A_t$ given $B_t$ which is independent of $N_2(t)$
+    \[\begin{array}{rrcll}
+      \forall\ t\geq\tau&\prob(A_t|B_t)&\leq&\exp\left(-2N_2(t)\dfrac{\Delta^2}4\right)\\
+      &&\leq&\exp\left(-L\frac{\Delta^2}2\right)\\
+      &&=&\exp\left(-\frac{2\ln(T)}{\Delta^2}\cdot\frac{\Delta^2}2\right)\text{ by def. }L\\
+      &&\leq&\exp(-\ln T)\\
+      &&=&\frac1T&(3)
+    \end{array}\]
+    \par By substituting the bounds $(2)$ and $(3)$ into expression $(1)$ we get the following bound for event $A_t$
+    \[ \forall\ t\geq\tau\quad\prob(A_t)\leq\prob(A_t|B_t)+\prob(B_t^c)\leq\frac1T+\frac1T=\frac2T \]
+    This is the stated result of \texttt{Theorem 2.5} \proved
+  \end{proof}
+
+  \begin{proposition}{Bound of Regret}
+    Using \texttt{Theorem 2.5} we can bound the regret of Genie-Thompson Sampling as
+    \[ \mathcal{R}(T)\leq\Delta\cdot(L+2) \]
+    where $L+2$ is the most time arm two is played in the first $T$ time steps.
+  \end{proposition}
+
+\subsubsection{Analysis}
+
+  \begin{remark}{Analysis of Thompson Sampling is Hard}
+    Analysing \textit{Thompson Sampling} is hard as it is difficult to deal with the situation where there is an initial run of bad luck on the optimal arm. This causes the posterior for the optimal arm to be biased towards small values. Hence, the optimal arm is not played very often meaning it takes a long time to recover from the initial bad luck.
+    \par For contrast, we only worry about plays of the sub-optimal arm when they are played too often. However, in this scenario the posterior for the sub-optimal arm will be concentrated around the true parameter value and thus the samples arm truer representations.
+  \end{remark}
+
+  \begin{theorem}{Upper Bound on Regret}
+    Consider a two-armed bandit with Bernoulli arms.\\
+    The regret of \textit{Thompson Sampling} over time horizon $T$ is bounded as
+    \[ \R_T\leq\frac{40\ln(T)}\Delta+c \]
+    where $c$ is an arbitrary constant which is independent of $T$.
+    \par\textit{The proof to this theorem is not given in full, but some useful lemmas are shown.}
+  \end{theorem}
+
+  \begin{theorem}{Number of times wrong arm is played}
+    Consider the set up of a $2$-Armed bandit in \texttt{Proposition 2.1} with Bernoulli Arms and assume WLOG that arm 1 is the optimal arm (ie $\mu_1>\mu_2$).
+    \par Consider using \textit{Thompson Sampling} over time horizon $T$. Define $L=\left\lceil\frac{24\ln(T)}{\Delta^2}\right\rceil$  and ${\tau=\inf\{t\in[0,T]:N_2(t)\geq L\}}$ (The time at which arm 2 is played for the $L^{th}$ time).\\ Then
+    \[ \text{For }t\in[\tau,T]\quad\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\leq\frac2{T^3} \]
+    where $\theta_i(t)$ is the value sampled from the prior of $\mu_i$ at time $t$.
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.7}
+    Consider using \textit{Thompson Sampling} over time horizon $T$. Define $L=\left\lceil\frac{24\ln(T)}{\Delta^2}\right\rceil$  and ${\tau=\inf\{t\in[0,T]:N_2(t)\geq L\}}$ (The time at which arm 2 is played for the $L^{th}$ time).\\
+    \everymath={\displaystyle}
+    By the definition of $\tau$, if $t\geq\tau$ then $N_2(t)\geq L$. Thus
+    \[\begin{array}{rlll}
+    &\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\\
+    =&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)+\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)\\
+    \leq&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)+\prob\left(\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)&(1)
+    \end{array}\]
+    the last step occurs because \footnote{For all random variables $X,Y$ $\prob(X|Y)\geq\prob(X,Y)$ and $\prob(X)\geq\prob(X,Y)$}
+    \[\begin{array}{rrcl}
+      &\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)&\leq&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)\\
+      \text{and }&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)&\leq&\prob\left(\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)
+    \end{array}\]
+    We now bound both terms in $(1)$ seperately.
+    \par Firstly, conditional on the number of times the second arm is player $N_2(T)$, the total reward from these plays $S_2(t)$ is the sum of $N_2(t)$ independent $\text{Bern}(\mu_2)$ random variables. Hence, using \textit{Hoeffding's Inequality} and noting that $\textstyle\expect\left(\frac{S_2(t)}{N_2(t)}\right)=\mu_2$, we have
+    \[ \prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\bigg|N_2(t)\right)\leq\exp\left(-2N_2(t)\left(\frac\Delta4\right)^2\right)=\exp\left(-N_2(t)\frac{\Delta^2}8\right) \]
+    As we have assumed that $N_2(t)\geq L\geq\frac1{\Delta^2}(24\ln(T))$ meaning $-N_2(t)\leq\frac1{\Delta^2}(24\ln(T))$. Thus
+    \[\begin{array}{rrcll}
+    &-N_2(t)\frac{\Delta^2}8&\geq&-\frac{24}{8}\ln(T)\\
+    &&=&-3\ln(T)\\
+    \implies&\prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\right)&\leq&\exp\left(-3\ln(T)\right)\\
+    &&=&\frac1{T^3}&(2)
+    \end{array}\]
+    Next, we note that conditional on $S_2(t)$ and $N_2(t)$, by \texttt{Proof 0.2}  the distribution of $\theta_2(t)$ is ${\text{Beta}\big(\underbrace{S_2(t)+1}_\alpha,\underbrace{N_2(t)-S_2(t)+1}_\beta\big)}$. Consequently, by \texttt{Proof 0.3}, we have that
+    \[ \prob\bigg(\theta_2(t)\geq\underbrace{\mu_2+\frac\Delta2}_p\bigg)=\prob\bigg(\text{Bin}\bigg(\underbrace{N_2(t)+1}_{\alpha+\beta-1},\underbrace{\mu_2+\frac\Delta2}_p\bigg)\leq \underbrace{S_2(t)}_{\alpha-1}\bigg) \]
+    By applying the result in \texttt{Theorem 1.9}, for Hoeffding's Inequality on a binomial random variable, we can derive an explicit upper-bound on the probability.
+    \[\begin{array}{rrcl}
+      &\prob\left(\text{Bin}\left(N_2(t)+1,\mu_2+\frac\Delta2\right)\leq S_2(t)\right)&\leq& \exp\left(-2(N_2(t)+1)\varepsilon^2\right)\text{ by \texttt{Theorem 1.9}}\\
+      \text{where}&\left(N_2(t)+1\right)\left(\mu_2+\frac\Delta2-\varepsilon\right)&=&S_2(t)\\
+      \implies&\mu_2+\frac\Delta2-\varepsilon&=&\frac{S_2(t)}{N_2(t)+1}\\
+      \implies&\varepsilon&=&\mu_2+\frac\Delta2-\frac{S_2(t)}{N_2(t)+1}\\
+      &&\leq&\mu_2+\frac\Delta2-\left(\mu_2+\frac\Delta4\right)\quad\text{assuming }\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\\
+      &&=&\frac\Delta4\\
+      \implies&\exp(-\varepsilon^2)&\leq&\exp\left(-\left(\frac\Delta4\right)^2\right)=\exp\left(-\frac{\Delta^2}{16}\right)
+    \end{array}\]
+    This gives us the following bound
+    \[ \prob\left(\text{Bin}\left(N_2(t)+1,\mu_2+\frac\Delta2\right)\leq S_2(t)\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)\leq\exp\left(-2(N_2(t)+1)\frac{\Delta^2}{16}\right) \]
+    Substituting this result into the original expression involving the binomial we get
+    \[\begin{array}{rcll}
+      \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)&\leq&\exp\left(-2\big(N_2(t)+1\big)\frac{\Delta^2}{16}\right)\\
+      &\leq&\exp\left(-\frac{L\Delta^2}8\right)\text{ since }N_2(t)\geq L\\
+      &\leq&\exp\left(-\frac{24\ln(T)}{\Delta^2}\cdot\frac{\Delta^2}8\right)\text{ by def. of }L\\
+      &=&\exp\left(-3\ln(T)\right)\\
+      &=&\frac1{T^3}&(3)
+    \end{array}\]
+    Substituting $(2)$ and $(3)$ into $(1)$, we can conclude that if $t\geq\tau$ (ie $N_2(t)\geq L$) then
+    \[ \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\leq\frac1{T^3}+\frac1{T^3}=\frac2{T^3} \]
+
+    This is the stated result of \texttt{Theorem 2.7} \proved
+  \end{proof}
+
+\newpage
+\setcounter{section}{-1}
+\section{Reference}
+
+\subsection{Notation}
+
+  \begin{proposition}{Notation for Multi-Armed Bandit Problem}
+    The following notation is used to simplifier analysis of the \textit{Multi-Armed Bandit Problem}
+    \begin{tabular}{|rcl|l|}
+      \hline
+      $I(t)$&$\in$&$[1,K]$&The arm out strategy $I$ plays at time $t$.\\
+      $N_j(t)$&$:=$&$\displaystyle\sum_{s=1}^t\indexed(I(s)=j)$&The number of times arm $j$ has been played in the first $t$ rounds.\\
+      $S_j(t)$&$:=$&$\displaystyle\sum_{s=1}^tX_j(s)\indexed(I(s)=j)$&The total reward from arm $j$ in the first $t$ rounds.\\
+      $\hat\mu_{j,n}$&$:=$&$\displaystyle\frac{S_j(t)}{N_j(t)}$&The sample mean reward from arm $j$ in the first $n$ plays of arm $j$.\\
+      $\Delta_i$&$:=$&$(\mu^*-\mu_i)$ & The reward lost from playing arm $i$ rather than the optimal arm.\\
+      \hline
+    \end{tabular}
+  \end{proposition}
+
+\subsection{Definition}
+
+  \begin{definition}{Jacobian $J(\cdot)$}
+    Let $f:\reals^n\to\reals^m$ and $\x\in\reals^n$.
+    \[ J_f(\x)=\begin{pmatrix}
+      \frac{\partial f_1}{\partial x_1}(\x)&\dots&\frac{\partial f_m}{\partial x_1}(\x)\\
+      \vdots&\ddots&\vdots\\
+      \frac{\partial f_1}{\partial x_n}(\x)&\dots&\frac{\partial f_m}{\partial x_n}(\x)
+    \end{pmatrix} \]
+  \end{definition}
+
+\subsection{Theorems}
+
+  \begin{theorem}{Relationship between Beta \& Gamma Distribution}
+    Let $X\sim\text{Gamma}(\alpha,\lambda)$ and $Y\sim\text{Gamma}(\beta,\lambda)$ (ie shared scale parameter but different shape parameters). Then
+    \[ V:=\frac{X}{X+Y}\sim\text{Beta}(\alpha,\beta) \]
+    \textit{A proof for this is given in the full notes.}
+  \end{theorem}
+
+  \begin{theorem}{Result for Poisson Processes}
+    Let $\{N_s\}_{s\in\nats}$ be a poisson process with intensity $\lambda>0$ and fix $n,t\in\nats$. Then, given that $N_t=n$, the random times at which the process sees an increment in time $[0,t]$ are mutually independent and uniformly distributed on $[0,t]$
+  \end{theorem}
+
+  \begin{theorem}{Relationship between Beta and Bernoulli Random Variables}
+    Let $X\sim\text{Beta}(\alpha,\beta)$ for $\alpha,\beta\in\nats$ and $Y\sim\text{Bin}(\alpha+\beta-1,p)$ for $p\in(0,1)$. Then
+    \[ \prob(X>p)=\prob(Y\leq\alpha-1) \]
+  \end{theorem}
+
+  \begin{proof}{Theorem 0.3}
+    Let $\{N_t\}_{t\in\nats}$ be a poisson process with unit-intensity and $T_n$ be the time of the $n^{th}$ increment.
+    \par Let $X\sim\text{Beta}(\alpha,\beta)$ then by \texttt{Theorem 0.1} we can write $X=\frac{V}{V+W}$ where $V,W$ are independent with distributions $V\sim\text{Gamma}(\alpha,1),\ W\sim\text{Gamma}(\beta,1)$. If $\alpha,\beta$ are integers then we can interpret $T_\alpha\sim V$ and $(T_{\alpha+\beta}-T_\alpha)\sim W$.
+    \par Hence, the following events are equivalent
+    \[ \{X>p\}\Longleftrightarrow\left\{\frac{T_\alpha}{T_{\alpha+\beta}}>p\right\}\Longleftrightarrow\{T_\alpha>pT_{\alpha+\beta}\} \]
+    $N_t$ increments $\alpha+\beta-1$ times in $(0,T_{\alpha+\beta})$. By \texttt{Theorem 0.2}, these increments are uniformly and independently distributed in $[0,T_{\alpha+\beta}]$.
+    \par Hence the number of increments in time $[0,pT_{\alpha+\beta}]$ has a $\text{Bin}(\alpha+\beta-1,p)$ distribution. This the same distribution as $Y$ from the stated theorem.
+    \par The event $\{T_\alpha>pT_{\alpha+\beta}\}$ is the event that the number of increments of $N_t$ in $[0,T_{\alpha+\beta}]$ is at most $\alpha-1$. Meaning the following events are equivalent
+    \[ \{T_\alpha>pT_{\alpha+\beta}\}\Longleftrightarrow\{Y\leq \alpha-1\} \].
+    Thus, we have a full chain of equivalent events
+    \[\begin{array}{rl}
+    &\{X>p\}\Longleftrightarrow\left\{\frac{T_\alpha}{T_{\alpha+\beta}}>p\right\}\Longleftrightarrow\{T_\alpha>pT_{\alpha+\beta}\}\Longleftrightarrow\{Y\leq \alpha-1\}\\
+    \implies&\{X>p\}\Longleftrightarrow\{Y\leq \alpha-1\}\\
+    \implies&\prob(X>p)\Longleftrightarrow\prob(Y\leq\alpha-1)
+    \end{array}\]
+    The result of the theorem.
+    \proved
+  \end{proof}
+
+\subsection{Conjugate Priors}
+
+  {
+  \hspace*{-1cm}
+    \begin{tabular}{|l|l|l|l|}
+      \hline
+      \textbf{Reward Distribution} $X$&\textbf{Prior} $\pi_0$&\textbf{Posterior} $\pi_1(\cdot|x)$&\textbf{Proof}\\
+      \hline
+      $\text{Bernoulli}(p)$ with $p$ unknown&$\pi_0(p)\sim\text{Beta}(\alpha,\beta)$&$\pi_1(p|x)\sim\begin{cases}\text{Beta}(\alpha+1,\beta)&\text{if }x=1\\\text{Beta}(\alpha,\beta+1)&\text{if }x=0\end{cases}$&\texttt{Proof 0.2}\\
+      \hline
+      $\text{Poisson}(\lambda)$ with $\lambda$ unknown&$\pi_0(\lambda)\sim\text{Gamma}(\alpha,\beta)$&$\pi_1(\lambda|n)\sim\text{Gamma}(\alpha+n,\beta+1)$&\texttt{Proof 0.3}\\
+      \hline
+      $\text{Normal}(\mu,1)$ with $\mu$&$\pi_0\sim\text{Normal}(\mu_0,\sigma_0^2)$&$\pi_1(\mu|x)\sim\text{Normal}\left(\frac{\mu_0+x\sigma_0^2}{1+\sigma_0^2},\frac{\sigma_0^2}{1+\sigma_0^2}\right)$&\texttt{Proof 0.4}\\
+      \hline
+    \end{tabular}
+  }
+
+  \begin{proof}{Beta Distributions are Conjugate Priors for Bernoulli Observations}
     Let $X\sim\text{Bern}(\mu)$, let $\pi_0\sim\text{Beta}(\alpha,\beta)$ be the prior for $\mu$ and $\pi_1(\cdot|X)$ be the posterior distribution for $\mu$ given $X$ was observed. This means
     \[ \pi_1(\mu|x)\propto\pi_0(\mu)p_X(x) \]
     Note that
@@ -584,239 +824,53 @@
     \proved
   \end{proof}
 
-  TODO move this theorem somewhere relevant.\\
-  \begin{theorem}{Relationship between Beta and Bernoulli Random Variables}
-    Let $X\sim\text{Beta}(\alpha,\beta)$ for $\alpha,\beta\in\nats$ and $Y\sim\text{Bin}(\alpha+\beta-1,p)$ for $p\in(0,1)$. Then
-    \[ \prob(X>p)=\prob(Y\leq\alpha-1) \]
-  \end{theorem}
-
-  \begin{proof}{Theorem 2.6}
-    Let $\{N_t\}_{t\in\nats}$ be a poisson process with unit-intensity and $T_n$ be the time of the $n^{th}$ increment.
-    \par Let $X\sim\text{Beta}(\alpha,\beta)$ then by \texttt{Theorem 0.1} we can write $X=\frac{V}{V+W}$ where $V,W$ are independent with distributions $V\sim\text{Gamma}(\alpha,1),\ W\sim\text{Gamma}(\beta,1)$. If $\alpha,\beta$ are integers then we can interpret $T_\alpha\sim V$ and $(T_{\alpha+\beta}-T_\alpha)\sim W$.
-    \par Hence, the following events are equivalent
-    \[ \{X>p\}\Longleftrightarrow\left\{\frac{T_\alpha}{T_{\alpha+\beta}}>p\right\}\Longleftrightarrow\{T_\alpha>pT_{\alpha+\beta}\} \]
-    $N_t$ increments $\alpha+\beta-1$ times in $(0,T_{\alpha+\beta})$. By \texttt{Theorem 0.2}, these increments are uniformly and independently distributed in $[0,T_{\alpha+\beta}]$.
-    \par Hence the number of increments in time $[0,pT_{\alpha+\beta}]$ has a $\text{Bin}(\alpha+\beta-1,p)$ distribution. This the same distribution as $Y$ from the stated theorem.
-    \par The event $\{T_\alpha>pT_{\alpha+\beta}\}$ is the event that the number of increments of $N_t$ in $[0,T_{\alpha+\beta}]$ is at most $\alpha-1$. Meaning the following events are equivalent
-    \[ \{T_\alpha>pT_{\alpha+\beta}\}\Longleftrightarrow\{Y\leq \alpha-1\} \].
-    Thus, we have a full chain of equivalent events
-    \[\begin{array}{rl}
-    &\{X>p\}\Longleftrightarrow\left\{\frac{T_\alpha}{T_{\alpha+\beta}}>p\right\}\Longleftrightarrow\{T_\alpha>pT_{\alpha+\beta}\}\Longleftrightarrow\{Y\leq \alpha-1\}\\
-    \implies&\{X>p\}\Longleftrightarrow\{Y\leq \alpha-1\}\\
-    \implies&\prob(X>p)\Longleftrightarrow\prob(Y\leq\alpha-1)
+  \begin{proof}{Gamma Distributions are Conjugate Priors for Poisson Observations}
+    Let $X\sim\text{Poisson}(\lambda)$ where $\lambda$ is unknown, $\pi_0$ be the prior distribution for $\lambda$ and $\pi_1(\cdot|n)$ be the posterior distribution for $\lambda$, given the value $n$ was sampled from $X$. This means
+    \[ \pi_1(\lambda|n)\propto\pi_0(\lambda)p_\lambda(n) \]
+    where $p_\lambda(n):=\prob(X=n)$ given $X\sim\text{Poisson}(\lambda)$.
+    \par Suppose $\pi_0\sim\text{Gamma}(\alpha,\beta)$ and note that
+    \[ p_\lambda(n)=\frac{\lambda^ne^{-\lambda}}{n!}\quad\text{and}\quad \pi_0(\lambda)=\frac{\lambda^{\alpha-1}e^{-\lambda\beta}}{\Gamma(\alpha)\beta^\alpha} \]
+    As we are considering proportionality wrt $\lambda$, we can ignore terms which do not involve $\lambda$. Giving
+    \[ p_\lambda(n)\propto\lambda^ne^{-\lambda}\quad\text{and}\quad \pi_0(\lambda)\propto\lambda^{\alpha-1}e^{-\lambda\beta} \]
+    Using these results we can build an expression for the posterior $\pi_1(\cdot|n)$
+    \[\begin{array}{rcl}
+        \pi_1(\lambda|n)&\propto&\pi_0(\lambda)p_\lambda(n)\\
+        &\propto&\left(\lambda^{\alpha-1}e^{-\lambda\beta}\right)\cdot\left(\lambda^ne^{-\lambda}\right)\\
+        &=&\lambda^{n+\alpha-1}e^{-\lambda(\beta+1)}
     \end{array}\]
-    The result of the theorem.
+    By comparing this expression to that of a Gamma distribution we have that
+    \[ \pi_1(\lambda|n)\sim\text{Gamma}(\alpha+n,\beta+1) \]
     \proved
   \end{proof}
 
-\subsubsection*{Poisson Observations}
-
-\subsubsection*{Gaussian Observations}
-
-\subsubsection{Genie Analysis}
-
-\begin{remark}{Genie}
-  Analysing \textit{Thompson Sampling} is hard as it is difficult to account for the scenario where there is an initial run of bad luck on the optimal arm.
-  \par In this section I analyse a simpler version of the Thompson Sampling algorithm for a 2-armed bandit. Consider the following scenario
-  \begin{quote}
-    The value of $\mu_1$ is known, but the value of $\mu_2$ is unknown. Further, it is unknown whether $\mu_1$ or $\mu_2$ is greater (ie it is not known which is the optimal arm). We only define a prior \& posterior for $\mu_2$ and we play arm 2 if the value $\theta_2(t)$ sampled from its prior is greater than the true value of $\mu_1$.
-  \end{quote}
-  \par It is likely that this scenario should be more successful (have lower regret)%TODO is this correct?
-   than the standard scenario, thus we can only find an upper bound on the regret of the normal scenario.
-\end{remark}
-
-\begin{theorem}{Times Sub-Optimal arm is played}
-  Suppose WLOG that arm two is the suboptimal arm (ie $\mu_1\geq\mu_2$) and consider a time horizon $T\in\nats$. Define $L:=\left\lceil\dfrac{2\ln(T)}{\Delta^2}\right\rceil\ \&\ \tau:=\inf\{t\in[1,T]:N_2(t)\geq L\}$ (The round in which arm 2 is played for the $L^{th}$ time). The probability arm two is played in any given round after round $\tau$ is bounded as
-  \[ \forall\ t\geq\tau\quad\prob(\theta_2(t)\geq\mu_1)\leq\frac2T \]
-  Futher, we can bound the expected number of times for arm two to be played after round $\tau$
-  \[\begin{array}{rcl}
-    \expect[\#\text{ plays of arm two after round }\tau]&=&\underbrace{(T-\tau)}_{\#\ Rounds}\cdot\prob(\theta_2(t)\geq\mu_1)\\
-    &\leq&(T-\tau)\frac{2}T\\
-    &\leq&2
-  \end{array}\]
-\end{theorem}
-
-\begin{proof}{Theorem 2.7}
-  \everymath={\displaystyle}
-  Consider a time horizon $T\in\nats$ and define the quantities $L:=\left\lceil\dfrac{2\ln(T)}{\Delta^2}\right\rceil$ \&  ${\tau:=\inf\{t\in[1,T]:N_2(t)\geq L\}}$.\\
-  Define the events
-  \[ A_t:=\{\theta_2(t)\geq\mu_1\}\quad B_t:=\left\{\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta2\right\} \]
-  $A_t$ is the event that the sample from the prior of $\mu_2$ in round $t$ is greater than $\mu_1$ (ie arm two is played in round $t$). $B_t$ is the event the average observed rewards from arm 2 up to round $t$ is closer to $\mu_2$ than $\mu_1$.
-  We can bound $\prob(A_t)$ as follows
-  \[\begin{array}{rcll}
-    \prob(A_t)&=&\prob(A_t\cap B_t)+\prob(A_t\cap B_t^c)\\
-    &=&\prob(A_t|B_t)\prob(B_t)+\prob(A_t|B_t^c)\prob(B_t^c)\\
-    &\leq&\prob(A_t|B_t)+\prob(B_t^c)&(1)
-  \end{array}\]
-  The inequality occurs since $\prob(X)\geq\prob(X)\prob(Y)$ for all events $X,Y$.
-  \par We shall derive bounds, which are independent of the which round it is, for the two RH terms in the final expression separately. First I bound $\prob(B_t^c)$.
-  \par If $t\geq\tau$, then $N_2(t)\geq L$ and Hoeffding's inequality yields
-  \[\begin{array}{rclll}
-    \prob(B_t^c)&\equiv&\prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta2\right)\\
-    &\equiv&\prob\left(\hat\mu_2(t)>\mu_2+\frac\Delta2\right)\\
-    &\leq&\exp\left(-2N_t\frac{\Delta^2}4\right)&\text{ by Hoeffding's Ineq.}\\
-    &\leq&\exp\left(-L\frac{\Delta^2}2\right)&\text{ since }N_2(t)\geq L\\
-    &\leq&\exp\left(-\frac{2\ln(T)}{\Delta^2}\cdot\frac{\Delta^2}2\right)=e^{-\ln(T)}&\text{ by def. }L\\
-    &=&\frac1T&(2)
-  \end{array}\]
-  Now I bound $\prob(A_t|B_t)$. Let $\theta_2(t+1)$ is the value sampled from the posterior distribution of $\mu_2$ after $t$ rounds, thus, by \texttt{Theorem 2.5}, it has the following distribution
-  \[ \theta_2(t+1)\sim\text{Beta}\big(1+\underbrace{S_2(t)}_\text{\# successes},1+\underbrace{N_2(t)-S_2(t)}_\text{\# failures}\big) \]
-  Hence, by \texttt{Theorem 2.6}, the following events are equivalent
-  \[ \big\{A_{t+1}\big|S_2(t),N_2(t)\big\}:= \big\{\theta_2(t+1)\geq\mu_1\big|S_2(t),N_2(t)\big\}\equiv\big\{\text{Bin}(N_2(t)+1,\mu_1)\leq S_2(t)\big\} \]
-  By applying the result in \texttt{Theorem 1.9}, for Hoeffding's Inequality on a binomial random variable, we can derive an explicit upper-bound on the probability of the RH event occurring.
-  \[\begin{array}{rrcl}
-    &\prob\left(\text{Bin}\left(N_2(t)+1,\mu_1\right)\leq S_2(t)\right)&\leq& \exp\left(-2(N_2(t)+1)\varepsilon^2\right)\text{ by \texttt{Theorem 1.9}}\\
-    \text{where}&(N_2(t)+1)(\mu_1-\varepsilon)&=&S_2(t)\\
-    \implies&\varepsilon&=&\mu_1-\frac{S_2(t)}{N_2(t)+1}\text{ since }N_2(t),S_2(t)\in\nats\\
-    &&\geq&\mu_1-\frac{S_2(t)}{N_2(t)}\text{ noting }\mu_1<\frac{S_2(t)}{N_2(t)}\\
-    \implies&\exp(-\varepsilon^2)&\leq&\exp\left(-\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)^2\right)
-  \end{array}\]
-  Note that $\textstyle\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)\in[0,1]$ by definition of the terms and ${\forall\ x\in[0,1],\ \left(e^{-x}\right)^n\geq\left(e^{-x}\right)^{n+1}}$. Using these results we derive an upper-bound on the binomial random variable and the equivalent event $A_{t+1}$.
-  \[\begin{array}{rrcl}
-    &\prob\big(\text{Bin}(N_2(t)+1,\mu_1)\leq S_2(t)\big)&\leq&\exp\left(-2N_2(t)\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)^2\right)\\
-    \implies&\prob(A_{t+1}|S_2(t),N_2(t))&\leq&\exp\left(-2N_2(t)\left(\mu_1-\frac{S_2(t)}{N_2(t)}\right)^2\right)\\
-  \end{array}\]
-  Consider the following restatement of event $B_t$
-  \[\begin{array}{rl}
-    &\bigg\{\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta2\bigg\}\\
-    \Longleftrightarrow&\bigg\{\frac{S_2(t)}{N_2(t)}\leq\mu_1-\frac\Delta2\bigg\}\text{ by def. }\Delta\\
-    \Longleftrightarrow&\bigg\{\frac\Delta2\leq\mu_1-\frac{S_2(t)}{N_2(t)}\bigg\}
-  \end{array}\]
-  Hence, we can state a bound for $A_t$ given $B_t$ and $N_2(t)$
-  \[ \prob\big(A_t|B_t,N_2(t)\big)\leq\exp\left(-2N_2(t)\left(\dfrac\Delta2\right)^2\right)=\exp\left(-2N_2(t)\dfrac{\Delta^2}4\right) \]
-  By the definition of $\tau$, $\forall\ t\geq\tau,\ N_2(t)\geq L$. Hence we can derive a bound for $A_t$ given $B_t$ which is independent of $N_2(t)$
-  \[\begin{array}{rrcll}
-    \forall\ t\geq\tau&\prob(A_t|B_t)&\leq&\exp\left(-2N_2(t)\dfrac{\Delta^2}4\right)\\
-    &&\leq&\exp\left(-L\frac{\Delta^2}2\right)\\
-    &&=&\exp\left(-\frac{2\ln(T)}{\Delta^2}\cdot\frac{\Delta^2}2\right)\text{ by def. }L\\
-    &&\leq&\exp(-\ln T)\\
-    &&=&\frac1T&(3)
-  \end{array}\]
-  \par By substituting the bounds $(2)$ and $(3)$ into expression $(1)$ we get the following bound for event $A_t$
-  \[ \forall\ t\geq\tau\quad\prob(A_t)\leq\prob(A_t|B_t)+\prob(B_t^c)\leq\frac1T+\frac1T=\frac2T \]
-  This is the stated result of \texttt{Theorem 2.7} \proved
-\end{proof}
-
-\begin{proposition}{Bound of Regret}
-  Using \texttt{Theorem 2.7} we can bound the regret of Genie-Thompson Sampling as
-  \[ \mathcal{R}(T)\leq\Delta\cdot(L+2) \]
-  where $L+2$ is the most time arm two is played in the first $T$ time steps.
-\end{proposition}
-
-\subsubsection{Analysis}
-
-\begin{remark}{Analysis of Thompson Sampling is Hard}
-  Analysing \textit{Thompson Sampling} is hard as it is difficult to deal with the situation where there is an initial run of bad luck on the optimal arm. This causes the posterior for the optimal arm to be biased towards small values. Hence, the optimal arm is not played very often meaning it takes a long time to recover from the initial bad luck.
-  \par For contrast, we only worry about plays of the sub-optimal arm when they are played too often. However, in this scenario the posterior for the sub-optimal arm will be concentrated around the true parameter value and thus the samples arm truer representations.
-\end{remark}
-
-\begin{theorem}{Upper Bound on Regret}
-  Consider a two-armed bandit with Bernoulli arms.\\
-  The regret of \textit{Thompson Sampling} over time horizon $T$ is bounded as
-  \[ \R_T\leq\frac{40\ln(T)}\Delta+c \]
-  where $c$ is an arbitrary constant which is independent of $T$.
-  \par\textit{The proof to this theorem is not given in full, but some useful lemmas are shown.}
-\end{theorem}
-
-\begin{theorem}{Number of times wrong arm is played}
-  Consider the set up of a $2$-Armed bandit in \texttt{Proposition 2.1} with Bernoulli Arms and assume WLOG that arm 1 is the optimal arm (ie $\mu_1>\mu_2$).
-  \par Consider using \textit{Thompson Sampling} over time horizon $T$. Define $L=\left\lceil\frac{24\ln(T)}{\Delta^2}\right\rceil$  and ${\tau=\inf\{t\in[0,T]:N_2(t)\geq L\}}$ (The time at which arm 2 is played for the $L^{th}$ time).\\ Then
-  \[ \text{For }t\in[\tau,T]\quad\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\leq\frac2{T^3} \]
-  where $\theta_i(t)$ is the value sampled from the prior of $\mu_i$ at time $t$.
-\end{theorem}
-
-\begin{proof}{Theorem 2.9}
-  Consider using \textit{Thompson Sampling} over time horizon $T$. Define $L=\left\lceil\frac{24\ln(T)}{\Delta^2}\right\rceil$  and ${\tau=\inf\{t\in[0,T]:N_2(t)\geq L\}}$ (The time at which arm 2 is played for the $L^{th}$ time).\\
-  \everymath={\displaystyle}
-  By the definition of $\tau$, if $t\geq\tau$ then $N_2(t)\geq L$. Thus
-  \[\begin{array}{rlll}
-  &\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\\
-  =&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)+\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)\\
-  \leq&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)+\prob\left(\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)&(1)
-  \end{array}\]
-  the last step occurs because \footnote{For all random variables $X,Y$ $\prob(X|Y)\geq\prob(X,Y)$ and $\prob(X)\geq\prob(X,Y)$}
-  \[\begin{array}{rrcl}
-    &\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)&\leq&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)\\
-    \text{and }&\prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2,\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)&\leq&\prob\left(\frac{S_2(t)}{N_2(T)}>\mu_2+\frac\Delta4\right)
-  \end{array}\]
-  We now bound both terms in $(1)$ seperately.
-  \par Firstly, conditional on the number of times the second arm is player $N_2(T)$, the total reward from these plays $S_2(t)$ is the sum of $N_2(t)$ independent $\text{Bern}(\mu_2)$ random variables. Hence, using \textit{Hoeffding's Inequality} and noting that $\textstyle\expect\left(\frac{S_2(t)}{N_2(t)}\right)=\mu_2$, we have
-  \[ \prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\bigg|N_2(t)\right)\leq\exp\left(-2N_2(t)\left(\frac\Delta4\right)^2\right)=\exp\left(-N_2(t)\frac{\Delta^2}8\right) \]
-  As we have assumed that $N_2(t)\geq L\geq\frac1{\Delta^2}(24\ln(T))$ meaning $-N_2(t)\leq\frac1{\Delta^2}(24\ln(T))$. Thus
-  \[\begin{array}{rrcll}
-  &-N_2(t)\frac{\Delta^2}8&\geq&-\frac{24}{8}\ln(T)\\
-  &&=&-3\ln(T)\\
-  \implies&\prob\left(\frac{S_2(t)}{N_2(t)}>\mu_2+\frac\Delta4\right)&\leq&\exp\left(-3\ln(T)\right)\\
-  &&=&\frac1{T^3}&(2)
-  \end{array}\]
-  Next, we note that conditional on $S_2(t)$ and $N_2(t)$, by \texttt{Theorem 2.5}  the distribution of $\theta_2(t)$ is ${\text{Beta}\big(\underbrace{S_2(t)+1}_\alpha,\underbrace{N_2(t)-S_2(t)+1}_\beta\big)}$. Consequently, by \texttt{Theorem 2.6}, we have that
-  \[ \prob\bigg(\theta_2(t)\geq\underbrace{\mu_2+\frac\Delta2}_p\bigg)=\prob\bigg(\text{Bin}\bigg(\underbrace{N_2(t)+1}_{\alpha+\beta-1},\underbrace{\mu_2+\frac\Delta2}_p\bigg)\leq \underbrace{S_2(t)}_{\alpha-1}\bigg) \]
-  By applying the result in \texttt{Theorem 1.9}, for Hoeffding's Inequality on a binomial random variable, we can derive an explicit upper-bound on the probability.
-  \[\begin{array}{rrcl}
-    &\prob\left(\text{Bin}\left(N_2(t)+1,\mu_2+\frac\Delta2\right)\leq S_2(t)\right)&\leq& \exp\left(-2(N_2(t)+1)\varepsilon^2\right)\text{ by \texttt{Theorem 1.9}}\\
-    \text{where}&\left(N_2(t)+1\right)\left(\mu_2+\frac\Delta2-\varepsilon\right)&=&S_2(t)\\
-    \implies&\mu_2+\frac\Delta2-\varepsilon&=&\frac{S_2(t)}{N_2(t)+1}\\
-    \implies&\varepsilon&=&\mu_2+\frac\Delta2-\frac{S_2(t)}{N_2(t)+1}\\
-    &&\leq&\mu_2+\frac\Delta2-\left(\mu_2+\frac\Delta4\right)\quad\text{assuming }\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\\
-    &&=&\frac\Delta4\\
-    \implies&\exp(-\varepsilon^2)&\leq&\exp\left(-\left(\frac\Delta4\right)^2\right)=\exp\left(-\frac{\Delta^2}{16}\right)
-  \end{array}\]
-  This gives us the following bound
-  \[ \prob\left(\text{Bin}\left(N_2(t)+1,\mu_2+\frac\Delta2\right)\leq S_2(t)\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)\leq\exp\left(-2(N_2(t)+1)\frac{\Delta^2}{16}\right) \]
-  Substituting this result into the original expression involving the binomial we get
-  \[\begin{array}{rcll}
-    \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\bigg|\frac{S_2(t)}{N_2(t)}\leq\mu_2+\frac\Delta4\right)&\leq&\exp\left(-2\big(N_2(t)+1\big)\frac{\Delta^2}{16}\right)\\
-    &\leq&\exp\left(-\frac{L\Delta^2}8\right)\text{ since }N_2(t)\geq L\\
-    &\leq&\exp\left(-\frac{24\ln(T)}{\Delta^2}\cdot\frac{\Delta^2}8\right)\text{ by def. of }L\\
-    &=&\exp\left(-3\ln(T)\right)\\
-    &=&\frac1{T^3}&(3)
-  \end{array}\]
-  Substituting $(2)$ and $(3)$ into $(1)$, we can conclude that if $t\geq\tau$ (ie $N_2(t)\geq L$) then
-  \[ \prob\left(\theta_2(t)\geq\mu_2+\frac\Delta2\right)\leq\frac1{T^3}+\frac1{T^3}=\frac2{T^3} \]
-
-  This is the stated result of \texttt{Theorem 2.9} \proved
-\end{proof}
-
-\newpage
-\setcounter{section}{-1}
-\section{Reference}
-
-\subsection{Notation}
-
-\begin{proposition}{Notation for Multi-Armed Bandit Problem}
-  The following notation is used to simplifier analysis of the \textit{Multi-Armed Bandit Problem}
-  \begin{tabular}{|rcl|l|}
-    \hline
-    $I(t)$&$\in$&$[1,K]$&The arm out strategy $I$ plays at time $t$.\\
-    $N_j(t)$&$:=$&$\displaystyle\sum_{s=1}^t\indexed(I(s)=j)$&The number of times arm $j$ has been played in the first $t$ rounds.\\
-    $S_j(t)$&$:=$&$\displaystyle\sum_{s=1}^tX_j(s)\indexed(I(s)=j)$&The total reward from arm $j$ in the first $t$ rounds.\\
-    $\hat\mu_{j,n}$&$:=$&$\displaystyle\frac{S_j(t)}{N_j(t)}$&The sample mean reward from arm $j$ in the first $n$ plays of arm $j$.\\
-    $\Delta_i$&$:=$&$(\mu^*-\mu_i)$ & The reward lost from playing arm $i$ rather than the optimal arm.\\
-    \hline
-  \end{tabular}
-\end{proposition}
-
-\subsection{Definition}
-
-\begin{definition}{Jacobian $J(\cdot)$}
-  Let $f:\reals^n\to\reals^m$ and $\x\in\reals^n$.
-  \[ J_f(\x)=\begin{pmatrix}
-    \frac{\partial f_1}{\partial x_1}(\x)&\dots&\frac{\partial f_m}{\partial x_1}(\x)\\
-    \vdots&\ddots&\vdots\\
-    \frac{\partial f_1}{\partial x_n}(\x)&\dots&\frac{\partial f_m}{\partial x_n}(\x)
-  \end{pmatrix} \]
-\end{definition}
-
-\subsection{Theorems}
-
-\begin{theorem}{Relationship between Beta \& Gamma Distribution}
-  Let $X\sim\text{Gamma}(\alpha,\lambda)$ and $Y\sim\text{Gamma}(\beta,\lambda)$ (ie shared scale parameter but different shape parameters). Then
-  \[ V:=\frac{X}{X+Y}\sim\text{Beta}(\alpha,\beta) \]
-  \textit{A proof for this is given in the full notes.}
-\end{theorem}
-
-\begin{theorem}{Result for Poisson Processes}
-  Let $\{N_s\}_{s\in\nats}$ be a poisson process with intensity $\lambda>0$ and fix $n,t\in\nats$. Then, given that $N_t=n$, the random times at which the process sees an increment in time $[0,t]$ are mutually independent and uniformly distributed on $[0,t]$
-\end{theorem}
+  \begin{proof}{Normal Distributions are Conjugate Priors for Normal Distributions with Unit Variance}
+    Let $X\sim\text{Normal}(\theta,1)$ with $\theta$ unknown and fix $\mu_0\in\reals,\sigma^2_0>0$.\\
+    Let $\pi_0\sim\text{Normal}(\mu_0,\sigma^2_0)$ be the prior for $\theta$ and $\pi_1(\cdot|x)$ be the posterior for $\theta$ given $x$ is observed from $X$. This means
+    \[ \pi_1(\theta|x)\propto\pi_0(\theta)f_\theta(x)\quad\text{where }f_\theta(x):=\prob(X=x|\theta) \]
+    Note that
+    \[ f_\theta(x)=\frac1{\sqrt{2\pi}}e^{-\frac12(x-\theta)^2}\quad\text{and}\quad\pi_0(\theta)=\frac1{\sqrt{2\pi\sigma^2_0}}e^{-\frac12\frac{(\theta-\mu_0)^2}{\sigma_0^2}} \]
+    By considering only the terms involving $\theta$ we have
+    \[ f_\theta(x)\propto e^{-\frac12(x-\theta)^2}\quad\text{and}\quad\pi_0(\theta)\propto e^{-\frac12\frac{(\theta-\mu_0)^2}{\sigma_0^2}} \]
+    This means
+    \[ \pi_1(\theta|x)\propto e^{-\frac12(x-\theta)^2}\cdot e^{-\frac12\frac{(\theta-\mu_0)^2}{\sigma_0^2}}=\exp\left(-\frac12\left((x-\theta)^2+\frac{(\mu_0-\theta)^2}{\sigma_0^2}\right)\right)\]
+    Consider just the term of the exponent involving $\theta$
+    \[\begin{array}{rl}
+      &(x-\theta)^2+\frac{(\mu_0-\theta)^2}{\sigma_0^2}\right)\\
+      =&x^2-2x\theta+\theta^2+\frac1{\sigma_0^2}\left(\mu_0^2-2\mu_0\theta+\theta^2\right)\\
+      \propto&-2x\theta+\theta^2+\frac1{\sigma_0^2}\left(-2\mu_0\theta+\theta^2\right)\\
+      =&\frac1{\sigma_0^2}\left[-2\sigma_0^2x\theta+\sigma_0^2\theta^2-2\mu_0\theta+\theta^2\right]\\
+      =&\frac1{\sigma_0^2}\left[\theta^2(1+\sigma^2_0)-2\theta(\mu_0+x\sigma^2_0)\right]\\
+      =&\frac{1+\sigma^2}{\sigma_0^2}\left[\theta^2-2\theta\left(\frac{\mu_0+x\sigma^2_0}{1+\sigma^2_0}\right)\right]\\
+      \propto&\frac{1+\sigma^2}{\sigma_0^2}\left(\theta-\left(\frac{\mu_0+x\sigma^2_0}{1+\sigma^2_0}\right)\right)^2\text{ by completing the square}
+    \end{array}\]
+    Substituting this result back into the expression for the posterior gives
+    \[\begin{array}{rcl}
+    \pi_1(\theta|x)&\propto&\exp\left(-\frac12\cdot\frac{\left(\theta-\left(\frac{\mu_0+x\sigma^2_0}{1+\sigma_0^2}\right)\right)^2}{\sigma_0^2/(1+\sigma_0^2)}\right)\\
+    &\sim&\text{Normal}\left(\frac{\mu_0+x\sigma^2_0}{1+\sigma^2_0},\frac{\sigma^2_0}{1+\sigma^2_0}\right)
+    \end{array}\]
+    Thus $\pi_1\sim\text{Normal}(\mu_1,\sigma_1^2)$ where
+    \[ \mu_1:=\frac{\mu_0+x\sigma^2_0}{1+\sigma^2_0}\quad\text{and}\quad\sigma^2_1:=\frac{\sigma^2_0}{1+\sigma^2_0} \]
+    \proved
+  \end{proof}
 
 \end{document}

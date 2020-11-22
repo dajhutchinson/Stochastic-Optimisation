@@ -643,22 +643,86 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     \end{enumerate}
   \end{definition}
 
-  \begin{theorem}{}
+  \begin{theorem}{Marginal Distribution of Actions \& States}
     The induced stochastic process satisfies the following equation for all time-horizons $T$, state-spaces $S$ and action-spaces $A$
-    \[ \prob(X_0=s_0,\dots,X_t=s_t,Y_0=a_0,\dots,Y_{t-1}=a_{t-1})=\prob(X_0=s_0)\prod_{k=0}^{t-1}\underbrace{p_k(s_{k+1}|s_k,a_k)}_\text{transition}\underbrace{q_k(a_k|s_0,\dots,s_k,a_0,\dots,a_{k-1})}_\text{decision} \]
-    In the case of a deterministic decision rule the term $q_k(a_k|s_0,\dots,s_k,a_0,\dots,a_{k-1})$ should be replaced by $\indexed\{d_k(s_0,\dots,s_k,a_0,\dots,a_{k-1})=a_k\}$
+    \[ \prob(X_{0:t}=s_{0:k},Y_{0,t-1}=a_{0,t-1})=\prob(X_0=s_0)\prod_{k=0}^{t-1}\underbrace{p_k(s_{k+1}|s_k,a_k)}_\text{transition}\underbrace{q_k(a_k|s_{0:k},a_{0:k-1})}_\text{decision} \]
+    In the case of a deterministic decision rule the term $q_k(a_k|s_0,\dots,s_k,a_0,\dots,a_{k-1})$ should be replaced by $\indexed\{d_k(s_{0:k},a_{0:k-1})=a_k\}$
   \end{theorem}
 
-  \begin{proof}{Theorem 3.1}
-    Given in slides \texttt{LectureSlides2SO.pdf} and \texttt{Lecture18SO.mp4}. (Lemma 2.1)
+  \begin{proof}{Theorem 2.1}
+    \everymath={\displaystyle}
+    \[\begin{array}{rl}
+      &\prob^\pi(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+      =&\prob^\pi(X_0=s_0)\prod_{k=1}^t\prob^\pi(X_k=s_k,Y_{k-1}=a_{k-1}|X_{0:k-1}=s_{0:k-1},Y_{0:k-2}=a_{0:k-2})\text{ by chain rule}\\
+      =&\prob(X_0=s_0)\prod_{k=1}^t\frac{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k-1}=a_{0:k-1})}{\prob^\pi(X_{0:k-1}=s_{0:k-1},Y_{0:k-2}=a_{0:k-2})}\text{ by def. of conditional}\\
+      =&\prob(X_0=s_0)\prod_{k=0}^{t-1}\frac{\prob^\pi(X_{0:k+1}=s_{0:k+1},Y_{0:k}=a_{0:k})}{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k-1}=a_{0:k-1})}\\
+      =&\prob(X_0=s_0)\prod_{k=0}^{t-1}\left(\frac{\prob^\pi(X_{0:k+1}=s_{0:k+1},Y_{0:k}=a_{0:k})}{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k}=a_{0:k})}\cdot\frac{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k}=a_{0:k})}{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k-1}=a_{0:k-1})}\right)\\
+    \end{array}\]
+    I shall simplify both terms of the product separately. Consider the first
+    \[\begin{array}{rl}
+      &\frac{\prob^\pi(X_{0:k+1}=s_{0:k+1},Y_{0:k}=a_{0:k})}{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k}=a_{0:k})}\\
+      =&\frac{\prob^\pi(X_{k+1}=s_{k+1},X_{0:k}=s_{0:k},Y_{0:k}=a_{0:k})}{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k}=a_{0:k})}\text{ by rearrangement}\\
+      =&\prob^\pi(X_{k+1}=s_{k+1}|X_{0:k}=s_{0:k},Y_{0:k}=a_{0:k})\text{ by def. of conditional}\\
+      =&\prob^\pi(X_{k+1}=s_{k+1}|X_k=s_k,Y_k=a_k)\text{ by Markov property}\\
+      =&p_K(s_{k+1}|s_k,a_k)
+    \end{array}\]
+    This is the \textit{Transition Probability} at epoch $k$. Now consider the second term
+    \[\begin{array}{rl}
+      &\frac{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k}=a_{0:k})}{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k-1}=a_{0:k-1})}\\
+      =&\frac{\prob^\pi(Y_k=a_k,X_{0:k}=s_{0:k},Y_{0:k-1}=a_{0:k-1})}{\prob^\pi(X_{0:k}=s_{0:k},Y_{0:k-1}=a_{0:k-1})}\text{ by rearrangement}\\
+      =&\prob^\pi(Y_k=a_k|X_{0:k}=s_{0:k},Y_{0:k-1}=a_{0:k-1})\text{ by def. of conditional}
+      =&q_k(a_k|s_{0:k},a_{0:k-1})
+    \end{array}\]
+    This is the \textit{Decision Probability} at epoch $k$. By substituting these two simplifications into the original expression, we get
+    \[ \prob^\pi(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})=P(X_0=s_0)\prod_{k=0}^{t-1}p_k(s_{k+1}|s_k,a_k)q_k(a_k|s_{0:k},a_{0:k-1}) \]
+    \proved
   \end{proof}
 
-  \begin{theorem}{}
+  \begin{theorem}{Markov Chains in Markov Decision Process}
     Let the policy $\pi$ be Markovian. Then, $\{X_t\}_{t\in T}$ and $\{(X_t,Y_t)\}_{t\in T}$ are \textit{Markov Chains}. Further, if the transition and decision probabilities are stationary (ie independent of $t$), then these chains are homogeneuous.
+    \par NOTE - We only prove that the sequence of states $\{X_t\}_{t\in T}$ is a Markov Chain, see \texttt{Proof 2.2}.
   \end{theorem}
 
-  \begin{proof}{Theorem 3.2}
-    Given in slides \texttt{LectureSlides2SO.pdf} and \texttt{Lecture18SO.mp4} . (Theorem 2.1)
+  \begin{theorem}{Transition Kernel of Sequence of States $\{X_t\}_{t\in T}$}
+    The sequence states $\{X_t\}_{t\in T}$ is a markov chain with transition kernel
+    \[ \prob(X_{t+1}=s'|X_t=s)=\sum_{a\in A}p_t(s'|s,a)q_t(a|s) \]
+    NOTE - This is proved in \texttt{Proof 2.2}
+  \end{theorem}
+
+  \begin{proof}{Sequence of States $\{X_t\}_{t\in T}$ is a Markov Chain}
+    \everymath={\displaystyle}
+    To show that $\{X_t\}_{t\in T}$ is a markov chain it is sufficient to show
+    \[ \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t})=\prob(X_{t+1}=s_{t+1}|X_t=s_t) \]
+    (ie is independent of $s_{0:t-1}$).
+    \par By the definition of conditional probabilities we have
+    \[ \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t})=\frac{\prob(X_{0:t+1}=s_{0:t+1})}{\prob(X_{0:t}=s_{0:t})} \]
+    By marginalising we can re-express the numerator as
+    \[ \prob(X_{0:t+1}=s_{0:t+1})=\sum_{a_{0:t}\in A^{t+1}}\prob(X_{0:t+1}=s_{0:t+1},Y_{0:t}=a_{0:t}) \]
+    Further, we can expand each term of this summation as
+    \[\begin{array}{rl}
+      &\prob(X_{0:t+1}=s_{0:t+1},Y_{0:t}=a_{0:t})\\
+      =&\frac{\prob(X_{0:t+1}=s_{0:t+1},Y_{0:t}=a_{0:t})}{\prob(X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})}\cdot\frac{\prob(X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})}{\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})}\cdot\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+      =&\prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\prob(Y_t=a_t|X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+      =&
+    \end{array}\]
+    Substituting this into the previous expression we get
+    \[ \prob(X_{0:t+1}=s_{0:t+1})=\sum_{a_{0:t}\in A^{t+1}}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1}) \]
+    We can make this expression recursive, by splitting the summation into two stages: one over $X_{0:t-1}$; the other over $X_t$.
+    \[\begin{array}{rl}
+      &\prob(X_{0:t+1}=s_{0:t+1})\\
+      =&\sum_{a_{0:t}\in A^{t+1}}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+      =&\sum_{a_t\in A}\sum_{a_{0:t-1}\in A^t}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+      =&\left(\sum_{a_t\in A}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\right)\left(\sum_{a_{0:t-1}\in A^t}\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\right)\\
+      =&\left(\sum_{a_t\in A}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\right)\prob(X_{0:t}=s_{0:t})\text{ by the recursive definition}
+    \end{array}\]
+    This expression can be substituted into the expression of the conditional probability
+    \[\begin{array}{rcl}
+      \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t})&=&\frac{\prob(X_{0:t+1}=s_{0:t+1})}{\prob(X_{0:t}=s_{0:t})}\\
+      &=&\frac{\left(\sum_{a_t\in A}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\right)\prob(X_{0:t}=s_{0:t})}{\prob(X_{0:t}=s_{0:t})}\\
+      &=&\sum_{a_t\in A}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)
+    \end{array}\]
+    This final expression is independent of $s_{0:t-1}$, thus $\{X_t\}_{t\in T}$ is a markov chain. Further, it has transition kernel
+    \[ \prob(X_{t+1}=s'|X_t=s)=\sum_{a\in A}p_t(s'|s,a)q_t(a|s) \]
   \end{proof}
 
   \begin{remark}{}
@@ -771,7 +835,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
       \item \textit{Markovian Randomised (MR)} - The decision rule $q_t(\cdot)$ is a conditional probability mass function on the action-space $A$ which is conditional only on the current state (ie is independent of past states and actions)
       \[\begin{array}{rcl}
         \prob(Y_t=a_t|X_0=s_0,Y_0=a_0,\dots,X_{t-1}=s_{t-1},Y_{t-1}=a_{t-1},X_t=s_t)&=&q_t(a_t|s_t)\\
-        \implies \{Y_t|X_0,\dots,X_t,Y_0,\dots,Y_{t-1}\}&\sim&q_t(\cdot|X_0,\dots,X_t,Y_0,\dots,Y_{t-1})
+        \implies \{Y_t|X_0,\dots,X_t,Y_0,\dots,Y_{t-1}\}&\sim&q_t(\cdot|X_t)
       \end{array}\]
       \item \textit{Markovian Deterministic (MD)} - The decision rule $d(t)$ is a deterministic function of the current state
       \[ Y_t=d_t(X_t) \]

@@ -861,6 +861,318 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 
   \end{remark}
 
+\subsubsection{Finite Horizon Problems}
+
+  \begin{definition}{Finite Horizon Markov Decision Problems}
+    In a \textit{Finite Horizon MDP} the agent makes decisions at a finite number of epochs $N<\infty$.
+  \end{definition}
+
+  \begin{proposition}{Elements of Finite Horizon MDPs}
+    A \textit{Finite Horizon MDP} over $N$ epochs has the following steps
+    \begin{itemize}
+      \item Time Horizon $T=\{0,\dots,N-1\}$.
+      \item Transition Probabilities $p_0(s'|s,a),\dots,p_{N-1}(s'|s,a)$.
+      \item Rewards $r_0(s,a),\dots,r_{N-1}(s,a),r_N(s)$.
+    \end{itemize}
+  \end{proposition}
+
+  \begin{proposition}{Objective in a Finite Horizon MDP}
+    For a \textit{Finite Horizon MDP} with transition probabilities $p_0(s'|s,a),\dots,p_{N-1}(s'|s,a)$ and the rewards $r_0(s,a),\dots,r_{N-1}(s,a),r_N(s)$, our objective is to find a \textit{History Dependent Randomised} policy over time-horizon $T$ $\pi\in HR(T)$ which achieves the maximum expected reward
+    \[ R^\pi:=\expect^\pi\left[\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right] \]
+  \end{proposition}
+
+  \begin{definition}{Terminal Reward $r_X(s)$}
+    The \textit{Terminal Reward} is recieved for the final state the agent ends up in (ie the state they are in after $N$ actions). As no action is taken at epoch $t=N$, $r_N(\cdot)$ depends only on the state $s$.
+  \end{definition}
+
+  \begin{proposition}{Stochastic Systems for a Finite Horizon MDP}
+    As the sequence of states $\{X_t\}_{t\in T}$ is a markov chain we can deduce the probability of transitioning to a given state, given all available information.
+    \[ \forall\ t\in T\quad (X_{t+1}|X_{0:t},Y_{0:t})\sim^{[1]}(X_{t+1|X_t,Y_t})\sim p_t(X_{t+1}|X_t,Y_t) \]
+    $[1]$ by Markov property.
+  \end{proposition}
+
+\subsection*{Two-Stage MDP}
+
+  \begin{definition}{Two-Stage MDP}
+    A \textit{Two-Stage MDP} is a \textit{Finite Horizon MDP} over only $N=2$ epochs. It has the following elements
+    \begin{itemize}
+      \item Time Horizon $T=\{0,1\}$.
+      \item Transition Probabilities $p_0(s'|s,a),p_1(s'|s,a)$.
+      \item Rewards $r_0(s,a),r_1(s,a),r_2(s)$.
+    \end{itemize}
+  \end{definition}
+
+  \begin{proposition}{Stochastic System for a Two-Stage MDP}
+    \[\begin{array}{l}
+      (X_2|X_{0:1},Y_{0:1})\sim(X_2|X_1,Y_1)\sim p_1(\cdot|X_1,Y_1)\\
+      (X_1|X_0,Y_0)\sim p_0(\cdot|X_0,Y_0)
+    \end{array}\]
+  \end{proposition}
+
+  \begin{proposition}{Objective in a Two-Stage MDP}
+    For a \textit{Two-Stage MDP} with transition probabilities $p_0(s'|s,a),p_1(s'|s,a)$ and the rewards $r_0(s,a),r_1(s,a),r_2(s)$, our objective is to find a \textit{History Dependent Randomised} policy over time-horizon $T$ $\pi\in HR(T)$ which achieves the maximum expected reward
+    \[\begin{array}{rrl}
+      R^\pi&:=&\expect^\pi\left[r_0(X_0,Y_0)+r_1(X_1,Y_1)+u_2^*(X_2)\right]\\
+      &=&\expect^\pi\left[r_0(X_0,Y_0)+r_1(X_1,Y_1)\right]+\expect^\pi\left[u_2^*(X_2)\right]
+    \end{array}\]
+    where $u_2^*(X_2):=r_2(s)$.
+  \end{proposition}
+
+  \begin{proposition}{Optimising a Two-Stage MDP - Epoch $t=1$}
+    \everymath={\displaystyle}
+    For a \textit{Two-Stage MDP} we want to maximise the expected total reward $R^\pi$
+    \[ R^\pi:=\expect^\pi\left[r_0(X_0,Y_0)+r_1(X_1,Y_1)\right]+\expect^\pi\left[u_2^*(X_2)\right] \]
+    Note that by the \textit{Tower Property}
+    \[ \expect^\pi[u_2^*(X_2)]=\expect^\pi\left[\expect^\pi(u_2^*(X_2)|X_1,Y_1)\right] \]
+    Thus,
+    \[\begin{array}{rcl}
+      R^\pi&=&\expect^\pi\left[r_0(X_0,Y_0)+r_1(X_1,Y_1)\right]+\expect^\pi\left[\expect^\pi(u_2^*(X_2)|X_1,Y_1)\right]\\
+      &=&\expect^\pi\left[r_0(X_0,Y_0)+r_1(X_1,Y_1)+\expect^\pi(u_2^*(X_2)|X_1,Y_1)\right]
+    \end{array}\]
+    By the definition of conditional expectation and transition probabilities we have
+    \[\begin{array}{rcl}
+      \expect^\pi(u_2^*(X_2)|X_1,Y_1)&=&\sum_{s'\in S}u_2^*(s')\prob^\pi(X_2=s'|X_1,Y_1)\\
+      &=&\sum_{s'\in S}u_2^*(s')p_1(s'|X_1,Y_1)
+    \end{array}\]
+    This can be substituted back into the expression of expected total reward to get an expression which is sufficient to choose an optimal action at epoch $t=1$
+    \[ R^\pi=\expect^\pi\left[r_0(X_0,Y_0)+r_1(X_1,Y_1)+\sum_{s'\in S}u_2^*(s')p_1(s'|X_1,Y_1)\right] \]
+    At epoch ${t=1}$ ${X_0,Y_0,X_1}$ are all known. So, the expression ${r_0(X_0,Y_0)+r_1(X_1,Y_1)+\sum_{s'\in S}u_2^*(s')p_1(s'|X_1,Y_1)}$ can be interpreted as a deterministic function of $Y_1$ (the action played at epoch $t=1$)
+    \[\begin{array}{rrl}
+      Y_1^*&:=&\argmax_{a\in A(s)}\left(r_0(X_0,Y_0)+r_1(X_1,a)+\sum_{s'\in S}u_2^*(s')p_1(s'|X_1,a)\right)\\
+      &=&\argmax_{a\in A(s)}\left(r_1(X_1,a)+\sum_{s'\in S}u_2^*(s')p_1(s'|X_1,a)\right)\footnotemark
+    \end{array}\footnotetext{As terms independent of $a$ do not affect the maximisation.}\]
+    I now define the following notation
+    \[\begin{array}{rcl}
+      u_1^*(s)&:=&\max_{a\in A(s)}\left(r_1(s,a)+\sum_{s'\in S}u_2^*(s')p_1(s'|s,a)\right)\\
+      d_1^*(s)&:=&\argmax_{a\in A(s)}\left(r_1(s,a)+\sum_{s'\in S}u_2^*(s')p_1(s'|s,a)\right)
+    \end{array}\]
+    $u_1^*(s)$ is the maximum expected reward which can be achieved after being in state $s$ at epoch $t=1$, $d_1^*(s)$ is optimal decision function (ie optimal action) given the agent starts epoch $t=0$ in state $s$ (There may be multiple such actions). Thus
+    \[ Y_1^*=d_1^*(X_1) \]
+    As $u_1^*(s)$ is the optimal value we can use it to bound the expected reward expression
+    \[ \forall\ s\in S,\ \forall\ a\in A(s)\quad r_1(s,a)+\sum_{s'\in S}u_2^*(s')p_1(s'|s,a)\leq u_1^*(s) \]
+    This inequality becomes an equality when $a=d_1^*(s)$.\\
+    Consider where $s=X_1$ and $a=Y_1$, we can conclude
+    \[ r_1(X_1,Y_1)+\sum_{s'\in S}u_2^*(s')p_1(s'|X_1,Y_1)\leq u_1^*(X_1) \]
+    This inequality becomes an equality when $Y_1=d_1^*(X_1)$.
+    \par To consider the first action $Y_0$ we add $r_0(X_0,Y_0)$ to both sides and take expectations, giving
+    \[ \expect^\pi\left(r_0(X_0,Y_0)+r_1(X_1,Y_1)+\sum_{s'\in S}u_2^*(s')p_1(s'|X_1,Y_1)\right)\leq\expect^\pi(r_0(X_0,Y_0)+u_1^*(X_1)) \]
+    Again, this inequality becomes an equality when $Y_1=d_1^*(X_1)$.
+    \par As the LHS is just the definition for total expected reward $R^\pi$ we can restate the bound as a bound on $R^\pi$, nothing the inequality is maximised for $Y_1=d_1^*(X_1)$
+    \[ R^\pi\leq\expect^\pi(r_0(X_0,Y_0)+u_1^*(X_1)) \]
+  \end{proposition}
+
+  \begin{proposition}{Optimising a Two-Stage MDP - Epoch $t=0$}
+    \everymath={\displaystyle}
+    Let $\tilde{R}^\pi:=\expect^\pi(r_0(X_0,Y_0)+u_1^*(X_1))$ denote the bound derived in \texttt{Proposition 2.11}. From \texttt{Proposition 2.11} we have that $R^\pi\leq \tilde{R}^\pi$ and that this is an equality if $Y_1=d_1^*(X_1)$.
+    \par By the \textit{Tower Property}, we have
+    \[ \expect^\pi(U_1^*(X_1))=\expect^\pi\left[\expect^\pi(u_1^*(X_1)|X_0,Y_0)\right] \]
+    Using this we can restate $\tilde{R}^\pi$ as
+    \[\begin{array}{rcl}
+      \tilde{R}^\pi&=&\expect^\pi(r_0(X_0,Y_0))+\expect^\pi(u_1^*(X_1))\\
+      &=&\expect^\pi(r_0(X_0,Y_0))+\expect^\pi\left[\expect^\pi(u_1^*(X_1)|X_0,Y_0)\right]
+    \end{array}\]
+    By the definition of conditional expectations and transition probabilities we have
+    \[\begin{array}{rrcl}
+      &\expect^\pi(u_1^*(X_1)|X_0,Y_0)&=&\sum_{s'\in S}u_1^*(s')\prob^\pi(X_1=s'|X_0,Y_0)\\
+      &&=&\sum_{s'\in S}u_1^*(s')p_0(s'|X_0,Y_0)\\
+      \implies&\tilde{R}^\pi&=&\expect^\pi\left[r_0(X_0,Y_0)+\sum_{s'\in S}u_1^*(s')p_0(s'|X_0,Y_0)\right]
+    \end{array}\]
+    At epoch $t=0$ the value of $X_0$ is known, thus the following is a deterministic function of $Y_0$
+    \[ r_0(X_0,Y_0)+\sum_{s'\in S}u_1^*(s')p_0(s'|X_0,Y_0) \]
+    This means the optimal action $Y_0^*$ at epoch $t=0$ is the action which maximises this function
+    \[ Y_0^*:=\argmax_{a\in A(s)}\left(r_0(X_0,a)+\sum_{s'\in S}u_1^*(s')p_0(s'|X_0,a)\right) \]
+    Define $u_0^*(s)$ to be the maximum reward after epoch $t=0$ given the agent starts the epoch in state $s$ and $d_0^*$ be the optimal decision function (ie optimal action) at epoch $t=0$ given the agent starts the epoch in state $s$.
+    \[\begin{array}{rcl}
+      u_0^*(s)&:=&\max_{a\in A(s)}\left(r_0(s,a)+\sum_{s'\in S}u_1^*(s')p_0(s'|s,a)\right)\\
+      d_0^*(s)&:=&\argmax_{a\in A(s)}\left(r_0(s,a)+\sum_{s'\in S}u_1^*(s')p_0(s'|s,a)\right)
+    \end{array}\]
+    Using this $Y_0^*=d_0^*(X_0)$ and we can bound the expected reward
+    \[ \forall\ s\in S,a\in A(s)\quad r_0(s,a)+\sum_{s'\in S}u_1^*(s')p_0(s'|s,a)\leq u_0^*(s) \]
+    Note that is becomes an equality if $a=d_0^*(s)$.
+    \par Setting $s=X_0,a=Y_0$ we can conclude
+    \[ r_0(X_0,Y_0)+\sum_{s'\in S}u_1^*(s')p_0(s'|X_0,Y_0)\leq u_0^*(X_0) \]
+    This bound is an equality if $a=d_0^*(X_0)$. We can therefore bound the expected reward as
+    \[\begin{array}{rrcl}
+      &\expect^\pi\left[r_0(X_0,Y_0)+\sum_{s'\in S}u_1^*(s')p_0(s'|X_0,Y_0)\right]&\leq&\expect^\pi\left[u_0^*(X_0)\right]\\
+      \implies&\tilde{R}^\pi&\leq&\expect^\pi\left[u_0^*(X_0)\right]
+    \end{array}\]
+    which is optimised when $Y-0=d_0^*(X_0)$.
+    \par As the LHS is the definition of $\tilde{R}^\pi$ we can bound the total expected reward as
+    \[ R^\pi\leq\tilde{R}^\pi\leq\expect^\pi[u_0^*(X_0)] \]
+    which is optimised if $Y_0=d_0^*(X_0)$ and $Y_1=d_1^*(X_1)$.
+  \end{proposition}
+
+  \begin{remark}{Conclusions}
+    \begin{itemize}
+      \item The expected total reward $R^\pi$ cannot exceed $\expect^\pi[u_0^*(X_0)]$, but it can equal it.
+      \item The optimal expected total reward is achieved when $Y_0=d_0^*(X_0),Y_1=d_1^*(X_1)$. Thus the optimal policy $\pi^*$ is
+      \[ \pi^*:=(d_0^*(s),d_1^*(s)) \]
+      Note that the construction of $\pi^*$ is from functions $u_0^*(s),u_1^*(s),d_0^*(s),d_1^*(s)$ which are defined for $t\in\{0,1\}$ as
+      \[\begin{array}{rcl}
+        d_t^*&=&\argmax_{a\in A(s)}\left(r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right)\\
+        u_t^*&=&\max_{a\in A(s)}\left(r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right)
+      \end{array}\]
+      where $u_N^*(s):=r_N(s)$
+    \end{itemize}
+  \end{remark}
+
+  \begin{remark}{Optimal Policy for any Finite-Horizon MDP}
+    We can generalise the optimal policy for a \textit{Two-Stage MDP}, given in \texttt{Remark 2.5}, to get an optimal decision policy for any \textit{Finite-Horizon MDP}.
+    \par For a \textit{Finite-Horizon MDP} over $N$ epochs the optimal decision policy is
+    \[ \pi^*:=(d_0^*(s),\dots,d_{N-1}^*(s)) \]
+    where for $t\in\{0,\dots,N-1\}$
+    \[\begin{array}{rcl}
+      d_t^*&=&\argmax_{a\in A(s)}\left(r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right)\\
+      u_t^*&=&\max_{a\in A(s)}\left(r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right)
+    \end{array}\]
+  \end{remark}
+
+\subsection*{General Finite-Horizon MDPs}
+
+  \begin{definition}{Optimality Equation $u_K^*(s)$}
+    The \textit{Optimality Equation} for a General Finite-Horizon MDP over $N$ epochs is defined by the following backward recursion
+    \[ u_k^*(s):=\max_{a\in A(s)}\left(r_k(s,a)+\sum_{s'\in S}u_{k+1]^*(s')p_k(s'|s,a)}\right)\text{ for }k\in[0,N-1],s\in S,u_N^*(\cdot):=r_N(\cdot) \]
+    AKA \textit{Dynamic Programming Algorithm}
+  \end{definition}
+
+  \begin{definition}{Optimal Decision Rules $d_k^*(\cdot)$}
+    The \textit{Optimality Decision Rules} for a General Finite-Horizon MDP over $N$ epochs is defined by the following backward recursion
+    \[ d_k^*(s):=\argmax_{a\in A(s)}\left(r_k(s,a)+\sum_{s'\in S}u_{k+1}^*(s')p_k(s'|s,a)\right)\text{ for }k\in[0,N-1],s\in S \]
+  \end{definition}
+
+  \begin{definition}{Optimal Policy $\pi^*$}
+    The \textit{Optimal Policy} for a General Finite-Horizon MDP over $N$ epochs is defined as
+    \[ \pi^*:=\{d_t^*(s)\}_{t\in T} \]
+  \end{definition}
+
+  \begin{theorem}{Bound on Expected Total Reward}
+    For any \textit{History Dependent Randomised Policy} $\pi\in HR(T)$ over time-horizon $T$ the following inequality holds for the expected Total Reward
+    \[ \underbrace{\expect^\pi\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right)}_\text{Expected Total Reward}\leq\expect^\pi(u_0^*(X_0))=\sum_{s\in S}u_0^*(s)\prob(X_0=s) \]
+    This inequality becomes an equality if the policy is optimal $\pi=\pi^*$.
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.4}
+
+  \end{proof}
+
+  \begin{remark}{The Initial State $X_0$ is not affect by any policy $\pi$}
+    This can be emphasized by dropping policy notation
+    \[\begin{array}{c}
+      \prob(X_0=s)\text{ instead of }\prob^\pi(X_0=s)\\
+      \expect(u_0^*(X_0))\text{ instead of }\expect^\pi(u_0^*(X_0))
+    \end{array}\]
+  \end{remark}
+
+  \begin{definition}{Value Function $v^\pi(\cdot)$}
+    The \textit{Value Function} associated with a \textit{History Dependent Randomised Policy} $\pi\in HR(T)$ is the expected total reward, given the initial state $s\in S$ (ie $X_0=s$)
+    \[ v^\pi(s):=\expect^\pi\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\big|X_0=s\right) \]
+  \end{definition}
+
+  \begin{definition}{Optimal Value Function $v^*(\cdot)$}
+    \everymath={\displaystyle}
+    The \textit{Optimal Value Function} is the maximum expected total reward, given the initial state $s\in S$ (ie $X_0=s$)
+    \[\begin{array}{rcl}
+      v^*(s)&:=&\max_{\pi\in HR(T)}v^\pi(s)\\
+      &=&\max_{\pi\in HR(T)}\expect^\pi\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\big|X_0=s\right)
+    \end{array}\]
+    Note that this considers all possible \textit{History Dependent Randomised Policies}.
+  \end{definition}
+
+  \begin{theorem}{Restatements of Optimal Value Function}
+    Here are two equivalent expressions of the \textit{Optimal Value Function} $v^*(\cdot)$
+    \begin{enumerate}
+      \item $v^*(s)=u_0^*(s)\ \forall\ s\in S$
+      \item $v^*(s)=v^{\pi^*}(s)\ \forall\ s\in S$
+    \end{enumerate}
+  \end{theorem}
+
+\subsection*{Optimality Principle}
+
+  \begin{definition}{Tail Subproblem}
+    The \textit{Tail Subproblem of Length $l\in[1,N]$} is a subproblem of a \textit{Finite Time-Horizon MDP} over $N$ epochs. The subproblem has the following elements
+    \begin{itemize}
+      \item $L$ decision epochs.
+      \item Time-Horizon $T_L=\{N-L,\dots,N-1\}$.
+      \item Transition Probabilities $p_{N-L}(s'|s,a),\dots,p_{N-1}(s'|s,a)$.
+      \item Rewards $r_{N-L}(s,a),\dots,r_{N-1}(s,a),r_{N}(s)$.
+    \end{itemize}
+    All these elements are from the main problem (ie this is a subproblem). Further, this subproblem is equivalent to the last $L$ steps of the \textit{Finite Time-Horizon MDP} over $N$ epochs. The practical difference between the problem and the subproblem is that the initial epoch for the subproblem is $t=N-L$, rather than $t=0$.
+    \par The object of this subproblem is to find the \textit{History Dependent Randomised Policy} $\pi\in HR(T_l)$ which maximises the expected total reward
+    \[ \argmax_{\pi\in HR(T_L)}\expect^\pi\left[\left(\sum_{t=N-L}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right] \]
+  \end{definition}
+
+  \begin{remark}{Equivalence of MDP and Tail Subproblem}
+    If the tail subproblem is translated from epochs $N-L,\dots,N-1$ to epochs $0,\dots,L-1$ it is equivalent an MDP over $L$ epochs (The elements of the problem need to translated accordingly).
+    \par This means the optimality equation for the tail subproblem is just a re-indexing of the optimality equations for the main problem.
+  \end{remark}
+
+  \begin{proposition}{Optimality Equation for Tail Subproblem $u_{l,k}^*(\cdot)$}
+    The \textit{Optimality Equation} for the tail subproblem of length $L$ is defined with the following backwards recursion
+    \[ u_{L,k}^*(s):=\max_{a\in A(s)}\left(r_k(s,a)+\sum_{s'\in S}u_{l,k+1}^*(s')p_k(s'|s,a)\right) \]
+    for $k\in[N-L,N-1],s\in S$ and with $u_{l,N}^*(\cdot):=r_N(\cdot)$.
+  \end{proposition}
+
+  \begin{proposition}{Optimality Decision Rules for Tail Subproblem $d_{l,k}^*(\cdot)$}
+    The \textit{Optimality Decision Rules} for the tail subproblem of length $L$ is defined with the following backwards recursion
+    \[ d_{L,k}^*(s):=\argmax_{a\in A(s)}\left(r_k(s,a)+\sum_{s'\in S}u_{l,k+1}^*(s')p_k(s'|s,a)\right) \]
+    for $k\in[N-L,N-1],s\in S$.
+  \end{proposition}
+
+  \begin{proposition}{Optimality Decision Policy for Tail Subproblem $\pi_l^*$}
+    The \textit{Optimality Decision Policy} for the tail subproblem of length $L$ is defined
+    \[ \pi_l^*=\{d_{l,t}^*(s)\}_{t\in T_L} \]
+  \end{proposition}
+
+  \begin{remark}{Proeprties of Optimality Equations, Decision Rules and Policy}
+    \begin{itemize}
+      \item The optimality equation for the tail subproblem $u_{l,k}^*(\cdot)$ is a subrecursion of the optimality equation for the main problem $u_k^*(\cdot)$.
+      \item The initial condition in the optimality equation for the tail subproblem $u_{l,N}^*(\cdot)=r_N(\cdot)$ is the same as the initial condition for the main problem $u_N^*(\cdot)=r_N(\cdot)$.
+    \end{itemize}
+    Given these two properties, the equations generated by the optimality equation for the tail subproblem are identical to the corresponding functions generated by the optimality equation for the main problem.
+  \end{remark}
+
+  \begin{theorem}{Optimality Equations for Sub \& Main Problem are Identical}
+    Consider a tail subproblem of length $L$, then $\forall\ s\in S,\ k\in[N-L,N-1]$
+    \[\begin{array}{rcl}
+      u_{l,k}^*(s)&=&u_k^*(s)\\
+      d_{l,k}^*(s)&=&d_k^*(s)
+    \end{array}\]
+  \end{theorem}
+
+  \begin{definition}{Optimal Value Function $v_l^*(\cdot)$}
+    The \textit{Optimal value Function} for the tail subproblem of length $L$ is defined as
+    \[ v_l&*(s):=\max_{\pi\in HR(T_L)}\expect^\pi\left[\sum_{t=N-L}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\big|X_{N-t}=s\right]\quad\text{with }s\in S \]
+    The value of $v_l^*(s)$ can be interpreted as the maximum expected total reward recieved from epochs $N-L$ to $N$ when the system is in state $s$ at the start of epoch $t=N-L$.
+  \end{definition}
+
+  \begin{theorem}{Optimal Value Function as Optimality Equation}
+    Consider a tail subproblem of length $L$, then $\forall\ s\in S,\ L\in[1,N]$ the following holds
+    \[ v_L^*(s)=u_{L,N-L}^*(s) \]
+  \end{theorem}
+
+  \begin{theorem}{Optimality Principle}
+    Consider a tail subproblem of length $L$, then the \textit{Optimality Principle States} that $\forall\ s\in S,L\in[1,N]$ the following hold
+    \[\begin{array}{rcl}
+      v_L^*(s)&=&u_{N-L}^*(s)\\
+      \pi_L^*&=&\{d_t^*(s)\}_{t\in T_L}
+    \end{array}\]
+  \end{theorem}
+
+  \begin{remark}{Optimality Principle}
+    \everymath={\displaystyle}
+    Here are some remarks about the \textit{Optimality Principle}
+    \begin{itemize}
+      \item The \textit{Optimality Principlei} is a straightforward consequence of \texttt{Theorems 2.6 \& 2.7} .
+      \ITEM Due to i), the \textit{Dynamic Programming Algorithm}, starting with $L=N$ and going backwards towards $L=0$, solves the tail suboptimal problem of length $L$.
+      \item Due to ii), the \textit{Optimal Policy} for the tail subproblem of length $L$ $\pi_L^*$ can be interpreted as the truncation of optimal policy for the main problem $\pi^*$ to time horizon $T_L$
+      \item The \textit{Dynamic Programming Algorithm} can be written as the following with $k\in[1,N],s\in S$ and $v_0^*(\cdot):=r_N(\cdot)$
+      \[\begin{array}{rcl}
+        v_k^*(s)&=&\max_{a\in A(s)}\left(r_{N-k}(s,a)+\sum_{s'\in S}v_{k-1}^*(s')p_{N-k}(s'|s,a)\right)\\
+        d_k^*(s)&=&\argmax_{a\in A(s)}\left(r_{N-k}(s,a)+\sum_{s'\in S}v_{k-1}^*(s')p_{N-k}(s'|s,a)\right)
+      \end{array}\]
+    \end{itemize}
+  \end{remark}
+
 \section{Probability}
 
   \begin{definition}{Random Process}
@@ -1339,6 +1651,8 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     $HR(T)$&The set of policies on time-horizon $T$ in which the decision rules are HRs.\\
     $MD(T)$&The set of policies on time-horizon $T$ in which the decision rules are MDs.\\
     $\prob^\pi,\ \expect^\pi$&Probability and expectation given policy $\pi$ is being used.\\
+    $T^\pi$ & The expected reward for a given policy.\\
+    $u*(s)$ & The terminal reward for a given MDP.\\
     \hline
   \end{tabular}
 

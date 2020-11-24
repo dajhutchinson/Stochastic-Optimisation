@@ -1,0 +1,115 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm}
+\usepackage[section,nohyphen]{DomH}
+\headertitle{Application Notes - Stochastic Optimisation}
+
+\begin{document}
+
+% \questionsfalse
+% \answersfalse
+
+\title{Application Notes - Stochastic Optimisation}
+\author{Dom Hutchinson}
+\date{\today}
+\maketitle
+
+
+\begin{question}{1)}
+  Consider the following stochastic system. Let $T:=\{0,\dots,N-1\}$ be a finite time-horizon, $X_t\in S$ be the system state at epoch $t\in T$, $Y_t\in A$ be the action taken at epoch $t\in T$, $A(s)\subseteq A$ be the admissible actions when in state $s\in S$. The stochastic system has the follow dynamics
+  \[\begin{array}{rcl}
+    \Psi_t&:&S\times A\times B\to S\\
+    X_{t+1}&=&\Psi_t(X_t,Y_t,U_t)\\
+    \Phi_t&:&S\times C\to A\\
+    Y_{t+1}&=&\Phi_t(X_t,V_t)\\
+    R_t&:&S\times A\times D\to \reals\\
+    &&\R_t(X_t,Y_t,W_t)\\
+  \end{array}\]
+  where $U_t\sim\text{Uni}(B),\ U_t\sim\text{Uni}(C),\ W_t\sim\text{Uni}(D)$ for some discrete systems $B,C,D$. Assume that $X_0,\{U_t\}_{t\in T},\{V_t\}_{t\in T},\{W_t\}_{t\in T}$ are all mutually independent.
+  \par The objective of this task is to maximised the total expected reward from this system
+  \[ \max\expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right] \]
+\end{question}
+
+\begin{question}{1) (a)}
+  Show that the problem of maximising the expected total reward for this stochastic system is equivalent to the Markov Decision Problem.
+\end{question}
+
+\begin{answer}{1) (a)}
+  This requires us to show two properties
+  \begin{enumerate}
+    \item This stochastic system exhibits Markovian Dynamics
+    \[ \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})=\prob(X_{t+1}=s_{t+1}|X_t=s_t,Y_t=a_t) \]
+    \item The expected total reward admits the following representation
+    \[ \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]=\expect\left[\sum_{t\in T}r_t(X_t,Y_t)\right] \]
+  \end{enumerate}
+  At epoch $t=1$ we have
+  \[\begin{array}{rcl}
+    X_1&=&\Psi_t(X_0,Y-0,U_0)\\
+    &=&\Psi_1(X_0,\Phi_0(X_0,V_0),U_0)\\
+    \implies X_1&=&\tilde\Psi_1(X_0,U_0,V_0)
+  \end{array}\]
+  for a new function $\tilde\Psi_1:S\times B\times C\to S$. Also, at epoch $t=1$ we have
+  \[\begin{array}{rcl}
+    Y_1&=&\Phi_1(X_1,V_1)\\
+    &=&\Phi_1(\tilde\Psi_1(X_0,U_0,V_0),V_1)\\
+    \implies Y_1&=&\tilde\Phi_1(X_0,U_0,V_{0:1})
+  \end{array}\]
+  for a new function $\tilde\Phi_1:S\times B\times C^2\to A$. We can extend this to the general epoch $t$
+  \[\begin{array}{rcl}
+    X_t&=&\tilde\Psi_t(X_0,U_{0:t-1},V_{0:t-1})\\
+    Y_t&=&\tilde\Phi_t(X_0,U_{0:t-1},V_{0:t})
+  \end{array}\]
+  where our general mapping functions have signatures
+  \[\begin{array}{rcl}
+    \tilde\Psi_t&:&S\times B^t\times C^t\to S\\
+    \tilde\Phi_t&:&S\times B^t\times C^{t+1}\to A
+  \end{array}\]
+  As we are allowed to assume that $X_0,\{U_t\}_{t\in T},\{V_t\}_{t\in T},\{W_t\}_{t\in T}$ are all mutually independent. We have that $U_t\ \&\ (X_{0:t},Y_{0;t})$ are mutually independent and $W_t\ \&\ (X_t,Y_t)$ are mutually independent. \footnote{Proof is long and given in slides}
+  \par Consider the transition probabilities
+  \[\begin{array}{rl}
+    &\prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\\
+    =&\prob(\Psi_t(X_t,Y_t,U_t)=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\text{ by def. }X_{t+1}\\
+    =&\prob(\Psi_t(s_t,a_t,U_t)=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\text{ by conditions}\\
+    =&\prob(\Psi_t(s_t,a_t,U_t)=s_{t+1})\text{ as }U_t\indep(X_{0:t},Y_{0:t})\\
+    =&\prob(X_{t+1}=s_{t+1}|X_t=s_t,Y_t=a_t)
+  \end{array}\]
+  This shows that the stochastic system exhibits markovian dynamics.
+\end{answer}
+
+\begin{question}{1) (b)}
+  Identify the elements of the equivalent Markov Decision Problem.
+\end{question}
+
+\begin{answer}{1) (b)}
+  This requires us to identify the following
+  \begin{enumerate}
+    \item Transition probabilities
+    \[ p_t(s'|s,a):=\prob(X_{t+1}=s|X_t=s,Y_t=a) \]
+    \item Equivalent reward
+    \[ r_t(s,a) \]
+  \end{enumerate}
+  We derive the transition probabilities as follows
+  \[\begin{array}{rrl}
+    p_t(s'|s,a)&:=&\prob(X_{t+1}=s'|X_t=s,Y_t=a)\\
+    &=&\prob(\Psi_t(X_t,Y_t,U_t)=s'|X_t=s,Y+t=a)\text{ by def. }X_{t+1}\\
+    &=&\prob(\Psi_t(s,a,U_t)=s')\text{ by conditions }\\
+    &=&\expect\left[\indexed\{\Psi_t(s,a,U_t)=s'\}\right]\\
+    &=&\sum_{u\in B}\indexed\{\Psi_t(s,a,u)=s'\}\cdot f_{U_t}(u)
+  \end{array}\]
+  We have
+  \[\begin{array}{rcl}
+    \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]&=&\sum_{t\in T}\expect\left[R_t(X_t,Y_t,W_t)\right]\\
+    &=&\sum_{t\in T}\expect\left[\expect\left[R_t(X_t,Y_t,W_t)|X_t,Y_t\right]\right]\text{ by Tower Property}
+  \end{array}\]
+  Define $r_t(s,a):=\expect\left[R_t(X_t,Y_t,W_t)|X_t=s,Y_t=a\right]$. This gives us a representation for expected total reward
+  \[ \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]=\expect\left[\sum_{t\in T}r_t(X_t,Y_t)\right] \]
+  Since $W_t\ \&\ (X_t,Y_T)$ are mutually independent we can get a deterministic expression for $r_t(s,a)$
+  \[\begin{array}{rcl}
+    r_t(s,a)&=&\expect\left[R_t(X_t,Y_t,W_t)|X_t=s,Y_t=a\right]\\
+    &=&\expect\left[R_t(s,a,W_t)\right]\text{ by conditions}\\
+    &=&\sum_{w\in D}R_t(S,a,w)f_{W_t}(w)\text{ by def. expectation}
+  \end{array}\]
+\end{answer}
+
+\end{document}

@@ -1052,7 +1052,68 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
   \end{theorem}
 
   \begin{proof}{Theorem 2.4}
-
+    \everymath={\displaystyle}
+    For notational ease I define the following
+    \[ R_k^\pi=\expect^\pi\left[\left(\sum_{t=k}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right] \]
+    Note that $R_0^\pi$ equivalent to the expected total reward. To proved \texttt{Theorem 2.4}  it is sufficient to show that $\forall\ k\in[0,N],\ \pi\in HR(T)$
+    \[\begin{array}{rcrcl}
+      (1)&\quad&R_k^\pi&\leq&\expect^\pi[u_k^*(X_k)]\\
+      (2)&\quad&R_k^{\pi^*}&=&\expect^\pi[u_k^*(X_k)]
+    \end{array}\]
+    I shall show $(1)$ and $(2)$ by backwards induction on $k$.
+    \\
+    \par \textit{Base Case} - $k=N$.
+    \par Note that by the definition of $u_N^*(s)$ and $R_N^\pi$, we have
+    \[ u_N^*(s)=r_N(s)\quad\text{and}\quad R_N^\pi=\exepct^\pi[r_N(X_N)] \]
+    Hence $(1)$ and $(2)$ are true for $k=N$.
+    \\
+    \par \textit{Inductive Hypothesis} - Assume that $(1)$ and $(2)$ how for some $k\in[1,N]$.
+    \\
+    \par \textit{Inductive Case} - To prove the theorem, it is sufficient to show that $(1)$ and $(2)$ are true for $k-1$ given they are true for $k$. (ie given the IH holds).
+    \par Consider the following derivation
+    \[\begin{array}{rcl}
+      R_{k-1}^\pi&=&\expect^\pi\left[\sum_{t=k-1}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right]\text{ by def.}\\
+      &=&\expect^\pi\left[r_{k-1}(X_{k-1},Y_{k-1})\right]+\expect^\pi\left[\sum_{t=k}^Nr_t(X_t,Y_t)+r_N(X_N)\right]\\
+      &=&\expect^\pi(r_{k-1}(X_{k-1},Y_{k-1}))+R_k^\pi\text{ by def.}\\
+      &\leq&\expect^\pi[r_{k-1}(X_{k-1},Y_{k-1})]+\expect^\pi(u_k^*(X_k))\text{ by IH}
+    \end{array}\]
+    By the \textit{Tower Property}, we have
+    \[ \expect^\pi(u_k^*(X_k))=\expect^\pi\big[\expect^\pi(u_k^*(X_k|X_{k-1},Y_{k-1}))\big] \]
+    Substituting this expression into the inequality above we find
+    \[\begin{array}{rcl}
+      R_{k-1}^\pi&\leq&\expect^\pi(r_{k-1}(X_{k-1},Y_{k-1}))+\expect^\pi(u_k^*(X_k))\\
+      &=&\expect^\pi[r_{k-1}(X_{k-1},Y_{k-1})]+\expect^\pi\big[\expect^\pi(u_k^*(X_k|X_{k-1},Y_{k-1}))\big]\\
+      &=&\expect^\pi\big[r_{k-1}(X_{k-1},Y_{k-1})+\expect^\pi(u_k^*(X_k|X_{k-1},Y_{k-1}))\big]
+    \end{array}\]
+    By the definition of conditional expectations and transition probabilities, we have
+    \[\begin{array}{rcl}
+      \expect^\pi[u_k^*(X_k)|X_{k-1},Y_{k-1}]&=&\sum_{s'\in S}u_k^*(s')\prob^\pi(X_k=s'|X_{k-1},Y_{k=1})\\
+      &=&\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},Y_{k-1})
+    \end{array}\]
+    Substituting this expression into the inequality above we find
+    \[\begin{array}{rcll}
+      R_{k-1}^\pi&\leq&\expect^\pi\big[r_{k-1}(X_{k-1},Y_{k-1})+\expect^\pi(u_k^*(X_k|X_{k-1},Y_{k-1}))\big]\\
+      &=&\expect^\pi\left[r_{k-1}(X_{k-1},Y_{k-1})+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},Y_{k-1})\right]&(3)
+    \end{array}\]
+    \par Consider the \textit{Optimality Equations} for epoch $t=k-1$
+    \[\begin{array}{rcl}
+      u_{k-1}^*(s)&=&\max_{a\in A(s)}\left(r_{k-1}(s,a)+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|s,a)\right)\\
+      d_{k-1}^*(s)&=&\argmax_{a\in A(s)}\left(r_{k-1}(s,a)+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|s,a)\right)
+    \end{array}\]
+    As $u_{k-1}^*$ is the max then we have the following upper bound $\forall\ a s\in S,a\in A(s)$
+    \[ r_{k-1}(s,a)+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|s,a\leq u_{k-1}^*(s)\quad(4) \]
+    this inequality is an equality when $\=d_{k-1}^*(s)$.
+    \par By setting $s=X_{k-1}$ and $a=Y_{k-1}$ in $(4)$ we have that
+    \[ r_{k-1}(X_{k-1},Y_{k-1})+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},Y_{k-1}\leq u_{k-1}^*(x_{k-1}) \]
+    Taking expectations of both sides gives us
+    \[ \expect^\pi\left[r_{k-1}(X_{k-1},Y_{k-1})+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},Y_{k-1}\right]\leq\expect^\pi\left[u_{k-1}^*(x_{k-1})\right]\quad(5) \]
+    Under policy $\pi^*$ $Y_{k-1}=d_{k-1}^*(X_{k-1})$, meaning this inequality is an equality when $\pi=\pi^*$.
+    \par Combining $(3)$ and $(5)$ we get, the following inequality (which is an equality when $\pi=\pi^*$)
+    \[\begin{array}{rcl}
+      R_{k-1}^\pi&\leq&\expect^\pi\left[r_{k-1}(X_{k-1},Y_{k-1})+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},Y_{k-1})\right]\\
+      &\leq&\expect^\pi(u_{k-1}^*(X_{k-1}))
+    \end{array}\]
+    Hence, given $(1)$ and $(2)$ hold for $k$ then they hold for $k-1$. Thus, by the principle of mathematical induction, $(1)$ and $(2)$ hold $\forall\ k\in[0,N-1]$.
   \end{proof}
 
   \begin{remark}{The Initial State $X_0$ is not affect by any policy $\pi$}
@@ -1085,6 +1146,47 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
       \item $v^*(s)=v^{\pi^*}(s)\ \forall\ s\in S$
     \end{enumerate}
   \end{theorem}
+
+  \begin{proof}{Theorem 2.5 i)}
+    Proof follows immediately from \texttt{Theorem 2.4} as it makes no assumptions about the distribution of $X_0$.
+  \end{proof}
+
+  \begin{proof}{Theorem 2.5 ii)}
+    \everymath={\displaystyle}
+    By \texttt{Theorem 2.4}  we have that
+    \[\begin{array}{rcl}
+      \expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right]&\leq&\expect[u_0^*(X_0)]\\
+      &=&\sum_{s'\in S}u_0^*(s')\prob(X_0=s')
+    \end{array}\]
+    By the definition of the \textit{Value Functions}, we have
+    \[ v^\pi(X_0)=\expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\big|X_0\right] \]
+    By combining \texttt{Theorem 2.4} and this result we get that
+    \[\begin{array}{rcl}
+      \sum_{s'\in S}u_0^*(s')\prob(X_0=x')&\geq&\expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right]\text{ by \texttt{Theorem 2.4}}\\
+      &=&\expect^\pi\left(\expect^\pi\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\big|X_0\right)\right)\text{ by Tower Property}\\
+      &=&\expect^\pi\left[v^\pi(X_0)\right]\\
+      &=&\sum_{s'\in S}v^\pi(s')\prob(X_0=s')
+    \end{array}\]
+    Note that this inequality is an equality when $\pi=\pi^*$ and is true regardless of the distribution of $X_0$. Due to the independence from the distribution of $X_0$ we can assume, without loss of correctness, that $X_0$ follows \textit{Dirac Distribution} centred at some chosen state $s\in S$. Hence
+    \[ \prob(X_0=s')=\indexed\{s'=s\} \]
+    Introducing this definition of the distribution of $X_0$ into the previous inequality we have
+    \[\begin{array}{rcl}
+      v^\pi(s)&=&\sum_{s'\in S}v^\pi(s')\overbrace{\indexed\{s'=s\}}^{\prob^\pi(X_0=s')}\\
+      &\leq&\sum_{s'\in S}u_0^*(s')\indexed\{s'=s\}\\
+      &=&u_0^*(s)
+    \end{array}\]
+    Thus we have that $\forall\ s\in S$
+    \[ v^\pi(s)\leq u_0^*(s)\quad\text{and}\quad v^{\pi^*}(s)=u_0^{\pi^*}(s)\quad(1) \]
+    By the definition of the \textit{Optimal value Function} $v^*(\cdot)$ and the inequality above, we have that $\forall\ s\in S$
+    \[\begin{array}{rl}
+      &v^*(s)=\max_\pi(v^\pi(s))\leq u_0^*(s)
+      \text{and}&v^*(s)=\max_\pi(v^\pi(s))\geq v^{\pi^*}(s)
+    \end{array}\]
+    Combining these results with $(1)$ we get
+    \[ u_0^*(s)=v^{\pi^*}(s)\leq v^*(s)\leq u_0^*(s)\quad\forall\ s\in S \]
+    Hence
+    \[ u_0^*(s)=v^{\pi^*}(s)=v^*(s)\quad\forall\ s\in S \]
+  \end{proof}
 
 \subsection*{Optimality Principle}
 

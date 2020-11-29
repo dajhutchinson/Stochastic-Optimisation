@@ -7,7 +7,7 @@
 
 \begin{document}
 
-% \questionsfalse
+\questionsfalse
 % \answersfalse
 
 \title{Stochastic Optimisation - Problem Sheet 4}
@@ -56,6 +56,60 @@
   \end{array}\]
 \end{answer}
 
+\begin{question}{2.}
+  Consider a Markov decision process with finite state-space $S$, a finite action-space $A$, time horizon $T\subset\{0,1,\dots\}$ and transition probabilities $\{p_t(s'|s,a):t\in T,s,s'\in S,a\in A(s)\}$. Here $A(s)$ is the set of actions which are admissible at $s\in S$.
+\end{question}
+
+\begin{question}{2) a.}
+  Assume that Markovian randomised decision rules are applied at all decision epochs. Show that $\{X_t\}_{t\in T}$ is a Markov Chain.
+\end{question}
+
+\begin{answer}{2) a.}
+  \everymath={\displaystyle}
+  To show that $\{X_t\}_{t\in T}$ is a markov chain it is sufficient to show that
+  \[ \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t})=\prob(X_{t+1}=s_{t+1}|X_t=s_t) \]
+  By the definition of conditional probabilities we have
+  \[ \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t})=\frac{\prob(X_{0:t+1}=s_{0:t+1})}{\prob(X_{0:t}=s_{0:t})}\quad[1] \]
+  By marginalising we can re-express the numerator as
+  \[ \prob(X_{0:t+1}=s_{0:t+1})=\sum_{a_{0:t}\in A^{t+1}}\prob(X_{0:t+1}=s_{0:t+1},Y_{0:t}=a_{0:t})\quad[2] \]
+  Further, we can expand each term of this summation
+  \[\begin{array}{rl}
+    &\prob(X_{0:t+1}=s_{0:t+1},Y_{0:t}=a_{0:t})\\
+    =&\frac{\prob(X_{0:t+1}=s_{0:t+1},Y_{0:t}=a_{0:t})}{\prob(X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})}\cdot\frac{\prob(X_{0:t}=s_{0:t}=Y_{0:t}=a_{0:t})}{\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})}\cdot\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+    =&\prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\prob(Y_t=a_t|X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+    =&\prob(X_{t+1}=s_{t+1}|X_t=s_t,Y_t=a_t)\prob(Y_t=a_t|X_t=s_t,Y_{t-1}=a_{t-1})\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+    =&p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})
+  \end{array}\]
+  where the penultimate step is due to the use of Markovian randomised decision rules. Substituting this expression back into $[2]$ gives the following expression
+  \[ \prob(X_{0:t+1}=s_{0:t+1})=\sum_{a_{0:t}\in A^{t+1}}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1}) \]
+  This expression can be restated as a recursive expression
+  \[\begin{array}{rl}
+    &\prob(X_{0:t+1}=s_{0:t+1})\\
+    =&\sum_{a_{0:t}\in A^{t+1}}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+    =&\sum_{a_t\in A}\sum_{a_{0:t-1}\in A^t}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\\
+    =&\left(\sum_{a_t\in A}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\right)\left(\sum_{a_{0:t-1}\in A^t}\prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})\right)\\
+    =&\left(\sum_{a_t\in A}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)\right)\prob(X_{0:t}=s_{0:t})\\
+  \end{array}\]
+  Substituting this expression into $[1]$ we get
+  \[\begin{array}{rcl}
+    \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t})&=&\frac{\prob(X_{0:t+1}=s_{0:t+1})}{\prob(X_{0:t}=s_{0:t})}\\
+    &=&\frac{\sum_{a_t\in A}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)}{\prob(X_{0:t}=s_{0:t})}\\
+    &=&\sum_{a_t\in A}p_t(s_{t+1}|s_t,a_t)q_t(a_t|s_t)
+  \end{array}\]
+  Since the RHS of this final expression is independent of $s_{0:t-1}$, $\{X_t\}_{t\in T}$ is a Markov chain.
+\end{answer}
+
+\begin{question}{2) b.}
+  Assume that Markovian randomised  decision rules are applied at all decision epochs. Assume, also, that the transition and decision probabilities are stationary. Show that $\{X_t\}_{t\in T}$ is a homogeneous Markov chain.
+\end{question}
+
+\begin{answer}{2) b.}
+  From \texttt{2) a.} we deduced that the transition kernel of our process is
+  \[ \prob(X_{t+1}=s'|X_t=s)=\sum_{a\in A}p_t(s'|s,a)q_t(a|s) \]
+  Since the transition and decision probabilities are stationary we have that $p(\cdot|\cdot,\cdot)=p_t$ and $q(\cdot|\cdot)=q_t(\cdot|\cdot)$ for all $\t\in T$. Meaning the transition kernel can be expressed homogeneously as
+  \[ \prob(X_{t+1}=s'|X_t=s)=\sum_{a\in A}p(s'|s,a)q(a|s) \]
+\end{answer}
+
 \begin{question}{3)}
   Consider a Markov Decision Process with finite state-space $S$, finite action-space $A:=\{a(1),\dots,a(M)\}$, time-horizon $T$ and transition probabilities $\{p_t(s'|s,a)\}$. Let $A(s)$ be the set of actions available at state $s$.
   \par The agent wants to apply a \textit{History Dependent Randomised} decision rule with decision probability $q_t(a|s_{0:t},a_{0:t-1})$ at epoch $t\in T\setminus\{0\}$. To do so, the agent realised on the following Monte-Carlo procedure:
@@ -75,7 +129,7 @@
   \par In order to show that when the agent uses the procedure defined in the question they do indeed implement the decision rule with decision function $q_t(a|s_{0:t},a_{0:t-1})$, I shall show that
   \[ p_{Y_t}(a)=q_t(a|s_{0:t},a_{0:t-1}) \]
   By the definition of $Y_t$, we have
-  \[ p_{Y_t}(a)=\prob(\big\Phi_t(U_t|s_{0:t},a_{0:t-1})=a|X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1}\big) \]
+  \[ p_{Y_t}(a)=\prob\big(\Phi_t(U_t|s_{0:t},a_{0:t-1})=a|X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1}\big) \]
   By the definition of $\Phi_t(\cdot)$, we have three separate cases
   \[
     p_{Y_t}(a)=\begin{cases}

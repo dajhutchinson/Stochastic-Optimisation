@@ -7,7 +7,7 @@
 
 \begin{document}
 
-\questionsfalse
+% \questionsfalse
 % \answersfalse
 
 \title{Stochastic Optimisation - Problem Sheet 5}
@@ -34,7 +34,7 @@
 
 \begin{answer}{3) (a)}
   Let $X_t$ be the system state at the start of time-period $t$ and $Y_t$ be the action the agent takes at the start of time-period $t$.
-  \par Let $W_t$ represent the number of people wishing to join the queue in time-period $t$ and $Z_t$ represent the number of customers to leave the queue in time-period $t$. They have the following distribution
+  \par Let $W_t$ represent the number of people wishing to join the queue in time-period $t$ and $Z_t$ represent the number of customers who leave the queue in time-period $t$. From the question, $W_t,Z_t$ have the following distributions
   \[\begin{array}{rcl}
     \prob(W_t=w)&=&\begin{cases}
       p&w=1\\
@@ -51,34 +51,42 @@
 
     \item \textit{Time-Horizon} - $T=\{0,\dots,N-1\}$.
 
-    \item \textit{Action-Space}.
-    \par We allow the agent to decide whether to allow customers to join the queue of not. This can be encoded into $Y_t$ as
+    \item \textit{Agent Action}.
+    \par At the start of each time-period, let the agent decide whether to allow customers to join the queue or not. This can be encoded into $Y_t$ as
     \[ Y_t=\begin{cases}
-      1&\text{if accepting customers}\\
-      0&\text{if \underline{not} accepting customers}
+    1&\text{if accepting customers}\\
+    0&\text{if \underline{not} accepting customers}
     \end{cases} \]
-    As at most 1 customer may wish to join the queue in a given time-period, $Y_t$ is equivalent to the maximum amount of customer being allowed to join the queue under each case.
-    \par The \textit{Action-Space} is $A=\{0,1\}$.
+    As at most 1 customer may wish to join the queue in a single time-period, $Y_t$ is equivalent to the maximum amount of customer being allowed to join the queue in time-period $t$.
 
-    \item \textit{State-Space}
-    \par Let $X_t$ take the value of the number of customers in the queue at the start of time-period $t$. As $n$ is the capacity of the queue $X_t\in[0,n]$ and can take any value in this interval. This means the state-space is $S=\{0,1,\dots,n\}$.
+    \item \textit{Action-Space}.
+    \par Given the specification of $Y_t$ the action-space is $A=\{0,1\}$.
+
+    \item \textit{System States}.
+    \par Knowing the number of customers currently in the queue is sufficient for the agent to determine which action to take. This knowledge can be encoded into $X_t$, by setting $X_t$ to be the number of people in the queue at the start of time-period $t$.
     \par This gives us the state-equation $X_{t+1}=X_t+Y_tW_t-Z_t$.
 
-    \item \textit{Admissible Action-Space} - $A(s)=\begin{cases}\{0,1\}&\text{if }s\in[0,\dots,n-1]\\\{0\}&\text{if }s=n\end{cases}$.
+    \item \textit{State-Space}
+    \par By the definition of $X_t$ and the fact that the maximum queue capacity is $n$, the state-space is $S=\{0,1,\dots,n\}$.
 
-    \item \textit{Transition Probabilities} - The definition of transition probabilities state
+    \item \textit{Admissible Action-Space}.
+    \par The agent is not allowed to let customers join the queue if the queue is already full.
+    \[ A(s)=\begin{cases}\{0,1\}&\text{if }s\in[0,\dots,n-1]\\\{0\}&\text{if }s=n\end{cases} \]
+
+    \item \textit{Transition Probabilities}.
+    \par The definition of transition probabilities states
     \[ p_t(s'|s,a):=\prob^\pi(X_{t+1}=s'|X_t=s,Y_t=a) \]
-    Specifically, from the state equation for $X_{t+1}$ we want to derive
+    By considering the state-equation for our system, we can derive the following
     \[\begin{array}{rcl}
       p_t(s'|s,a)&=&\prob^\pi(X_{t+1}=s'|X_t=s,Y_t=a)\\
       &=&\prob^\pi(X_t+Y_tW_t-Z_t=s'|X_t=s,Y_t=a)\\
       &=&\prob(s+aW_t-Z_t=s')\\
     \end{array}\]
-    Consider the following cases involving $s'$ wrt $s$
+    To get a deterministic value for this expression, we consider the following cases involving $s',s$
     \begin{enumerate}
 
       \item $s=0$.
-      \par If the queue is empty then no-one can leave so $\prob(Z_t=0)=1$.
+      \par The queue is empty so no-one can leave the queue (ie $\prob(Z_t=0)=1$).
       \[\begin{array}{rcl}
         p_t(s'|0,a)&=&\prob(aW_t=s')\\
                    &=& \begin{cases}
@@ -96,7 +104,7 @@
       \end{array}\]
 
       \item $s=n$.
-      \par If the queue is full then no-one can join the queue, so $\prob(W_t=0)=1$.
+      \par The queue is full so no-one can join the queue (ie $\prob(W_t=0)=1$).
       \[\begin{array}{rcl}
         p_t(s'|n,a)&=&\prob(n-Z_t=s')\\
                    &=& \begin{cases}
@@ -110,10 +118,10 @@
                          0&\text{if }s'<n-1
                        \end{cases}\\
       \end{array}\]
-      Note that these results are independent of the action taken $a$.
+      It is noteworthy that these results are independent of the action taken $a$.
 
       \item $s'=s,\ s\not\in\{0,n\}$.
-      \par The queue has not changed size, is non-empty and non-full. Thus, either no movements have occurred or, one customer joined the queue and another customer left the queue.
+      \par The queue has not changed size. Thus, either: no movements have occurred; or, one customer joined the queue and another customer left the queue. The second scenario is only possible if the agent allows customers to join the queue (ie $a=1$).
       \[\begin{array}{rcl}
         p_t(s|s,a)&=&\prob(s+aW_t-Z_t=s)\\
         &=&\prob(aW_t-Z_t=0)\\
@@ -128,20 +136,34 @@
       \end{array}\]
 
       \item $s'=s+1,\ s\not\in\{0,n\}$.
-      \par In this case we must have allowed people to join the queue, thus $a=1$
+      \par The queue has become longer.
       \[\begin{array}{rcl}
         p_t(s+1|s,a)&=&\prob(s+aW_t-Z_t=s+1)\\
-        &=&\prob(W_t-Z_t=1)\\
-        &=&\prob(W_t=1)\prob(Z_t=0)\\
-        &=&p(1-q)
+        &=&\begin{cases}
+             \prob(-Z_t=1)&\text{if }a=0\\
+             \prob(W_t-Z_t=1)&\text{if }a=1
+           \end{cases}\\
+        &=&\begin{cases}
+             0&\text{if }a=0\\
+             \prob(W_t=1)\prob(Z_t=0)&\text{if }a=1
+           \end{cases}\\
+        &=&\begin{cases}
+             0&\text{if }a=0\\
+             p(1-q)&\text{if }a=1
+           \end{cases}
       \end{array}\]
 
       \item $s'=s-1,\ s\not\in\{0,n\}$.
+      \par The queue has become shorter.
       \[\begin{array}{rcl}
         p_t(s-1|s,a)&=&\prob(s+aW_t-Z_t=s-1)\\
         &=&\prob(aW_t-Z_t=-1)\\
         &=&\begin{cases}
              \prob(Z_t=1)&\text{if }a=0\\
+             \prob(W_t-Z_t=-1)&\text{if }a=1
+           \end{cases}\\
+        &=&\begin{cases}
+             q&\text{if }a=0\\
              \prob(W_t=0,Z_t=1)&\text{if }a=1
            \end{cases}\\
         &=&\begin{cases}
@@ -205,7 +227,7 @@
     A&=&\{0,1\}\\
     A(s)&=&\begin{cases}
              \{0,1\}&\text{if }s\in\{0,1,2\}\\
-             \{0,\}&\text{if }s=3
+             \{0\}&\text{if }s=3
            \end{cases}\\
   \end{array}\]
   The transition probabilities $p_t(s'|s,a)$ are defined in the tables below, separated by what action $a$ is taken.
@@ -214,34 +236,34 @@
       $p_t(s'|s,0)=$&\begin{tabular}{c|cccc}
       s\textbackslash s'&0&1&2&3\\\hline
       0&1&0&0&0\\
-      1&q&1-q&0&0&\\
-      2&0&q&1-q&0&\\
+      1&q&1-q&0&0\\
+      2&0&q&1-q&0\\
       3&0&0&q&1-q
       \end{tabular}$=$
       \begin{tabular}{c|cccc}
         s\textbackslash s'&0&1&2&3\\\hline
         0&1&0&0&0\\
-        1&1/4&3/4&0&0&\\
-        2&0&1/4&3/4&0&\\
+        1&1/4&3/4&0&0\\
+        2&0&1/4&3/4&0\\
         3&0&0&1/4&3/4
       \end{tabular}\\\\
       $p_t(s'|s,1)=$&\begin{tabular}{c|cccc}
       s\textbackslash s'&0&1&2&3\\\hline
       0&1-p&p&0&0\\
-      1&q(1-p)&pq+(1-p)(1-q)&p(1-q)&0&\\
-      2&0&q(1-p)&pq+(1-p)(1-q)&p(1-q)&\\
+      1&q(1-p)&pq+(1-p)(1-q)&p(1-q)&0\\
+      2&0&q(1-p)&pq+(1-p)(1-q)&p(1-q)\\
       3&0&0&q&1-q
       \end{tabular}$=$
       \begin{tabular}{c|cccc}
         s\textbackslash s'&0&1&2&3\\\hline
         0&1/2&1/2&0&0\\
-        1&1/4&1/8&3/8&0&\\
-        2&0&1/4&1/8&3/8&\\
+        1&1/4&1/8&3/8&0\\
+        2&0&1/4&1/8&3/8\\
         3&0&0&1/4&3/4
       \end{tabular}
     \end{tabular}
   \end{adjustwidth}
-  The terminal cost value is $r_2(s)=0$. The cost function values $r_t(s,a)$ are given in the table below
+  The terminal cost value is $r_2(s)=0$. The cost function values $r_t(s,a)$ are given in the table below and are the same $\forall\ t\in\{0,1\}$.
   \begin{center}
     $r_t(s,a)=$\begin{tabular}{c|cc}
       s\textbackslash a&0&1\\\hline
@@ -284,7 +306,7 @@
         3&-4&-3
       \end{tabular}
     \end{center}
-    From this table, taking action $a=1$ produces the greatest expected value in all states. This is summarised in the following table for $u_1^*(s),d_1^*(s)$
+    This table shows that taking action $a=1$ produces the greatest expected reward in all states $s$. This is summarised in the following table for $u_1^*(s),d_1^*(s)$
     \begin{center}
       \begin{tabular}{c|c|c}
         $s$&$u_1^*(s)$&$d_1^*(s)$\\\hline
@@ -309,7 +331,7 @@
         0&-1+0+0+0&0-1/2+0+0\\
         1&-2-3/4+0+0&-1-1/8-6/8+0+0\\
         2&-3-1/4-6/4+0&-2-1/4-2/8-9/8\\
-        3&-4+0-2/4-9/4&-3+0-2/4-9/4&
+        3&-4+0-2/4-9/4&-3+0-2/4-9/4
       \end{tabular}
       =
       \begin{tabular}{c|cc}
@@ -320,7 +342,7 @@
         3&-27/4&-23/4
       \end{tabular}
     \end{center}
-    Again, from this table, taking action $a=1$ produces the greatest expected value in all states. This is summarised in the following table for $u_1^*(s),d_1^*(s)$
+    Again, this table shows that taking action $a=1$ produces the greatest expected reward in all states $s$. This is summarised in the following table for $u_1^*(s),d_1^*(s)$
     \begin{center}
       \begin{tabular}{c|c|c}
         $s$&$u_0^*(s)$&$d_0^*(s)$\\\hline
@@ -370,7 +392,7 @@
   \begin{itemize}
     \item \textit{Decision Epochs} - Start of each time-period.
     \item \textit{Time-Horizon} - $T=\{0,\dots,N-1\}$.
-    \item \textit{User Actions}.
+    \item \textit{Agent Actions}.
     \par At the start of each turn the agent can either repair the machine to a specified state $s\in\{1,\dots,M-1\}$ or not repair. This can be encoded into $Y_t$ as
     \[
       Y_t=\begin{cases}
@@ -382,26 +404,38 @@
     \item \textit{Action-Space}.
     \par Given the specification of $Y_t$ the action-space is $A:=\{0,\dots,M-1\}$.
 
+    \item \textit{System-States}.
+    \par Knowing the state of the machine at the beginning of a time-period is sufficient for the agent to determine which action to take. This knowledge can be encoded into $X_t$ by setting $X_t$ to be the state of the machine at the start of period $t$.
+
     \item \textit{State-Space}.
-    \par When the user makes their decision the current state of the machine at the beginning of the time-period is only required piece of knowledge. Thus the state-space is the set of states the machine can take $S=\{1,\dots,M\}$.
-    \par This means that $X_t$ denotes the state of the machine at the start of period $t$.
+    \par By the definition of $X_t$, the state-space is equivalent to the set of states the machine can take $S=\{1,\dots,M\}$.
 
     \item \textit{Admissible Action-Space}.
-    \par The agent can always choose not to repair the machine, but if they choose to repair the machine they can only repair it to a better state. This gives admissible action-spaces as
+    \par The agent can always choose not to repair the machine, but if they choose to repair the machine they can only repair it to a better state. This gives admissible action-spaces
     \[ A(s)=\{0,\dots,s-1\},\ s\in S \]
 
     \item \textit{Immediate Costs}.
-    \par In each time-period there is always a cost for running the machine $c_o(s)$, where $s$ is the state after the agent has taken their action. There is an additional cost $c_r(s,s')$ if the agent chooses to repair the machine from state $s$ to state $s'$ (ie if $Y_t=s'$).
-    \par This is summarised in the following cost function
-    \[\begin{array}{rcl}
-      G_t:=g_t(X_t,Y_t)&=&\begin{cases}
+    \par In each time-period there is always a cost for running the machine $c_o(s)$, where $s$ is the state after the agent has taken their action. There is an additional cost $c_r(s,s')$ if the agent chooses to repair the machine from state $s$ to state $s'$ (ie if $Y_t=s'\neq0$).
+    \par Let $Z_t$ be the state of the machine after the agent takes their action. If the agent does not repair (ie $Y_t=0$), then the state of the machine after the agent's action is the same as before (ie $Z_t=X_t$). However, if the agent chooses to repair the machine (ie $Y_t=s'\in A(X_t)\setminus\{0\}$) then the machine's state after the action will be whatever state the agent chose to repair the machine to (ie $Z_t=Y_t$). This gives the following definition for $Z_t$
+    \[ Z_t=\begin{cases}
+         X_t&\text{if }Y_t=0\\
+         Y_t&\text{if }Y_t\in A(X_t)\setminus\{0\}
+       \end{cases}\]
+    We can define the total cost in time-period $t$ as
+    \[\begin{array}{rrl}
+      G_t&:=&c_o(Z_t)+\indexed\big\{Y_t\in A(X_t)\setminus\{0\}\big\}c_r(X_t,Z_t)\\
+      &=&\begin{cases}
               c_o(X_t)&\text{if }Y_t=0\\
-              c_o(Y_t)+c_r(X_t,Y_t)&\text{if }Y_t\in\{1,\dots,M-1\}
+              c_o(Y_t)+c_r(X_t,Y_t)&\text{if }Y_t\in A(s)\setminus\{0\}
             \end{cases}
     \end{array}\]
+    For clarity of dependency, define the function
+    \[ g_t(X_t,Y_t):=\begin{cases}
+                       c_o(X_t)&\text{if }Y_t=0\\
+                       c_o(Y_t)+c_r(X_t,Y_t)&\text{if }Y_t\in A(s)\setminus\{0\}
+                       \end{cases}\]
 
     \item \textit{Transition Probabilities}.
-    \par The definition of transition probabilities state
     \[\begin{array}{rrl}
       p_t(s'|s,a)&:=&\prob^\pi(X_{t+1}=s'|X_t=s,Y_t=a)\\
       &=&\begin{cases}
@@ -409,6 +443,7 @@
            p(s'|a)&\text{if }a\in A(s)\setminus\{0\}
          \end{cases}
     \end{array}\]
+    where $p(\cdot|\cdot)$ are the probabilities of the machine degrading as defined in the question.
 
     \item \textit{Equivalent Objective}
     The objective of this problem is to minimises the total expected cost
@@ -443,14 +478,14 @@
 \end{question}
 
 \begin{answer}{4) (b)}
-  The question defines the following sets of values
+  The system described in the question has the follow probabilities for degradation and repair costs
   \begin{center}
     \begin{tabular}{ccc}
       $p(s'|s)$&=&\begin{tabular}{c|ccc}
       $s$\textbackslash $s'$&1&2&3\\\hline
       1&1/2&1/4&1/4\\
-      2&0&1/4&3/4\\
-      3&0&0&1
+      2&ND&1/4&3/4\\
+      3&ND&ND&1
       \end{tabular}\\\\
       $c_r(s,s')$&=&\begin{tabular}{c|ccc}
       $s'$\textbackslash $s$&1&2&3\\\hline
@@ -460,7 +495,8 @@
     \end{tabular}
   \end{tabular}
   \end{center}
-  From the markov decision problem formulated in \texttt{4) (a)} and the given conditions we can state the following properties of the system
+  where ``ND'' denotes ``Not Defined'', this is due to the actions required for these values to be needed are not admissible in these states.
+  \par From the markov decision problem formulated in \texttt{4) (a)} and the given conditions, we can state the following properties of the system
   \[\begin{array}{rcl}
     T&=&\{0,1\}\\
     S&=&\{1,2,3\}\\
@@ -490,8 +526,8 @@
       \end{tabular}\\\\
     \end{tabular}
   \end{center}
-  ``NA'' denotes that $a$ is not an admissible action for that $s$ (ie $a\not\in A(s)$).
-  \par The terminal cost value is $r_2(s)=0$. The cost function values $r_t(s,a)$ are given in the table below
+  where ``NA'' denotes that action $a$ is not an admissible action for that state $s$ (ie $a\not\in A(s)$).
+  \par The terminal cost value is $r_2(s)=0$. The cost function values $r_t(s,a)$ are given in the table below and are the same for all $t\in\{0,1\}$.
   \begin{center}
     $r_t(s,a)=$
     \begin{tabular}{c|ccc}

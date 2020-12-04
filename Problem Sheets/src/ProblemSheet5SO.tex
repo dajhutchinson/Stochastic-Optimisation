@@ -7,7 +7,7 @@
 
 \begin{document}
 
-% \questionsfalse
+\questionsfalse
 % \answersfalse
 
 \title{Stochastic Optimisation - Problem Sheet 5}
@@ -157,17 +157,17 @@
     \end{enumerate}
 
     \item \textit{Immediate Costs}
-    For costs in time-period $t$ we always have to pay $cX_t$ for the length of the queue. Additionally, if a customer is rejected $C$ is payed as well. Mathematically, a customer is rejected if $W_t=1$ and $Y_t=0$. We can summarise the total cost $G_t$ incurred in time-period $t$ as
+    \par For costs in time-period $t$ we always have to pay $cX_t$ for the length of the queue. Additionally, if a customer is rejected $C$ is payed as well. Mathematically, a customer is rejected if $W_t=1$ and $Y_t=0$. We can summarise the total cost $G_t$ incurred in time-period $t$ as
     \[ G_t:=g_t(W_t,X_t,Y_t)=cX_t+\indexed\{W_t=1,Y_t=0\}\cdot C \]
     This assumes that $Y_t=0$ if the queue is already full.
 
     \item \textit{Equivalent Objective}
     \par The objective of this problem is to minimise expected total cost
-    \[ \expect^\pi\left[G_t\right]=\expect^\pi\left[g_t(W_t,X_t,Y_t)\right] \]
+    \[ \expect^\pi\left[\sum_{t=0}^{N-1}G_t\right]=\expect^\pi\left[\sum_{t=0}^{N-1}g_t(W_t,X_t,Y_t)\right] \]
     This expectations depends upon the number of customers wishing to join the queue $Y_0,\dots,Y_{N-1}$ which is independent of a policy $\pi$ so does not fit within the framework a \textit{Markov Decision Problem}. Thus I shall transform the expect total cost.
     \[\begin{array}{rcl}
-      \expect^\pi\left[\sum_{t=0}^{N_1}G_t\right]&=&\sum_{t=0}^{N-1}\expect^\pi[G_t]\\
-      &=&\sum_{t=0}^{N-1}\expect^\pi\big[\expect^\pi[G_t|X_t,Y_t]\big]\\
+      \expect^\pi\left[\sum_{t=0}^{N-1}G_t\right]&=&\sum_{t=0}^{N-1}\expect^\pi[G_t]\\
+      &=&\sum_{t=0}^{N-1}\expect^\pi\big[\expect^\pi[G_t|X_t,Y_t]\big]\text{ by Tower Property}\\
       &=&\sum_{t=0}^{N-1}\expect^\pi\big[\expect^\pi[g_t(W_t,X_t,Y_t)|X_t,Y_t]\big]\\
     \end{array}\]
     Define reward functions $r_t(s,a)$ and $r_N(s)$
@@ -180,7 +180,7 @@
       &=&-p(cs+\indexed\{a=0\}C)-(1-p)cs\\
       &=&-cs-\indexed\{a=0\}\cdot pC
     \end{array}\]
-    Using these reward functions the negative total expected reward can be rephrased
+    Using these reward functions the total expected reward can be rephrased
     \begin{equation} \label{eq_objective3}
       -\expect^\pi\left[r_N(X_n)+\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right]
     \end{equation}
@@ -241,7 +241,7 @@
       \end{tabular}
     \end{tabular}
   \end{adjustwidth}
-  The terminal cost value is $r_2(s,a)=0$. The cost function values $r_t(s,a)$ are given in the table below
+  The terminal cost value is $r_2(s)=0$. The cost function values $r_t(s,a)$ are given in the table below
   \begin{center}
     $r_t(s,a)=$\begin{tabular}{c|cc}
       s\textbackslash a&0&1\\\hline
@@ -268,7 +268,7 @@
   where $u_2^*(s):=r_2(s)=0\ \forall\ s\in S$. Specifically, we need to determine $u_t^*(s),\ d_t^*(s)$ for all states $s$ in each time-period $t\in\{1,0\}$.
   \begin{itemize}
     \item \textit{Time-Period} $t=1$.
-    \par In this case
+    \par In this time-period
     \[\begin{array}{rcl}
       w_1^*(s,a)&=&r_1(s,a)+\sum_{s'\in\{0,1,2,3\}}u_2^*(s)p_t(s'|s,a)\\
       &=&r_1(s,a)\text{ since }u_2^*(s)=0\ \forall\ s\in S
@@ -296,7 +296,7 @@
     \end{center}
 
     \item \textit{Time-Period} $t=0$.
-    \par In this case
+    \par In this time-period
     \[\begin{array}{rcl}
       w_0^*(s,a)&=&r_0(s,a)+\sum_{s'\in\{0,1,2,3\}}u_1^*(s)p_t(s'|s,a)\\
       &=&r_0(s,a)-p_t(1|s,a)-2\cdot p_t(2|s,a)-3\cdot p_t(3|s,a)
@@ -342,6 +342,7 @@
               \end{cases} \]
 \end{answer}
 
+\newpage
 \begin{question}{4)}
   Consider the following machine maintenance problem.
   \par A machine is operated over time-periods $0,\dots,N-1$. The machine can be in one of states $1,\dots,M$. For $s\in\{1,\dots,M-1\}$, we assume that the condition of the machine is better in state $s$ than in state $s+1$ (ie 1 is best condition, $M$ is worst condition).
@@ -365,16 +366,69 @@
 \end{question}
 
 \begin{answer}{4) (a)}
+  Let $X_t$ be the system state at the start of time-period $X_t$ and $Y_t$ be the action the agent takes at the start of time-period $Y_t$.
   \begin{itemize}
-    \item \textit{Decision Epochs} -
+    \item \textit{Decision Epochs} - Start of each time-period.
     \item \textit{Time-Horizon} - $T=\{0,\dots,N-1\}$.
-    \item \textit{Action-Space} - $A$
-    \item \textit{Admissible Action-Space} - $A(s)$
-    \item \textit{State-Space} - $S$
-    \item \textit{Transition Probabilities} - $p_t(s'|s,a)$
-    \item \textit{Immediate Costs} - $r_t(s,a)$
-    \item \textit{Immediate Rewards} - $r_t(s,a)$
-    \item \textit{Objective}
+    \item \textit{User Actions}.
+    \par At the start of each turn the agent can either repair the machine to a specified state $s\in\{1,\dots,M-1\}$ or not repair. This can be encoded into $Y_t$ as
+    \[
+      Y_t=\begin{cases}
+            0&\text{if machine is \underline{not} repaired}\\
+            s&\text{if machine is repaired to state }s
+           \end{cases}
+    \]
+
+    \item \textit{Action-Space}.
+    \par Given the specification of $Y_t$ the action-space is $A:=\{0,\dots,M-1\}$.
+
+    \item \textit{State-Space}.
+    \par When the user makes their decision the current state of the machine at the beginning of the time-period is only required piece of knowledge. Thus the state-space is the set of states the machine can take $S=\{1,\dots,M\}$.
+    \par This means that $X_t$ denotes the state of the machine at the start of period $t$.
+
+    \item \textit{Admissible Action-Space}.
+    \par The agent can always choose not to repair the machine, but if they choose to repair the machine they can only repair it to a better state. This gives admissible action-spaces as
+    \[ A(s)=\{0,\dots,s-1\},\ s\in S \]
+
+    \item \textit{Immediate Costs}.
+    \par In each time-period there is always a cost for running the machine $c_o(s)$, where $s$ is the state after the agent has taken their action. There is an additional cost $c_r(s,s')$ if the agent chooses to repair the machine from state $s$ to state $s'$ (ie if $Y_t=s'$).
+    \par This is summarised in the following cost function
+    \[\begin{array}{rcl}
+      G_t:=g_t(X_t,Y_t)&=&\begin{cases}
+              c_o(X_t)&\text{if }Y_t=0\\
+              c_o(Y_t)+c_r(X_t,Y_t)&\text{if }Y_t\in\{1,\dots,M-1\}
+            \end{cases}
+    \end{array}\]
+
+    \item \textit{Transition Probabilities}.
+    \par The definition of transition probabilities state
+    \[\begin{array}{rrl}
+      p_t(s'|s,a)&:=&\prob^\pi(X_{t+1}=s'|X_t=s,Y_t=a)\\
+      &=&\begin{cases}
+           p(s'|s)&\text{if }a=0\\
+           p(s'|a)&\text{if }a\in A(s)\setminus\{0\}
+         \end{cases}
+    \end{array}\]
+
+    \item \textit{Equivalent Objective}
+    The objective of this problem is to minimises the total expected cost
+    \[\begin{array}{rcl}
+      \expect^\pi\left[\sum_{t=0}^{N-1}G_t\right]&=&\expect^\pi\left[\sum_{t=0}^{N-1}g_t(X_t,Y_t)\right]\\
+      &=&\sum_{t=0}^{N-1}\expect^\pi[g_t(X_t,Y_t)]\\
+      &=&\sum_{t=0}^{N-1}\expect^\pi\big[\expect^\pi[g_t(X_t,Y_t)]\big|X_t=s,Y_t=a\big]\text{ by Tower Property.}
+    \end{array}\]
+    Minimisation does not fit within the Markov decision problem framework, so I shall make this a maximisation problem. Consider the following reward functions
+    \[\begin{array}{rrl}
+      r_N(s)&:=&0\\
+      r_t(s,a)&:=&-\expect^\pi[g_t(X_t,Y_t)|X_t=s,Y_t=a]\\
+      &=&-\expect^\pi[g_t(s,a)]\\
+      &=&\begin{cases}
+              -c_o(s)&\text{if }a=0\\
+              -c_o(s)-c_r(s,a)&\text{if }a\in\{1,\dots,s-1\}
+            \end{cases}
+    \end{array}\]
+    Using these definitions, our objective can be restated as wishing to maximise the following
+    \[ -\expect^\pi\left[r_N(s)+\sum_{t=0}^{N-1}r_t(s,a)\right] \]
   \end{itemize}
 \end{answer}
 
@@ -389,8 +443,149 @@
 \end{question}
 
 \begin{answer}{4) (b)}
-  TODO
-\end{answer}
+  The question defines the following sets of values
+  \begin{center}
+    \begin{tabular}{ccc}
+      $p(s'|s)$&=&\begin{tabular}{c|ccc}
+      $s$\textbackslash $s'$&1&2&3\\\hline
+      1&1/2&1/4&1/4\\
+      2&0&1/4&3/4\\
+      3&0&0&1
+      \end{tabular}\\\\
+      $c_r(s,s')$&=&\begin{tabular}{c|ccc}
+      $s'$\textbackslash $s$&1&2&3\\\hline
+      1&ND&1&4\\
+      2&ND&ND&2\\
+      3&ND&ND&ND
+    \end{tabular}
+  \end{tabular}
+  \end{center}
+  From the markov decision problem formulated in \texttt{4) (a)} and the given conditions we can state the following properties of the system
+  \[\begin{array}{rcl}
+    T&=&\{0,1\}\\
+    S&=&\{1,2,3\}\\
+    A&=&\{0,1,2\}\\
+    A(s)&=&\{0,\dots,s-1\}
+  \end{array}\]
+  The transition probabilities $p_t(s'|s,a)$ are defined in the tables below, separated by what action $a$ is taken.
+  \begin{center}
+    \begin{tabular}{ccc}
+      $p_t(s'|s,0)$&=&\begin{tabular}{c|ccc}
+      $s$\textbackslash $s'$&1&2&3\\\hline
+      1&1/2&1/4&1/4\\
+      2&0&1/4&3/4\\
+      3&0&0&1
+      \end{tabular}\\\\
+      $p_t(s'|s,1)$&=&\begin{tabular}{c|ccc}
+      $s$\textbackslash $s'$&1&2&3\\\hline
+      1&NA&NA&NA\\
+      2&1/2&1/4&1/4\\
+      3&1/2&1/4&1/4
+      \end{tabular}\\\\
+      $p_t(s'|s,2)$&=&\begin{tabular}{c|ccc}
+      $s$\textbackslash $s'$&1&2&3\\\hline
+      1&NA&NA&NA\\
+      2&NA&NA&NA\\
+      3&0&1/4&3/4
+      \end{tabular}\\\\
+    \end{tabular}
+  \end{center}
+  ``NA'' denotes that $a$ is not an admissible action for that $s$ (ie $a\not\in A(s)$).
+  \par The terminal cost value is $r_2(s)=0$. The cost function values $r_t(s,a)$ are given in the table below
+  \begin{center}
+    $r_t(s,a)=$
+    \begin{tabular}{c|ccc}
+      $s$\textbackslash $a$&0&1&2\\\hline
+      1&$c_o(1)$&NA&NA\\
+      2&$c_o(2)$&$c_o(2)+c_r(2,1)$&NA\\
+      3&$c_o(3)$&$c_o(3)+c_r(3,1)$&$c_o(3)+c_r(3,2)$\\
+    \end{tabular}
+    =
+    \begin{tabular}{c|ccc}
+      $s$\textbackslash $a$&0&1&2\\\hline
+      1&-1&NA&NA\\
+      2&-2&-3&NA\\
+      3&-5&-9&-7
+    \end{tabular}
+  \end{center}
+  To find the optimal policy $\pi^*$ we use the \textit{dynamic programming algorithm} which is defined as
+  \[\begin{array}{rrl}
+    w_t^*(s,a)&:=&r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\\
+    u_t^*(s)&=&\max_{a\in A(s)}(w_t^*)\\
+    d_t^*(s)&=&\argmax_{a\in A(s)}(w_t^*)
+  \end{array}\]
+  where $u_2^*(s):=r_2(s)=0\ \forall\ s\in S$. Specifically, we need to determine $u_t^*(s),\ d_t^*(s)$ for all states $s$ in each time-period $t\in\{1,0\}$.
+  \begin{itemize}
+    \item \textit{Time-Period} $t=1$.
+    \par In this time-period
+    \[\begin{array}{rcl}
+      w_1^*(s,a)&=&r_1(s,a)+\sum_{s'\in\{1,2,3\}}u_2^*p_t(s'|s,a)\\
+                &=&r_1(s,a)\text{ since }u_{2}^*(s)=0\ \forall\ s\in S
+    \end{array}\]
+    This gives the following table of values for $w_1^*(s,a)$
+    \begin{center}
+      $w_1^*(s,a)=$
+      \begin{tabular}{c|ccc}
+        $s$\textbackslash $a$&0&1&2\\\hline
+        1&-1&NA&NA\\
+        2&-2&-3&NA\\
+        3&-5&-9&-7
+      \end{tabular}
+    \end{center}
+    In all cases taking action $a=0$ (ie not repairing) yields the best results. This is summarised in the following table of results for $u_1^*(s),d_1^*(s)$.
+    \begin{center}
+      \begin{tabular}{c|c|c}
+        $s$&$u_1^*(s)$&$d_1^*(s)$\\\hline
+        1&-1&0\\
+        2&-2&0\\
+        3&-5&0
+      \end{tabular}
+    \end{center}
 
+    \item \textit{Time-Period} $t=0$.
+    \par In this time-period
+    \[\begin{array}{rcl}
+      w_0^*(s,a)&=&r_0(s,a)+\sum_{s'\in\{1,2,3\}}u_1^*p_t(s'|s,a)\\
+                &=&r_0(s,a)-p_t(1|s,a)-2p_t(2|s,a)-5p_t(3|s,a)
+    \end{array}\]
+    This gives the following table of values for $w_0^*(s,a)$
+    \begin{adjustwidth}{-2cm}{-2cm}
+        $w_0^*(s,a)=$
+        \begin{tabular}{c|ccc}
+          $s$\textbackslash $a$&0&1&2\\\hline
+          1&-1-1/2-2/4-5/4&NA&NA\\
+          2&-2+0-2/4-15/4&-3-1/2-2/4-5/4&NA\\
+          3&-5+0+0-5&-9-1/2-2/4-5/4&-7+0-2/4-15/4
+        \end{tabular}
+        =
+        \begin{tabular}{c|ccc}
+          $s$\textbackslash $a$&0&1&2\\\hline
+          1&-13/4&NA&NA\\
+          2&-25/4&-21/4&NA\\
+          3&-10&-45/4&-45/4
+        \end{tabular}
+    \end{adjustwidth}
+    This time the optimal action is different for different states. I summarise the optimal actions in the table below
+    \begin{center}
+      \begin{tabular}{c|c|c}
+        $s$&$u_1^*(s)$&$d_1^*(s)$\\\hline
+        1&-13/4&0\\
+        2&-21/4&1\\
+        3&-10&0
+      \end{tabular}
+    \end{center}
+  \end{itemize}
+  The optimal strategy $\pi^*$ is
+  \[ \pi^*:=(d_1^*(s),d_2^*(s)) \]
+  and the optimal value function is
+  \[
+     u_0^*(s)=\begin{cases}
+                -13/4&\text{if }s=0\\
+                -21/4&\text{if }s=1\\
+                -10&\text{if }s=2
+              \end{cases}
+  \]
+
+\end{answer}
 
 \end{document}

@@ -1,0 +1,396 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm,changepage}
+\usepackage[section,nohyphen]{DomH}
+\headertitle{Stochastic Optimisation - Problem Sheet 5}
+
+\begin{document}
+
+% \questionsfalse
+% \answersfalse
+
+\title{Stochastic Optimisation - Problem Sheet 5}
+\author{Dom Hutchinson}
+\date{\today}
+\maketitle
+
+\begin{question}{3)}
+  Consider a queueing system with room for $n$ customers which operates over $N$ time periods (denoted by $0,\dots,N-1$). Regarding this system, we assume the following
+  \begin{itemize}
+    \item Only one customer can arrive during a period. A new customer arrives during a period with probability $p$.
+    \item Customer arrivals in different periods are independent.
+    \item A new customer is either allowed to join the queue or be rejected. Rejected customers depart without attempting to re-enter.
+    \item The service of a customer can start/end at the beginning/end of a period.
+    \item A customer in service at the beginning of a period terminates the service at the end of the period with probability $q$, with $q<p$. This is independent of the number of periods the customer has been in service and of the number of customers in the system.
+    \item The cost of rejecting a customer is $C$. The cost of maintaining $i$ customers in the queue over a single period is $ci$. The cost of admitting a new customer is $c$.
+  \end{itemize}
+  The problem is to decide, at each time period, whether to accept or reject a new customer so as the expected total cost is minimal. Each decision should be based on the current number of customers in the queue.
+\end{question}
+
+\begin{question}{3) (a)}
+  Formulate the problem of minimizing the total expected cost as a \textit{Markov Decision Problem}. Derive the optimality equations for the formulated decision problem.
+\end{question}
+
+\begin{answer}{3) (a)}
+  Let $X_t$ be the system state at the start of time-period $t$ and $Y_t$ be the action the agent takes at the start of time-period $t$.
+  \par Let $W_t$ represent the number of people wishing to join the queue in time-period $t$ and $Z_t$ represent the number of customers to leave the queue in time-period $t$. They have the following distribution
+  \[\begin{array}{rcl}
+    \prob(W_t=w)&=&\begin{cases}
+      p&w=1\\
+      1-p&w=0
+    \end{cases}\\
+    \prob(Z_t=z)&=&\begin{cases}
+      q&z=1\\
+      1-q&z=0
+    \end{cases}
+  \end{array}\]
+  \begin{itemize}
+
+    \item \textit{Decision Epochs} - At the start of each period.
+
+    \item \textit{Time-Horizon} - $T=\{0,\dots,N-1\}$.
+
+    \item \textit{Action-Space}.
+    \par We allow the agent to decide whether to allow customers to join the queue of not. This can be encoded into $Y_t$ as
+    \[ Y_t=\begin{cases}
+      1&\text{if accepting customers}\\
+      0&\text{if \underline{not} accepting customers}
+    \end{cases} \]
+    As at most 1 customer may wish to join the queue in a given time-period, $Y_t$ is equivalent to the maximum amount of customer being allowed to join the queue under each case.
+    \par The \textit{Action-Space} is $A=\{0,1\}$.
+
+    \item \textit{State-Space}
+    \par Let $X_t$ take the value of the number of customers in the queue at the start of time-period $t$. As $n$ is the capacity of the queue $X_t\in[0,n]$ and can take any value in this interval. This means the state-space is $S=\{0,1,\dots,n\}$.
+    \par This gives us the state-equation $X_{t+1}=X_t+Y_tW_t-Z_t$.
+
+    \item \textit{Admissible Action-Space} - $A(s)=\begin{cases}\{0,1\}&\text{if }s\in[0,\dots,n-1]\\\{0\}&\text{if }s=n\end{cases}$.
+
+    \item \textit{Transition Probabilities} - The definition of transition probabilities state
+    \[ p_t(s'|s,a):=\prob^\pi(X_{t+1}=s'|X_t=s,Y_t=a) \]
+    Specifically, from the state equation for $X_{t+1}$ we want to derive
+    \[\begin{array}{rcl}
+      p_t(s'|s,a)&=&\prob^\pi(X_{t+1}=s'|X_t=s,Y_t=a)\\
+      &=&\prob^\pi(X_t+Y_tW_t-Z_t=s'|X_t=s,Y_t=a)\\
+      &=&\prob(s+aW_t-Z_t=s')\\
+    \end{array}\]
+    Consider the following cases involving $s'$ wrt $s$
+    \begin{enumerate}
+
+      \item $s=0$.
+      \par If the queue is empty then no-one can leave so $\prob(Z_t=0)=1$.
+      \[\begin{array}{rcl}
+        p_t(s'|0,a)&=&\prob(aW_t=s')\\
+                   &=& \begin{cases}
+                         1&\text{if }a=0,s'=0\\
+                         \prob(W_t=0)&\text{if }a=1,s'=0\\
+                         \prob(W_t=1)&\text{if }a=1,s'=1\\
+                         0&\text{otherwise}
+                       \end{cases}\\
+                   &=& \begin{cases}
+                         1&\text{if }a=0,s'=0\\
+                         1-p&\text{if }a=1,s'=0\\
+                         p&\text{if }a=1,s'=1\\
+                         0&\text{otherwise}
+                       \end{cases}\\
+      \end{array}\]
+
+      \item $s=n$.
+      \par If the queue is full then no-one can join the queue, so $\prob(W_t=0)=1$.
+      \[\begin{array}{rcl}
+        p_t(s'|n,a)&=&\prob(n-Z_t=s')\\
+                   &=& \begin{cases}
+                         \prob(Z_t=0)&\text{if }s'=n\\
+                         \prob(Z_t=1)&\text{if }s'=n-1\\
+                         0&\text{if }s'<n-1
+                       \end{cases}\\
+                   &=& \begin{cases}
+                         1-q&\text{if }s'=n\\
+                         q&\text{if }s'=n-1\\
+                         0&\text{if }s'<n-1
+                       \end{cases}\\
+      \end{array}\]
+      Note that these results are independent of the action taken $a$.
+
+      \item $s'=s,\ s\not\in\{0,n\}$.
+      \par The queue has not changed size, is non-empty and non-full. Thus, either no movements have occurred or, one customer joined the queue and another customer left the queue.
+      \[\begin{array}{rcl}
+        p_t(s|s,a)&=&\prob(s+aW_t-Z_t=s)\\
+        &=&\prob(aW_t-Z_t=0)\\
+        &=&\begin{cases}
+             \prob(Z_t=0)&\text{if }a=0\\
+             \prob(W_t=Z_t)&\text{if }a=1
+           \end{cases}\\
+        &=&\begin{cases}
+            1-q&\text{if }a=0\\
+            pq+(1-p)(1-q)&\text{if }a=1
+          \end{cases}
+      \end{array}\]
+
+      \item $s'=s+1,\ s\not\in\{0,n\}$.
+      \par In this case we must have allowed people to join the queue, thus $a=1$
+      \[\begin{array}{rcl}
+        p_t(s+1|s,a)&=&\prob(s+aW_t-Z_t=s+1)\\
+        &=&\prob(W_t-Z_t=1)\\
+        &=&\prob(W_t=1)\prob(Z_t=0)\\
+        &=&p(1-q)
+      \end{array}\]
+
+      \item $s'=s-1,\ s\not\in\{0,n\}$.
+      \[\begin{array}{rcl}
+        p_t(s-1|s,a)&=&\prob(s+aW_t-Z_t=s-1)\\
+        &=&\prob(aW_t-Z_t=-1)\\
+        &=&\begin{cases}
+             \prob(Z_t=1)&\text{if }a=0\\
+             \prob(W_t=0,Z_t=1)&\text{if }a=1
+           \end{cases}\\
+        &=&\begin{cases}
+             q&\text{if }a=0\\
+             (1-p)q&\text{if }a=1
+           \end{cases}
+      \end{array}\]
+
+      \item \textit{All other cases.}
+      \par All other cases require either the number of people in the queue to become negative or to change by more than 1 in a single time-step, both of these are impossible so have 0 probability.
+      \[ p_t(s'|0,a)=0 \]
+
+    \end{enumerate}
+
+    \item \textit{Immediate Costs}
+    For costs in time-period $t$ we always have to pay $cX_t$ for the length of the queue. Additionally, if a customer is rejected $C$ is payed as well. Mathematically, a customer is rejected if $W_t=1$ and $Y_t=0$. We can summarise the total cost $G_t$ incurred in time-period $t$ as
+    \[ G_t:=g_t(W_t,X_t,Y_t)=cX_t+\indexed\{W_t=1,Y_t=0\}\cdot C \]
+    This assumes that $Y_t=0$ if the queue is already full.
+
+    \item \textit{Equivalent Objective}
+    \par The objective of this problem is to minimise expected total cost
+    \[ \expect^\pi\left[G_t\right]=\expect^\pi\left[g_t(W_t,X_t,Y_t)\right] \]
+    This expectations depends upon the number of customers wishing to join the queue $Y_0,\dots,Y_{N-1}$ which is independent of a policy $\pi$ so does not fit within the framework a \textit{Markov Decision Problem}. Thus I shall transform the expect total cost.
+    \[\begin{array}{rcl}
+      \expect^\pi\left[\sum_{t=0}^{N_1}G_t\right]&=&\sum_{t=0}^{N-1}\expect^\pi[G_t]\\
+      &=&\sum_{t=0}^{N-1}\expect^\pi\big[\expect^\pi[G_t|X_t,Y_t]\big]\\
+      &=&\sum_{t=0}^{N-1}\expect^\pi\big[\expect^\pi[g_t(W_t,X_t,Y_t)|X_t,Y_t]\big]\\
+    \end{array}\]
+    Define reward functions $r_t(s,a)$ and $r_N(s)$
+    \[\begin{array}{rcl}
+      r_N(s)&=&0\\
+      r_t(s,a)&=&-\expect^\pi[g_t(W_t,X_t,Y_t)|X_t=s,Y_t=a]\\
+      &=&-\expect^\pi[g_t(W_t,s,a)|X_t=s,Y_t=a]\\
+      &=&-\expect^\pi[g_t(W_t,s,a)]\\
+      &=&-p\cdot g_t(1,s,a)-(1-p)\cdot g_t(0,s,a)\\
+      &=&-p(cs+\indexed\{a=0\}C)-(1-p)cs\\
+      &=&-cs-\indexed\{a=0\}\cdot pC
+    \end{array}\]
+    Using these reward functions the negative total expected reward can be rephrased
+    \begin{equation} \label{eq_objective3}
+      -\expect^\pi\left[r_N(X_n)+\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right]
+    \end{equation}
+    The equivalent objective is to find a policy $\pi\in HR(T)$ which maximises $(\ref{eq_objective3})$.
+  \end{itemize}
+\end{answer}
+
+\begin{question}{3) (b)}
+  Solve the formulated Markov decision problem for the following case
+  \begin{itemize}
+    \item $N=2,n=3$.
+    \item $p=\frac12,q=\frac14$.
+    \item $C=2,c=1$.
+  \end{itemize}
+\end{question}
+
+\begin{answer}{3) (b)}
+  From the markov decision problem formulated in \texttt{3) (a)} and the given conditions we can state the following properties of the system
+  \[\begin{array}{rcl}
+    T&=&\{0,1\}\\
+    S&=&\{0,1,2,3\}\\
+    A&=&\{0,1\}\\
+    A(s)&=&\begin{cases}
+             \{0,1\}&\text{if }s\in\{0,1,2\}\\
+             \{0,\}&\text{if }s=3
+           \end{cases}\\
+  \end{array}\]
+  The transition probabilities $p_t(s'|s,a)$ are defined in the tables below, separated by what action $a$ is taken.
+  \begin{adjustwidth}{-2cm}{}
+    \begin{tabular}{rl}
+      $p_t(s'|s,0)=$&\begin{tabular}{c|cccc}
+      s\textbackslash s'&0&1&2&3\\\hline
+      0&1&0&0&0\\
+      1&q&1-q&0&0&\\
+      2&0&q&1-q&0&\\
+      3&0&0&q&1-q
+      \end{tabular}$=$
+      \begin{tabular}{c|cccc}
+        s\textbackslash s'&0&1&2&3\\\hline
+        0&1&0&0&0\\
+        1&1/4&3/4&0&0&\\
+        2&0&1/4&3/4&0&\\
+        3&0&0&1/4&3/4
+      \end{tabular}\\\\
+      $p_t(s'|s,1)=$&\begin{tabular}{c|cccc}
+      s\textbackslash s'&0&1&2&3\\\hline
+      0&1-p&p&0&0\\
+      1&q(1-p)&pq+(1-p)(1-q)&p(1-q)&0&\\
+      2&0&q(1-p)&pq+(1-p)(1-q)&p(1-q)&\\
+      3&0&0&q&1-q
+      \end{tabular}$=$
+      \begin{tabular}{c|cccc}
+        s\textbackslash s'&0&1&2&3\\\hline
+        0&1/2&1/2&0&0\\
+        1&1/4&1/8&3/8&0&\\
+        2&0&1/4&1/8&3/8&\\
+        3&0&0&1/4&3/4
+      \end{tabular}
+    \end{tabular}
+  \end{adjustwidth}
+  The terminal cost value is $r_2(s,a)=0$. The cost function values $r_t(s,a)$ are given in the table below
+  \begin{center}
+    $r_t(s,a)=$\begin{tabular}{c|cc}
+      s\textbackslash a&0&1\\\hline
+      0&$-pC$&$0$\\
+      1&$-c-pC$&$-c$\\
+      2&$-2c-pC$&$-2c$\\
+      3&$-3c-pC$&$-3c$\\
+    \end{tabular}
+    $=$
+    \begin{tabular}{c|cc}
+      s\textbackslash a&0&1\\\hline
+      0&-1&0\\
+      1&-2&-1\\
+      2&-3&-2\\
+      3&-4&-3
+    \end{tabular}
+  \end{center}
+  To find the optimal policy $\pi^*$ we use the \textit{dynamic programming algorithm} which is defined as
+  \[\begin{array}{rrl}
+    w_t^*(s,a)&:=&r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\\
+    u_t^*(s)&=&\max_{a\in A(s)}(w_t^*)\\
+    d_t^*(s)&=&\argmax_{a\in A(s)}(w_t^*)
+  \end{array}\]
+  where $u_2^*(s):=r_2(s)=0\ \forall\ s\in S$. Specifically, we need to determine $u_t^*(s),\ d_t^*(s)$ for all states $s$ in each time-period $t\in\{1,0\}$.
+  \begin{itemize}
+    \item \textit{Time-Period} $t=1$.
+    \par In this case
+    \[\begin{array}{rcl}
+      w_1^*(s,a)&=&r_1(s,a)+\sum_{s'\in\{0,1,2,3\}}u_2^*(s)p_t(s'|s,a)\\
+      &=&r_1(s,a)\text{ since }u_2^*(s)=0\ \forall\ s\in S
+    \end{array}\]
+    This gives the following table of values for $w_1^*(s,a)$
+    \begin{center}
+      $w_1^*(s,a)=$
+      \begin{tabular}{c|cc}
+        s\textbackslash a&0&1\\\hline
+        0&-1&0\\
+        1&-2&-1\\
+        2&-3&-2\\
+        3&-4&-3
+      \end{tabular}
+    \end{center}
+    From this table, taking action $a=1$ produces the greatest expected value in all states. This is summarised in the following table for $u_1^*(s),d_1^*(s)$
+    \begin{center}
+      \begin{tabular}{c|c|c}
+        $s$&$u_1^*(s)$&$d_1^*(s)$\\\hline
+        0&0&1\\
+        1&-1&1\\
+        2&-2&1\\
+        3&-3&1
+      \end{tabular}
+    \end{center}
+
+    \item \textit{Time-Period} $t=0$.
+    \par In this case
+    \[\begin{array}{rcl}
+      w_0^*(s,a)&=&r_0(s,a)+\sum_{s'\in\{0,1,2,3\}}u_1^*(s)p_t(s'|s,a)\\
+      &=&r_0(s,a)-p_t(1|s,a)-2\cdot p_t(2|s,a)-3\cdot p_t(3|s,a)
+    \end{array}\]
+    This gives the following table of values for $w_0^*(s,a)$
+    \begin{center}
+      $w_1^*(s,a)=$
+      \begin{tabular}{c|cc}
+        s\textbackslash a&0&1\\\hline
+        0&-1+0+0+0&0-1/2+0+0\\
+        1&-2-3/4+0+0&-1-1/8-6/8+0+0\\
+        2&-3-1/4-6/4+0&-2-1/4-2/8-9/8\\
+        3&-4+0-2/4-9/4&-3+0-2/4-9/4&
+      \end{tabular}
+      =
+      \begin{tabular}{c|cc}
+        s\textbackslash a&0&1\\\hline
+        0&-1&-1/2\\
+        1&-11/4&-15/8\\
+        2&-19/4&-29/8\\
+        3&-27/4&-23/4
+      \end{tabular}
+    \end{center}
+    Again, from this table, taking action $a=1$ produces the greatest expected value in all states. This is summarised in the following table for $u_1^*(s),d_1^*(s)$
+    \begin{center}
+      \begin{tabular}{c|c|c}
+        $s$&$u_0^*(s)$&$d_0^*(s)$\\\hline
+        0&-1/2&1\\
+        1&-15/8&1\\
+        2&-29/8&1\\
+        3&-23/4&1
+      \end{tabular}
+    \end{center}
+  \end{itemize}
+  The optimal policy is
+  \[ \pi^*=(d_0^*(s),d_1^*(s))=(1,1)\ \forall\ s \]
+  The optimal value function is
+  \[ u_0^*(s)=\begin{cases}
+                -1/2&\text{if }s=0\\
+                -15/8&\text{if }s=1\\
+                -29/8&\text{if }s=2\\
+                -23/4&\text{if }s=3
+              \end{cases} \]
+\end{answer}
+
+\begin{question}{4)}
+  Consider the following machine maintenance problem.
+  \par A machine is operated over time-periods $0,\dots,N-1$. The machine can be in one of states $1,\dots,M$. For $s\in\{1,\dots,M-1\}$, we assume that the condition of the machine is better in state $s$ than in state $s+1$ (ie 1 is best condition, $M$ is worst condition).
+  \par At the start of each period, the state of the machine is known and one of the following actions is taken
+  \begin{itemize}
+    \item The machine is allowed to operate in the current state for one more period.
+    \item The machine is repaired: If the machine is in state $s\in\{2,\dots,M\}$ at the beginning of the time-period, then its state can immediately be restored to (a better) state in $s'\in\{1,\dots,s-1\}$ at cost $c_r(s,s')$.
+  \end{itemize}
+  The cost of operating the machine in state $s\in\{1,\dots,M\}$ during a time-period is $c_o(s)$. (If the machine is in state $s$ after the action taken at the beginning of a time-period, cost $c_0(s)$ is incurred during that period). We assume worst states cost more
+  \[ c_o(1)<\dots<c_0(M) \]
+  During each time-period, the state of the machine can become worse or it may stay unchanged. The machine changes its state randomly:
+  \begin{itemize}
+    \item If $s\in\{1,\dots,M-1\}$ is the state after the action taken at the beginning of the time-period, the machine will be in state $s'\in\{s,\dots,M\}$ at the end of this period with probability $p(s'|s)$ where $p(s'|s)\geq0$ and $\sum_{s'=s}^Mp(s'|s)=1$.
+    \item If the machine is in state $M$ after the action taken at the beginning of the time-period, the machine will remain in state $M$ at the end of this period with probability one.
+  \end{itemize}
+  \par The problem is to decide, at the beginning of each time-period, what action to take so as to expect total cost of operating the machine over period $0,\dots,N-1$ is minimal. The decision should be based on the state of the machine.
+\end{question}
+
+\begin{question}{4) (a)}
+  Formulate the described machine maintenance problem as a finite horizon Markov decision problem. More precisely, state the state-space $S$, action-space $A$, time-horizon $T$, transition probabilities $p_t(s'|s,a)$ and immediate rewards $r_t(s,a)$.
+\end{question}
+
+\begin{answer}{4) (a)}
+  \begin{itemize}
+    \item \textit{Decision Epochs} -
+    \item \textit{Time-Horizon} - $T=\{0,\dots,N-1\}$.
+    \item \textit{Action-Space} - $A$
+    \item \textit{Admissible Action-Space} - $A(s)$
+    \item \textit{State-Space} - $S$
+    \item \textit{Transition Probabilities} - $p_t(s'|s,a)$
+    \item \textit{Immediate Costs} - $r_t(s,a)$
+    \item \textit{Immediate Rewards} - $r_t(s,a)$
+    \item \textit{Objective}
+  \end{itemize}
+\end{answer}
+
+\begin{question}{4) (b)}
+  Find the optimal policy for the Markov decision problem formulated it \texttt{4) (a)} under the following conditions
+  \begin{itemize}
+    \item $M=3,N=2$.
+    \item $p(1|1)=\frac12,\ p(2|1)=\frac14,\ p(3|1)=\frac14,\ p(2|2)=\frac14,\ p(3|2)=\frac34$.
+    \item $c_r(2,1)=1,\ c_r(3,2)=2,\ c_r(3,1)=4$.
+    \item $c_o(1)=1,\ c_o(2)=2,\ c_o(3)=5$.
+  \end{itemize}
+\end{question}
+
+\begin{answer}{4) (b)}
+  TODO
+\end{answer}
+
+
+\end{document}

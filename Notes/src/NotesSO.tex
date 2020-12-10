@@ -1,7 +1,7 @@
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
-\usepackage{amsmath,amsfonts,fancyhdr,bbm,graphicx,tikz}
+\usepackage{amsmath,amsfonts,changepage,fancyhdr,bbm,graphicx,tikz}
 \usetikzlibrary{automata,positioning}
 \graphicspath{ {img/} }
 \usepackage[section,nohyphen]{DomH}
@@ -1275,6 +1275,668 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     \end{itemize}
   \end{remark}
 
+\subsubsection{Discounted Reward Infinite-Horizon MDPs}
+
+\subsection*{Problem Formulation}
+
+  \begin{definition}{Formulation of Discounted Reward Infinite-Horizon MDP}
+    Here is the specification of the components of a \textit{Discounted Reward Infinite-Horizon MDP}
+    \begin{itemize}
+      \item \textit{Number of Decision Epochs} - $N=\infty$.
+      \item \textit{Time-Horizon} - $T=\{0,1,\dots\}$.
+      \item \textit{Transition Probabilities} - $p_t(s'|s,a)=p(s'|s,a)\ \forall\ t\in T$.\footnote{Same transition probabilities at all points in time.}
+      \item \textit{Rewards} - $r_t(s,a)=\alpha^tr(s,a)$ where $\alpha\in(0,1),\ t\in T$.\footnote{$\alpha$ is known as the \textit{Discounting Factor}. The reward decreases with time but base value $r(s,a)$ is independent of time.}
+    \end{itemize}
+  \end{definition}
+
+  \begin{definition}{Stochastic System of a Discounted Reward Infinite-Horizon MDP}
+    \[\begin{array}{rcl}
+      X_{t+1}|X_{0:t},Y_{0:t}&\sim&X_{t+1}|X_t,Y_t\\
+      &\sim&p_t(\cdot|X_t,Y_t)\\
+      &=&p(\cdot|X_t,Y_t)
+    \end{array}\]
+  \end{definition}
+
+  \begin{definition}{Objective of a Discounted Reward Infinite-Horizon MDP}
+    Given the transition probabilities $p(s'|s,a)$, the reward $r(s,a)$ and the discounting factor $\alpha$, the agent is tasked to find a \textit{History Dependent Randomised Policy} $\pi\in HR(T)$ st the expected total reward is maximised
+    \[ \expect^\pi\left(\sum_{t=0}^\infty r_t(X_t,Y_t)\right)=\expect^\pi\left(\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right) \]
+  \end{definition}
+
+  \begin{remark}{Time-Importance of Rewards}
+    In many applications\footnote{Economics.}, the importance of immediate rewards decreases in time. This means the present and near-future rewards are the most important to maximise.
+    \par This is encoded into a \textit{Discount Reward MDP} as the discount rate $\alpha$ and thus $\alpha^t$ characterises the important of the reward received in epoch $t$.
+  \end{remark}
+
+\subsection*{Approximating Finite-Horizon MDPs}
+
+  \begin{proposition}{Discounted Reward Infinite-Horizon MDPs approximate Finite-Horizon MDPs}
+    \everymath={\displaystyle}
+    \textit{Finite-Horizon MDPs} are their optimal solutions are computationally expensive, hence approximations are desirable. This can be done using a \textit{Discout Reward MDP}.
+    \par Consider a \textit{Finite-Horizon MDP} as defined in \texttt{Section 2.2.2} and assume the following
+    \begin{enumerate}
+      \item $N\gg1$.
+      \item The parameters of the stochastic system and the parameters of the immediate rewards change \underline{slowly} wrt time.
+    \end{enumerate}
+    By assumption ii) we can make the following approximations
+    \[\begin{array}{rcl}
+      p_t(s'|s,a)&\approx&p(s'|s,a)\\
+      r_t(s,a)&\approx&r(s,a)
+    \end{array}\]
+    By assumption i), the terminal reward can be neglected compared to the total reward over epochs $0,\dots,N-1$
+    \[\begin{array}{rrcl}
+      \implies&\left|\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right|&\gg&|r_N(X_N)|\\
+      \implies&\expect^\pi\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right)&\approx&\expect^\pi\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)\\
+      &&\approx&\expect^\pi\left(\sum_{t=0}^{N-1}r(X_t,Y_t)\right)\\
+      &&\approx&\lim_{N\to\infty}\expect^\pi\left(\sum_{t=0}^{N-1}r(X_t,Y_t)\right)\\
+      &&=&\expect^\pi\left(\sum_{t=0}^\infty r(X_t,Y_t)\right)
+    \end{array}\]
+  \end{proposition}
+
+  \begin{remark}{Approximation - Is total reward well-defined?}
+    \everymath={\displaystyle}
+    Consider the last expression of the expected total reward in \texttt{Proposition 2.16}
+    \[ \expect^\pi\left(\sum_{t=0}^\infty r(X_t,Y_t)\right)\]
+    This may \underline{not} be well-defined. To overcome this, we multiply the reward value $r(X_t,Y_t)$ by the discount $\alpha^t$
+    \begin{equation}
+      \expect^\pi\left(\sum_{t=0}^\infty r(X_t,Y_t)\right)\approx\expect^\pi\left(\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right)\quad\text{where }\alpha\in(0,1),\alpha\approx1
+      \label{eqn_ApproxExpectedDiscountReward}
+    \end{equation}
+    Since the state-space $S$ and the action-space $A$ each have a finite number of elements, there is a finite-upper bound to the reward
+    \[ c:=\max_{s\in S,a\in A(s)}|r(s,a)|<\infty \]
+    Consequently, we get
+    \[\begin{array}{rcl}
+      \sum_{t=0}^\infty\alpha^t|r(X_t,Y_t)|&\leq&\sum_{t=0}^\infty\alpha^tc\\
+      &=&\frac{c}{1-\alpha}<\infty
+    \end{array}\]
+    Hence, the expected discounted reward \ref{eqn_ApproxExpectedDiscountReward} is well-defined and finite.
+  \end{remark}
+
+  \begin{remark}{Approximation - How good is the approximation?}
+    \everymath={\displaystyle}
+    Since $N\gg1,\alpha\approx1$ we have that
+    \[\begin{array}{rcl}
+      \expect^\pi\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right)&\approx&\expect^\pi\left(\sum_{t=0}^{N-1}r(X_t,Y_t)\right)\text{ since }N\gg1\\
+      &\approx&\expect^\pi\left(\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\right)\text{ since }\alpha\approx1\\
+      &\approx&\expect^\pi\left(\sum_{t=0}^\infty \alpha^tr(X_t,Y_t)\right)\text{ since }N\gg1\\
+    \end{array}\]
+    Given this, we can conclude that \textit{Discount Reward MDPs} accurately approximate \textit{Finite-Horizon MDPs} under the following assumptions
+    \begin{enumerate}
+      \item $N\gg1$.
+      \item $\alpha\in(0,1),\ \alpha\approx1$.
+      \item The parameters of the stochastic system and the parameters of immediate rewards change slowly in time.
+    \end{enumerate}
+  \end{remark}
+
+\subsection*{Deriving Optimality Equation}
+
+  \begin{definition}{Value Function, $v^\pi(\cdot)$}
+    The \textit{Value Function} $v^\pi(s)$ associate with a policy $\pi\in HR(T)$ is the expected discounted reward given policy $\pi$ is applied and the system starts is state $s\in S$ (ie $X_0=s$)
+    \[ v^\pi(s):=\expect^\pi\left(\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\big|X_0=s\right)\quad\text{where }s\in S \]
+  \end{definition}
+
+  \begin{definition}{Optimal Value Function, $v^*(\cdot)$}
+    The \textit{Optimal Value Function} $v^*(s)$ is the maximum possible expected discounted reward, given the system starts in state $s$ (ie $X_0=s$), when all policies $\pi\in HR(T)$ are considered
+    \[ v^*(s):=\max_{\pi\in HR(T)}v^\pi(s)=\max_{\pi\in HR(T)}\expect^\pi\left(\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\big|X_0=s\right)\quad\text{where }s\in S \]
+  \end{definition}
+
+  \begin{remark}{Notation - $v_N^*(\cdot)$}
+    We introduce notation $v_N^*$ for the maximum expected discounted reward in the first $N$ epochs
+    \[ v_N^*(s)=\max_{\pi\in HR(T_N)}\expect^\pi\left(\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\big|X_0=s\right)\quad\text{where }s\in S \]
+    where $T_N:=\{0,\dots,N-1\}$.
+    \par $v_N^*(s)$ is the optimal value function for the \textit{MDP} with the following elements\footnote{This MDP is called the \textit{Finite-Horizon Subproblem with Time-Horizon} $T_N$ and is denoted \textit{FHMDP($T_N$)}}
+    \begin{itemize}
+      \item \textit{Number of Deicsion-Epochs}: $N$.
+      \item \textit{Time-Horizon}: $T_N$.
+      \item \textit{Transition Probabilities}: $p_t(s'|s,a)=p(s'|s,a)$ where $t\in T_N$.
+      \item \textit{Rewards}: $r_t(s,a)=\alpha^tr(s,a)$ where $t\in T_N$.
+      \item \textit{Terminal Reward} is zero for all states.
+    \end{itemize}
+  \end{remark}
+
+  \begin{theorem}{$v_{N+1}^*(\cdot)$}
+    \[ v_{N+1}^*(s)=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_N^*(s')p(s'|s,a)\right)\quad\forall\ s\in S,\ N\geq1 \]
+    This can be interpreted as the optimality principle for \textit{FHMDP}$(T_{N+1})$.
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.9}
+    \everymath={\displaystyle}
+    Since $v_{N+1,l}^*$ is the optimal value function for a \textit{FHMDP}($T_{N+1}$), thus we start with the optimality equation of this subproblem.
+    \[\begin{array}{rcl}
+      u_{N-1}^*(s)&=&\max_{a\in A(s)}\left(r_l(s,a)+\sum_{s'\in S}u_{N+1,l+1}^*(s')p_l(s'|s,a)\right)\\
+      &=&\max_{a\in A(s)}\left(\alpha^l\sum_{s'\in S}u_{N+1,l+1}^*(s')p(s'|s,a)\right)
+    \end{array}\]
+    where $l=N,\dots,0$\footnote{This being a backwards recursive definition is important} and $y_{N+1,N+1}^*(s)=0$\ \forall\ s=0.
+    \par \texttt{Theorem 2.5} states that the value generated in the last iteration of the \textit{Value Function}, is the value of the \textit{Optimal Value Function}, thus
+    \[ v_{N+1}^*(s)=u_{N+1,0}^*(s) \]
+    Now consider the optimality equation for \textit{FHMDP}($T_N$), which is defined as
+    \[\begin{array}{rcl}
+      u_{N,k}^*(s)&=&\max_{a\in A(s)}\left(r_k(s,a)+\sum_{s'\in S}u_{N,k+1}^*(s')p_k(s'|s,a)\right)\\
+      &=&\max_{a\in A(s)}\left(\alpha^kr(s,a)+\sum_{s'\in S}u_{N,k+1}^*(s')p(s'|s,a)\right)
+    \end{array}\]
+    Similarly to above,
+    \[ v_N^*(s)=u_{N,0}^*(s) \]
+    Consider the follow auxillary function
+    \[\begin{array}{rrrl}
+      &\tilde{u}_k^*(s)&=&\alpha u_{N,k-1}^*(s)\quad\text{where }k\in[1,N+1 ]\\
+      \implies &u_{N,k}^*(s)&=&\frac1\alpha\tilde{u}_{k+1}^*(s)\quad\text{where }k\in[0,N ]\\
+      \text{and }&\tilde{u}_{N+1}^*(s)&=&\alpha u_{N,N}^*(s)=0\quad\forall\ s\in S\\\\
+      \implies&\tilde{u}_1^*(s)&=&\alpha u_{N,0}^*(s)\\
+      &&=&\alpha v_N^*(s)
+    \end{array}\]
+    We can derive the following definition
+    \[\begin{array}{rrcl}
+      &\frac1\alpha\tilde{u}_{k+1}^*(s)&=&u_{N,k}^*(s)\\
+      &&=&\max_{a\in A(s)}\left(\alpha^kr(s,a)+\sum_{s'\in S}u_{N,k+1}^*(s')p(s'|s,a)\right)\\
+      &&=&\max_{a\in A(s)}\left(\alpha^kr(s,a)+\frac1\alpha\sum_{s'\in S}\tilde{u}_{k+2}^*(s')p(s'|s,a)\right)\\
+      \implies&\tilde{u}_{k+1}^*(s)&=&\max_{a\in A(s)}\left(\alpha^{k+1}r(s,a)+\sum_{s'\in S}\tilde{u}_{k+2}^*(s')p(s'|s,a)\right)\quad\text{where }k=N-1,\dots,0
+    \end{array}\]
+    Comparing this expression with the first expression for $u_{N-1}^*(s)$ in terms of $\alpha$, we conclude that this is just a sub-recursion of the earlier expression. Thus
+    \[ \tilde{u}_l^*(s)=u_{N+1,l}^*(s)\quad\text{where }l\in[1,N+1] \]
+    Setting $l=1$ we can derive
+    \[\begin{array}{rcl}
+      u_{N+1,1}^*(s)&=&\tilde{u}_1^*(s)\\
+      &=&\alpha v_N^*(s)
+    \end{array}\]
+    We can use this expression, and previously derived expression, we can conclude that
+    \[\begin{array}{rcl}
+      v_{N+1}^*(s)&=&u_{N+1,0}^*(s)\\
+      &=&\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}u_{N+1,1}^*(s')p(s'|s,a)\right)\\
+      &=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_N^*(s')p(s'|s,a)\right)
+    \end{array}\]
+    \proved
+  \end{proof}
+
+  \begin{proposition}{Discounted Reward is Convergent}
+    \everymath={\displaystyle}
+    Discounted reward is convergent
+    \[ \sum_{t=0}^\infty\alpha^t|r(X_t,Y_t)|<\infty \]
+    Consequently, it is reasonable to expect the optimal value function to converge.
+  \end{proposition}
+
+  \begin{proposition}{Deriving Optimality Equation}
+    \everymath={\displaystyle}
+    Given the convergence of discounted reward, we can derive the following
+    \[\begin{array}{rcl}
+      \lim_{N\to\infty}v_N^*(s)&=&\lim_{N\to\infty}\left(\max_\pi\expect^\pi\left(\sum_{t=0}^N\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)\right)\\
+      &=&\max_\pi\expect^\pi\left(\lim_{N\to\infty}\sum_{t=0}^N\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)\\
+      &=&\max_\pi\expect^\pi\left(\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)\\
+      &=&v^*(s )
+    \end{array}\]
+    This means that $\forall\ s\in S$ the following is true
+    \[\begin{array}{rcl}
+      v^*(s)&=&\lim_{N\to\infty}v_{N+1}^*(s)\\
+      &=&\lim_{N\to\infty}\left(\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_N^*(s')p(s'|s,a)\right)\right)\\
+      &=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}\left(\lim_{N\to\infty}v_N^*(s')\right)p(s'|s,a)\right)\\
+      &=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)\\
+      \implies v^*(s)&=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)
+    \end{array}\]
+    This final expression is the \textit{Optimality Equation} for \textit{Discounted Reward Infinite-Time MDPs}.\footnote{This equation is also known as the \textit{Bellman Equation}.}
+  \end{proposition}
+
+\subsection*{Analysing Optimality Equation}
+
+  \begin{remark}{Notation}
+    \begin{itemize}
+      \item[$\pi_d$] - The stationary policy based on the \textit{Markovian Decision Function} $d:S\to A$.
+      \item[$V$] - The set of all functions mapping $S\to\reals$.\footnote{$V$ is a linear space.}
+      \item[$\|v\|$] - The uniform norm in $V$ defined as $\|v\|:=\max_{s\in S}|v(s)|\text{ for }v\in V$.
+      \item[$T$] - A transform of the value function $T:V\to V$ defined as
+      \[ (Tv)(s):=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v(s')p(s'|s,a)\right)\text{ for }v\in V,\ s\in S \]
+      \item[$Tv$] - The transform $T$ of function $v\in V$.\footnote{$(Tv)(\cdot)$ is a function of $s\in S$, $Tv:S\to\reals$.}
+    \end{itemize}
+  \end{remark}
+
+  \begin{remark}{Compact Bellamn Equation}
+    The \textit{Bellman Optimality Equation} can be written in the following compact way
+    \[ Tv=v \]
+  \end{remark}
+
+  \begin{theorem}{$T$ is a Contractive Mapping}
+    Consider transform $T$ and any elements $v',v''\in V$.
+    \[ \|Tv'-Tv''\|\leq\alpha\|v'-v''\| \]
+    Since $\alpha\in(0,1)$ this means $T$ is a \textit{Contractive Mapping} with \textit{Contraction Factor} $\alpha$.
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.10}
+    \everymath={\displaystyle}
+    This proof is based on the inequality
+    \begin{equation}
+      \left|\max_{j\in[1,n]}x_k-\max_{k\in[1,n]}y_k\right|\leq\max_{k\in[1,n]}|x_k-y_k\quad\text{where }x_1,\dots,x_n,y_1,\dots,y_n\in\reals
+      \label{eqn_210Ineq}
+    \end{equation}
+    Let $v',v''\in V$ and $s\in S$. By the definition of $T$ and \ref{eqn_210Ineq} we have
+    \begin{adjustwidth}{-2cm}{}
+      \[\begin{array}{rcl}
+      |(Tv')(s)-(Tv'')(s)|&=&\left|\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v'(s')p(s'|s,a)\right)-\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v''(s')p(s'|s,a)\right)\right|\\
+      &\leq&\max_{a\in A(s)}\left|\left(r(s,a)+\alpha\sum_{s'\in S}v'(s')p(s'|s,a)\right)-\left(r(s,a)+\alpha\sum_{s'\in S}v''(s')p(s'|s,a)\right)\right|\\
+      &=&\max_{a\in A(s)}\left|\alpha\sum_{s'\in S}\big(v'(s')-v''(s')\big)p(s'|s,a)\right|\\
+      &\leq&\max_{a\in A(s)}\alpha\sum_{s'\in S}\big(v'(s')-v''(s')\big)p(s'|s,a)
+      \end{array}\]
+    \end{adjustwidth}
+    We can use the definition of the \textit{norm} $\|\cdot\|$ to bound the distance between $v'(s'),v''(s')$
+    \[\begin{array}{rcl}
+      |v'(s')-v''(s')|&\leq&\max_{s''\in S}|v'(s'')-v''(s'')|\\
+      &=&\|v'-v''\|
+    \end{array}\]
+    Applying this inequality to the above expression, gives us
+    \[\begin{array}{rcl}
+      |(Tv')(s)-(Tv'')(s)|&\leq&\alpha\max_{a\in A(s)}\sum_{s'\in S}\big(v'(s')-v''(s')\big)p(s'|s,a)\\
+      &\leq&\alpha\max_{a\in A(s)}\sum_{s'\in S}\|v'-v''\|p(s'|s,a)\\
+      &=&\alpha\|v'-v''\|\max_{a\in A(s)}\sum_{s'\in S}p(s'|s,a)\\
+      &=&\alpha\|v'-v''\|\\
+      \implies|(Tv')(s)-(Tv'')(s)|&\leq&\alpha\|v'-v''\|
+    \end{array}\]
+    Since $s$ is an arbitrary element of $S$ and by the def of $\max$, we have
+    \[ \max_{s\in S}\left|(Tv')(s)-(Tv'')(s)\right|\leq\alpha\|v'-v''\| \]
+    By the definition of the \textit{norm} $\|\cdot\|$ we have\\
+    \[\begin{array}{rcl}
+      \|Tv'-Tv''\|&=&\max_{s\in S}\left|(Tv')(s)-(Tv'')(s)\right|\\
+      &\leq&\alpha\|v'-v''\|\\
+      \implies\|Tv'-Tv''\|&\leq&\alpha\|v'-v''\|
+    \end{array}\]
+    \proved
+  \end{proof}
+
+  \begin{definition}{Transform $T_d$}
+    For a \textit{Markovian Decision Function} $d:S\to A$, we define the transform $T_d:V\to V$ as
+    \[ (T_dV)(s):=r\big(s,d(s)\big)+\alpha\sum_{s'\in S}v(s')p\big(s'|s,d(s)\big)\text{ where }v\in V,\ s\in S \]
+    $t_dv$ is \textit{affine} in $v$.
+  \end{definition}
+
+  \begin{theorem}{Bounding on the Distance between Transformations}
+    For all $v',v''\in V$ and \textit{Markovian Decision Functions} $d:S\to A$, we have
+    \[ \|T_dv'-T_dv''\|\leq\alpha\|v'-v''\| \]
+  \end{theorem}
+
+  \begin{theorem}{Banach Fixed-Point Theorem applied to $T$}
+    The following is the \textit{Banach Fixed-Point Theorem} applied to transform $T$.\footnote{$(Tv)(s)=v(s)$ is the \textit{Fixed Point Equation} and $v_{k+1}=Tv_k$ is the \textit{Fixed Point Recursion}, both wrt transform $T$.}
+    \begin{enumerate}
+      \item Let $v_0\in V$ and $\{v_k\}_{k\geq0}$ be recursively defined by $v_{k+1}(s)=(Tv_k)(s)$. Then,
+      \[ v(s)=\lim_{k\to\infty}v_k(s)\quad\forall\ s\in S \]
+      Moreover, we have $(Tv)(s)=v(s)\ \forall\ s\in S$ wrt transform $T$
+      \[ \|v_k-v\|\leq\frac{\alpha^k}{1-\alpha}\|v_1-v_0\|\quad\forall\ k\geq1 \]
+      This shows that convergence occurs at an exponential rate $\frac{\alpha^k}{1-\alpha}$ and the limit of this value $\|v_1-v_0\|$ is the unique solution to the \textit{Fixed Point Equation} of $T$\footnote{Is this the correct limit?}.
+      \item If $(Tv')(s)=v'(s)$ for some $v'\in S$ and $\forall\ s\in S$, then
+      \[ v(s)=v'(s)\quad\forall\ s\in S \]
+    \end{enumerate}
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.12 i)}
+    \everymath={\displaystyle}
+     By \texttt{Theorem 2.10}  and the \textit{Fixed Point Recursion} of $T$, $v_{k+1}=Tv_k$ we get
+     \[\begin{array}{rcl}
+       \|v_{k+1}-v_k\|&=&\|Tv_k-Tv_{k-1}\|\\
+       &\leq&\alpha\|v_k-v_{k-1}\|
+     \end{array}\]
+     By considering the iterations of the above with $k=1,2,3,\dots$ we get
+     \[\begin{array}{rcl}
+       \|v_2-v_1\|&\leq&\alpha\|v-1-v_0\|\\
+       \|v_3-v_2\|&\leq&\alpha\|v-2-v_1\|\\
+       &\leq&\alpha^2\|v_1-v_0\|\\
+       \|v_4-v_3\|&\leq&\alpha\|v-3-v_2\|\\
+       &\leq&\alpha^3\|v_1-v_0\|\\
+       &\vdots&
+     \end{array}\]
+     Hence, get can state the general formula that
+     \begin{equation}
+       \|v_{k+1}-v_k\|\leq\alpha^k\|v_1-v_0\|\quad\text{k\geq0}
+       \label{eqn_212NormBound}
+     \end{equation}
+     Hence
+     \[\begin{array}{rcl}
+       \sum_{k=0}^\infty\|v_{k+1}-v_k\|\\
+       &\leq&\sum_{k=0}^\infty\alpha^k\|v_1-v_0\|\\
+       &=&\frac{\|v_1-v_0\|}{1-\alpha}<\infty
+     \end{array}\]
+     Consequently, the series $\left\{\sum_{k=0}^\infty(v_{k+1}-v_k)\right\}_{k\geq1}$ is well-defined and finite.
+     \par Let $v$ be the element in $V$ which is defined as
+     \[ v:=v_0+\sum_{k=0}^\infty(v_{k+1}-v_k) \]
+     As the series is well-defined, so is $v$.
+     \par We have
+     \[\begin{array}{rcl}
+       v-v_k&=&\left(v_0+\sum_{i=0}^\infty(v_{i+1}-v_i)\right)-\left(v_0+\sum_{i=0}^{k-1}(v_{i+1}-v_i)\right)\\
+       &=&\sum_{i=k}^\infty(v_{i+1}-v_i)
+     \end{array}\]
+     Combining this result with \ref{eqn_212NormBound}, we get
+     \[\begin{array}{rcl}
+       \|v-v_k\|&=&\left\|\sum_{i=k}^\infty(v_{i+1}-v_i)\right\|\\
+       &\leq&\sum_{i=k}^\infty\|v_{i+1}-v_i\|\\
+       &\leq&\sum_{i=k}^\infty\alpha^i\|v_1-v_0\|\\
+       &=&\frac{\alpha^k}{1-\alpha}\|v_1-v_0\}\\
+       \implies\|v-v_k\|&=&\frac{\alpha^k}{1-\alpha}\|v_1-v_0\}
+     \end{array}\]
+     Note that
+     \[ \lim_{k\to\infty}\|v_k-v\|=0 \]
+     Thus,
+     \[ \lim_{k\to\infty}v_k=v \]
+     By \texttt{Theorem 2.10} and the \textit{Fixed Point Recursion} of $T$, $v_{k+1}=Tv_k$, we can conclude that
+     \[\begin{array}{rcl}
+       \|Tv-v\|&=&\|(Tv-v_{k+1})+(v_{k+1}-v)\|\\
+       &=&\|(Tv-Tv_k)+(v_{k+1}-v)\|\\
+       &\leq&\|Tv-Tv_k\|+\|v_{k+1}-v\|\\
+       &\leq&\alpha\|v_k-v\|+\|v_{k+1}-v\|\\
+       \implies\|Tv-v\|&\leq&\alpha\|v_k-v\|+\|v_{k+1}-v\|
+     \end{array}\]
+     Letting $k\to\infty$ in this inequality, we get
+     \[\begin{array}{rrcl}
+       &\|Tv-v\|&\leq&\lim_{k\to\infty}\big(\alpha\|v_k-v\|+\|v_{k+1}-v\|\big)\\
+       &&=&\alpha\lim_{k\to\infty}\|v_k-v\|+\lim_{k\to\infty}\|v_{k+1}-v\|\\
+       &&=&\alpha\cdot0+0\\
+       &&=&0
+       \implies&\|Tv-v\|&=&0\\
+       \implies&Tv&=&v
+     \end{array}\]
+     \proved
+  \end{proof}
+
+  \begin{proof}{Theorem 2.12 ii)}
+    By \texttt{Theorem 2.10} and that $Tv=v,\ Tv'=v'$ by \texttt{Theorem 2.12i)}, we get that
+    \[\begin{array}{rrcl}
+      &\|v-v'\|&=&\|Tv-Tv'\|\\
+      &&\leq&\alpha\|v-v'\|\\
+      \implies&(1-\alpha)\|v-v'\|&\leq&0\\
+      \implies&\|v-v'\|&\leq&0\text{ since }1-\alpha>0\\
+      \implies&\|v-v'\|&=&0\text{ by def. }\|\cdot\|\\
+      \implies&v&=&v'
+    \end{array}\]
+    \proved
+  \end{proof}
+
+  \begin{theorem}{Banach Fixed Point Theorem applied to $T_d$}
+    Let $d:S\to A$ be a \textit{Markov Decision Function}. Then the following hold
+    \begin{enumerate}
+      \item $\exists!\ v_d\in V$ st $(T_dv_d)(s)=v_d(s)\ \forall\ s\in S$.\footnote{This is \textit{Banach's Fixed Point Theorem} applied to transform $T_d$ where $T_dv=v$ is the \textit{Fixed Point Equation} associated with transform $T_d$.}
+      \item $v_d(s)=v^{\pi_d}(s)\ \forall\ s\in S$ where $\pi_d$ is the stationary policy based on \textit{Markovian Decision Problem} $d$.
+    \end{enumerate}
+    This can re-interpretted as the \textit{Fixed Point Equation} of $T_d$, $T_dv=v$, has a unique solution $v_d$ which is the value function associated with $\pi_d$, $v_d=v^{\pi_d}$.
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.13 i)}
+    This is proved by using \texttt{Theorem 2.11}  and repeating, word-for-word, the argument of \texttt{Theorem 2.12}  which concludes that $T_dv=v$ has a unique solution $v_d$.
+  \end{proof}
+
+  \begin{proof}{Theorem 2.13 ii)}
+    \everymath={\displaystyle}
+    Assume that $\{(X_t,Y_t)\}_{t\geq0}$ is generated by policy $\pi_d$. By \texttt{Theorem 2.2}  we know the following properties
+    \begin{enumerate}
+      \item $Y_t=d(X_t)\ \forall\ t\geq0$.
+      \item $\{X_t\}_{t\geq0}$ is an \textit{Homogeneous Markov Chain}.
+      \item $p(s'|s,d(s))$ is the transition kernel of $\{X_t\}_{t\geq0}$.
+    \end{enumerate}
+    Consequently
+    \[\begin{array}{rcl}
+      \prob^{\pi_d}(X_{t+1}=s'|X_1,X_0)&=&\prob^{\pi_d}(X_{t+1}=s'|X_1)\quad(1)\\
+      &=&p(s'|X_1,d(X_1))\\
+      \prob^{\pi_d}(X_{t+1}=s'|X_1)&=&\prob^{\pi_d}(X_t=s'|X_0=s)
+    \end{array}\]
+    \textit{Step 1 - Representation of }$v^{\pi_d}$.
+    \par By the definition of value functions for Discount Reward MDPs $v^{\pi_d}(\cdot)$, we have
+    \[\begin{array}{rcl}
+      v^{\pi_d}(s)&=&\expect^{\pi_d}\left(\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)\\
+      &=&\expect^{\pi_d}\big(r(X_0,d(X_0))\big|X_0=s\big)+\sum_{t=1}^\infty\alpha^t\expect^{\pi_d}\big(r(X_t,d(X_t))\big|X_0=s\big)\\
+      &=&r(s,d(s))+\sum_{t=1}^\infty\alpha^t\expect^{\pi_d}\big(r(X_t,d(X_t))\big|X_0=s\big)\\
+      \implies v^{\pi_d}(s)&=&r(s,d(s))+\sum_{t=1}^\infty\alpha^t\expect^{\pi_d}\big(r(X_t,d(X_t))\big|X_0=s\big)
+    \end{array}\]
+    Setting $t=k+1\implies k=t-1$ we get
+    \[ v^{\pi_d}(s)=r(s,d(s))+\sum_{k=0}^\infty\alpha^{k+1}\expect^{\pi_d}\big(e(X_{k+1},d(X_{k+1}))\big|X_0=s\big) \]
+    Due to the \textit{filtering proeprty} of conditional expectations, we have
+    \[ \expect^{\pi_d}\big(r(X_{k+1},d(X_{k+1}))\big|X_0=s\big)=\expect^{\pi_d}\big(\expect^{\pi_d}\big(r(X_{k+1},d(X_{k+1}))\big|X_1,X_0\big)\big|X_0=s\big) \]
+    By the def. of conditional expectations and $(1)$ we have
+    \[\begin{array}{rcl}
+      \expect^{\pi_d}\big(r(X_{k+1},d(X_{k+1}))\big|X_1,X_0\big)&=&\sum_{s'\in S}r(s',d(s'))\prob^{\pi_d}(X_{k+1}=s'|X_1,X_0)\\
+      &=&\sum_{s'\in S}r(s',d(s'))\prob^{\pi_d}(X_{k+1}=s'|X_1)\\
+      &=&\expect^{\pi_d}\big(r(X_{k+1},d(X_{k+1}))\big|X_1\big)
+    \end{array}\]
+    Hence
+    \[\begin{array}{rrcl}
+      &\expect^{\pi_d}\big(r(X_{k+1},d(X_{k+1}))\big|X_1,X_0\big)&=&\expect^{\pi_d}\big(r(X_{k+1},d(X_{k+1}))\big|X_1\big)\\
+      \implies&\expect^{\pi_d}\big(r(X_{k+1},d(X_{k+1}))\big|X_0=s\big)&=&\expect^{\pi_d}\big(\expect^{\pi_d}\big(r(X_{k+1},d(X_{k+1}))\big|X_1\big)\big|X_0=s\big)
+    \end{array}\]
+    Using this, we can conclude a representation of $v^{\pi_d}(\cdot)$
+    \[\begin{array}{rcl}
+      v^{\pi_d}(s)&=&r(s,d(s))+\sum_{t=1}^\infty\alpha^t\expect^{\pi_d}\big(r(X_t,d(X_t))\big|X_0=s\big)\\
+      &=&r(s,d(s))+\sum_{k=0}^\infty\alpha^{k+1}\expect^{\pi_d}\big(\expect^{\pi_d}(r(X_{k+1},d(X_{k+1}))|X_1)\big|X_0=s\big)\\
+      &=&r(s,d(s))+\alpha\expect^{\pi_d}\left(\expect^{\pi_d}\left(\sum_{k=0}^\infty\alpha^kr(X_{k+1},d(X_{k+1}))\bigg|X_1\right)\bigg|X_0=s\right)\\
+      \implies v^{\pi_d}(s)&=&r(s,d(s))+\alpha\expect^{\pi_d}\left(\expect^{\pi_d}\left(\sum_{k=0}^\infty\alpha^kr(X_{k+1},d(X_{k+1}))\bigg|X_1\right)\bigg|X_0=s\right)
+    \end{array}\]
+    Let $R^{\pi_d}(s)$ denote the expected total reward when using policy $\pi_d$ and $X_1=s$
+    \[ R^{\pi_d}(s):=\expect^{\pi_d}\left(\sum_{k=0}^\infty\alpha^kr(X_{k+1},d(X_{k+1}))\bigg|X_1=s\right) \]
+    Thus
+    \[ v^{\pi_d}(s)=r(s,d(s))+\alpha\expect^{\pi_d}\left[R^{\pi_d}(X_1)|X_0=s\right] \]
+    \textit{Step 2 - Identification of }$R^{\pi_d}$.
+    \par We want to find the link between $R^{\pi_d}(s)$ and $v^{\pi_d}(s)$. We can re-write $R^{\pi_d}$ as
+    \[ R^{\pi_d}(s)=\sum_{k=0}^\infty\alpha^k\expect^{\pi_d}\left[r(X_{k+1},d(X_{k+1}))\big|X_1=s\right] \]
+    By the definition of conditional expectations
+    \[\begin{array}{rcl}
+      \expect^{\pi_d}\left[r(X_{k+1},d(X_{k+1}))\big|X_1=s\right]&=&\sum_{s'\in S}r(s',d(s'))\prob^{\pi_d}(X_{k+1}=s'|X_1=s)\\
+      &=&\sum_{s'\in S}r(s',d(s'))\prob^{\pi_d}(X_k=s'|X_0=s)\\
+      &=&\expect^{\pi_d}\left[r(X_k,d(X_k))\big|X_0=s\right]\\
+      \implies\expect^{\pi_d}\left[r(X_{k+1},d(X_{k+1}))\big|X_1=s\right]&=&\expect^{\pi_d}\left[r(X_k,d(X_k))\big|X_0=s\right]
+    \end{array}\]
+    This gives the following re-expression of $R^{\pi_d}(s)$
+    \[\begin{array}{rcl}
+      R^{\pi_d}(s)&=&\sum_{k=0}^\infty\alpha^k\expect^{\pi_d}\left[r(X_{k+1},d(X_{k+1}))|X_1=s\right]\\
+      &=&\sum_{k=0}^\infty\alpha^k\expect^{\pi_d}\left[r(X_k,d(X_k))|X_0=s\right]\\
+      &=&\expect^{\pi_d}\left(\sum_{k=0}^\infty\alpha^kr(X_k,d(X_k))\bigg|X_0=s\right)\\
+      &=&v^{\pi_d}(s)\\
+      \implies R^{\pi_d}(s)&=&v^{\pi_d}(s)
+    \end{array}\]
+    \textit{Step 3 - Conclusion}
+    We want to show that $v^{\pi_d}$ is a solution to $T_dv=v$.
+    \par By \textit{Step 1} we have
+    \[ v^{\pi_d}(s)=r(s,d(s))+\alpha\expect^{\pi_d}\left[R^{\pi_d}(X_1)|X_0=s\right] \]
+    and, by \textit{Step 2} we have
+    \[ R^{\pi_d}(s)=v^{\pi_d}(s) \]
+    This means that
+    \[ v^{\pi_d}(s)=r(s,d(s))+\alpha\expect^{\pi_d}\left[v^{\pi_d}(X_1)|X_0=s\right] \]
+    By this result and the definition of conditional expectations, we have
+    \[\begin{array}{rcl}
+      v^{\pi_d}(s)&=&r(s,d(s))+\alpha\expect^{\pi_d}\left[v^{\pi_d}(X_1)|X_0=s\right]\\
+      &=&r(s,d(s))+\alpha\sum_{s'\in S}v^{\pi_d}\prob^{\pi_d}(X_1=s'|X_0=s)\\
+      &=&r(s,d(s))+\alpha\sum_{s'\in S}v^{\pi_d}(s')p(s'|s,d(s))\\
+      \implies v^{\pi_d}(s)&=&r(s,d(s))+\alpha\sum_{s'\in S}v^{\pi_d}(s')p(s'|s,d(s))
+    \end{array}\]
+    By this result and the definition of transform $T_d$ we have
+    \[\begin{array}{rcl}
+      v^{\pi_d}(s)&=&r(s,d(s))+\alpha\sum_{s'\in S}v^{\pi_d}(s')p(s'|s,d(s))\\
+      &=&(T_dv^{\pi_d})(s)
+    \end{array}\]
+    This means that $v^{\pi_d}$ is a solution to $T_dv=v$.
+    \par In \texttt{Theorem 2.13 i)}  $v_d(s)$ is the unique solution to $T_dv=v$, thus $v_d=v^{\pi_d}$.
+    \proved
+  \end{proof}
+
+  \begin{theorem}{Upper-Bound on $\|v_N^*-v^*\|$}
+    Here is a bound on the distance between the optimal value function in the infinite-time case and in the finite-time case (ie $N$ epoch)
+    \[ \|v_N^*-v^*\|\leq\frac{c\alpha^N}{1-\alpha}\ \forall\ N\geq1\text{ where }c:=\max_{s\in S,a\in A(s)}|r(s,a)| \]
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.14}
+    \everymath={\displaystyle}
+    By the definition of $c$, we have $|r(X_t,Y_t)|\leq c$. Hence
+    \[\begin{array}{rrcl}
+      &\left|\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)-\sum_{t=0}^{N_1}\alpha^tr(X_t,Y_t)\right|&=&\left|\sum_{t=N}^\infty\alpha^tr(X_t,Y_t)\right|\\
+      &&\leq&\sum_{t=N}^\infty\alpha^t|r(X_t,Y_t)|\\
+      &&\leq&\sum_{t=N}^\inft\alpha^t c\\
+      &&=&\frac{\alpha^N}{1-\alpha}c\\
+      \implies&\left|\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)-\sum_{t=0}^{N_1}\alpha^tr(X_t,Y_t)\right|&=&\frac{\alpha^N}{1-\alpha}c\\
+      \implies&\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)&\leq&\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)+\frac{\alpha^N}{1-\alpha}c\\
+      \text{and}&\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)&\geq&\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)-\frac{\alpha^N}{1-\alpha}c\\
+    \end{array}\]
+    Taking expectations of both sides of these last two expressions we get
+    \[\begin{array}{rcl}
+      \expect^\pi\left(\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)&\leq&\expect^\pi\left(\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)+\frac{\alpha^n}{1-\alpha}c\\
+      \text{and }\expect^\pi\left(\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)&\geq&\expect^\pi\left(\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)-\frac{\alpha^n}{1-\alpha}c
+    \end{array}\]
+    Applying the definition of $v^\pi(s)$ to these results we get
+    \[\begin{array}{rcl}
+      \expect^\pi\left(\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)&\leq&v^\pi(s)+\frac{\alpha^N}{1-\alpha}c\\
+      \text{and }\expect^\pi\left(\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)&\geq&v^\pi(s)-\frac{\alpha^N}{1-\alpha}c\\
+    \end{array}\]
+    Taking the maximum value when considering all policies $\max_\pi$ of both sides we get
+    \[\begin{array}{rcl}
+      \max_\pi\expect^\pi\left(\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)&\leq&\max_\pi v^\pi(s)+\frac{\alpha^N}{1-\alpha}c\\
+      \text{and }\max_\pi\expect^\pi\left(\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\bigg|X_0=s\right)&\geq&\max_\pi v^\pi(s)-\frac{\alpha^N}{1-\alpha}c\\
+    \end{array}\]
+    From the definition of $v_N^*(s)$ we have
+    \[\begin{array}{rrcl}
+      &v_N^*(s)&\leq&v^*(s)+\frac{\alpha^N}{1-\alpha}c\\
+      \text{and }&v_N^*(s)&\geq&v^*(s)-\frac{\alpha^N}{1-\alpha}c\\
+      \implies&-\frac{\alpha^N}{1-\alpha}c&\leq&v_N^*(s)-v^*(s)\leq\frac{\alpha^N}{1-\alpha}c\\
+      \implies&|v_N^*(s)-v^*(s)|&\leq&\frac{\alpha^N}{1-\alpha}c
+    \end{array}\]
+    As $s$ is an arbitrary element of $S$, we can deduce that
+    \[\begin{array}{rrcl}
+      &\max_{s\in S}|v_N^*(s)-v^*(s)|&\leq&\frac{\alpha^N}{1-\alpha}c\\
+      \implies&\|v_N^*-v^*\|&\leq&\frac{\alpha^N}{1-\alpha}c\text{ by def. }\|\cdot\|
+    \end{array}\]
+    \proved
+  \end{proof}
+
+  \begin{theorem}{Solution to Bellman Equation}
+    $v^*(s)$ is the unique solution to the \textit{Bellman Equation}.
+    \[ (Tv^*)(s)=v^*(s)\ \forall\ s\in S \]
+    Moreover, $v^*(s)=v^{\pi^*}(s)\ \forall\ s\in S$.
+    \par The \textit{Optimal Markovian Decision Function} $d^*(s)$ is defined by
+    \[ d^*(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)\quad\text{where }s\in S \]
+    The \textit{Optimal Policy} $\pi^*=\pi_{d^*}$ is the stationary policy in $HR(T)$ based on decision function $d^*(s)$.
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.15}
+    \everymath={\displaystyle}
+    By \texttt{Theorem 2.9} and the definition of $T$ we get
+    \[\begin{array}{rcl}
+      v_{N+1}^*(s)&=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_N^*(s')p(s'|s,a)\right)\\
+      &=&(Tv_N^*)(s)
+    \end{array}\]
+    Hence, the sequence $\{v_N^*\}_{N\geq1}$ is generated through the recursion $v_{N+1}^*(s)=(Tv^*_N)(s)$ for $s\in S,\ N\geq1$.
+    \par \texttt{Theorem 2.12}  implies the following
+    \begin{enumerate}
+      \item $\lim_{N\to\infty}v_N^*(s)$ exists $\forall\ s\in S$.
+      \item $\lim_{N\to\infty}v_N^*(s)$ is the unique solution to $Tv=v$.
+    \end{enumerate}
+    By \texttt{Theorem 2.14}, we have
+    \[\begin{array}{rrcl}
+      &\|v_N^*-v^*\|&\leq&\frac{\alpha^N}{1-\alpha}c\\
+      \implies&\lim_{N\to\infty}\|v_N^*-v^*\|&\leq&\lim_{N\to\infty}\frac{\alpha^N}{1-\alpha}c\\
+      &&=&0\\
+      \implies&\lim_{N\to\infty}\|v_N^*-v^*\|&=&0\\
+      \implies&\lim_{N\to\infty}v_N^*(s)&=&v^*(s)
+    \end{array}\]
+    Since $\lim_{N\to\infty}v_N^*(s)$ is the unique solution to $Tv=v$, $v^*(s)$ is also the unique solution to the same equation.
+    \[ (Tv^*)(s)=v^*(s) \]
+    We define the \textit{Markov Decision Function} $d^*(s)$ as
+    \[ d^*(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)\]
+    Consequently, we get
+    \[ \max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)=r(s,d^*(s))+\alpha\sum_{s'\in S}v^*(s')p(s'|s,d^*(s)) \]
+    By the definitions of $T, T_{d^*}$ we get
+    \[\begin{array}{rcl}
+      (Tv^*)(s)&=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)\\
+      &=&r(s,d^*(s))+\alpha\sum_{s'\in S}v^*(s')p(s'|s,d^*(s))\\
+      &=&(T_{d^*}v^*)(s)\\
+      \implies (Tv^*)(s)&=&(T_{d^*}v^*)(s)
+    \end{array}\]
+    Futher, we can deduce
+    \[\begin{array}{rcl}
+      v^*(s)&=&(Tv^*)(s)\\
+      &=&(T_{d^*}v^*)(s)
+    \end{array}\]
+    Hence, $v^*(s)$ is a solution to $T_{d^*}v=v$. By \texttt{Theorem 2.13}, $v^{\pi_{d^*}}(s)=v^{\pi^*}(s)$ is the unique solution to $T_{d^*}(v)=v$ meaning $v^*(s)=v^{\pi^*}(s)$.
+    \proved
+  \end{proof}
+
+  \begin{proof}{$\pi^*:=\pi_{d^*}$ is the Optimal Policy}
+    \everymath={\displaystyle}
+    By \texttt{Theorem 2.15}  we have that
+    \[ v^*(s)=v^{\pi^*}(s)\ \forall\ s\in S \]
+    From the definition of \textit{Optimal Value Functions} for \textit{Discounted Reward MDPs}, we have
+    \[ v^*(s)=\max_\pi v^\pi(s)\ \forall\ s\in S \]
+    Hence
+    \[ v^\pi(s)\leq v^*(s)\ \forall\ s\in S \]
+    where this is an equality when $\pi=\pi^*$.
+    \par By the \textit{Tower Property}, we can conclude
+    \[ \expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]=\expect^\pi\left[\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0\right]\right] \]
+    By the definition of \textit{Value Functions} for \textit{Discounted Reward MDPs}, we can deduce
+    \[\begin{array}{rrcl}
+      &v^\pi(X_0)&=&\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0\right]\\
+      \implies&\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0\right]&=&\expect^\pi[v^\pi(X_0)]\\
+      &&\leq&\expect^\pi[v^*(X_0)]\\
+      \implies&\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0\right]&\leq&\expect^\pi[v^*(X_0)]
+    \end{array}\]
+    where the final expression is an equality when $\pi=\pi^*$.
+    \par Since $X_0$ is independent of $\pi$, we have that
+    \[ \expect^\pi[v^*(X_0)]=\expect[v^*(X_0)] \]
+    Thus
+    \[ \expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0\right]\leq\expect[v^*(X_0)] \]
+    which is an equality when $\pi=\pi^*$.
+    \par Hence, the maximum value of the expected discounted reward is $\expect[v^*(X_0)]$ and this is attained when $\pi=\pi^*$. Therefore, $\pi^*$ is an \textit{Optimal Policy}.\proved
+  \end{proof}
+
+\subsection*{Policy Iteration Algorithm}
+
+  \begin{definition}{Policy Iteration Algorithm}
+    The \textit{Policy Iteration Algorithm} numerical solves any given \textit{Discount Reward MDP} by calculating the \textit{Optimal Value Function} and \textit{Optimal Policy}.
+    \par  Here are the stages of the \textit{Policy Iteration Algorithm}
+    \begin{itemize}
+      \item \textit{Initialisation} - Arbitrarily choose a \textit{Markovian Decision Function} $d_0(s)$ and set $k=0$.
+      \item \textit{Body} - For each $k\geq0$, execute the following steps
+      \begin{enumerate}
+        \item \textit{Policy Evaluation} - Compute a solution $v_k(s)$ to the equation $v=T_{d_k}v$ where $v$ is unknown.
+        \item \textit{Policy Improvement} - Select a \textit{Markovian Decision Function} $d_{k+1}(s)$ st
+        \[ d_{k+1}(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_k(s')p(s'|s,a)\right)\ \forall\ s\in S \]
+        \item \textit{Terminate?}
+        \begin{itemize}
+          \item \underline{If} $d_k(s)=d_{k+1}(s)\ \forall\ s\in S$: STOP. return $\hat{d}(s):=d_k(s)$ and $\hat{v}(s)=v_k(s)$.
+          \item \underline{Else}: Increment $k$ and repeat i)-iii).
+        \end{itemize}
+      \end{enumerate}
+    \end{itemize}
+  \end{definition}
+
+  \begin{theorem}{Properties of Policy Iteration Algorithm}
+    Here are some properties of the \textit{Policy Iteration Algorithm}
+    \begin{enumerate}
+      \item The \textit{Policy Iteration Algorithm} stops after a finite number of iterations.
+      \item $\hat{d}(s)=d^*(s)$ and $\hat{v}(s)=v^*(s)\ \forall\ s\in S$.
+    \end{enumerate}
+  \end{theorem}
+
+  \begin{remark}{Remarks about the Policy Iteration Algorithm}
+    \begin{itemize}
+      \item By \texttt{Theorem 2.13}, $v_k(s)=v^{\pi_k}(s)\ \forall\ s\in S$.
+      \item $v^{\pi_k}(s)$ is the value function associated with $\pi_k$.
+      \item $\pi_k$ is the stationary policy in $HR(T)$ based on $d_k(s)$.
+    \end{itemize}
+  \end{remark}
+
+\subsection*{Linear Programming}
+
+  \begin{proposition}{Linear Programming}
+    \textit{Linear Programming} techniques can be used to numerically solve \textit{Discounted Reward MDPs}.
+  \end{proposition}
+
+  \begin{proposition}{Equivalent Linear Program}
+    \everymath={\displaystyle}
+    Here is a \textit{Linear Program} which is equivalent to a \textit{Discounted Reward MDP}.
+    \begin{itemize}
+      \item \textit{Minimise} $\sum_{s\in S}\gamma(s)v(s)$.
+      \itme \textit{Subject to} $r(s,a)+\sum_{s'\in S}\alpha p(s'|s,a)v(s')\leq v(s)\ \forall\ s\in S,a\in A(s)$.
+    \end{itemize}
+    The minimisation is in $v:S\to\reals$, while $\gamma:S\to\reals$ is any function which satisfies $\gamma(s)>0\ \forall\ s\in S$.
+  \end{proposition}
+
+  \begin{proposition}{Notation - $\hat{v}(s),\hat{d}(s)$}
+    \begin{itemize}
+      \item $\hat{v}(s)$ - Optimal solution to the equivalent linear program.
+      \item $\hat{d}(s)$ - A \textit{Markovian Decision Function} which satisfies
+      \[ \hat{d}(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}\hat{v}(s')p(s'|s,a)\right)\ \forall\ s\in S \]
+    \end{itemize}
+  \end{proposition}
+
+  \begin{theorem}{}
+    $\hat{d}(s)=d^*(s)$ and $\hat{v}(s)=v^*(s)\ \forall\ s\in S$.
+  \end{theorem}
+
 \section{Probability}
 
   \begin{definition}{Random Process}
@@ -1670,9 +2332,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     for $\x'$ in a small enough neighbourhood of $\x$.
   \end{proposition}
 
-\newpage
-\setcounter{section}{-1}
-\section{Reference}
+\reference
 
   \begin{definition}{Stochastic Matrix}
     A matrix is called a \textit{Stochastic matrix} if:
@@ -1754,7 +2414,8 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     $MD(T)$&The set of policies on time-horizon $T$ in which the decision rules are MDs.\\
     $\prob^\pi,\ \expect^\pi$&Probability and expectation given policy $\pi$ is being used.\\
     $T^\pi$ & The expected reward for a given policy.\\
-    $u*(s)$ & The terminal reward for a given MDP.\\
+    $u^*(s)$ & The terminal reward for a given MDP.\\
+    $v_N^*(s)$ & The optimal value function for the expected discount reward over $N$ epochs.\\
     \hline
   \end{tabular}
 

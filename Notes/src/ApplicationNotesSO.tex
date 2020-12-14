@@ -496,7 +496,6 @@
     \par Find a policy $\pi\in HR(T)$ which maximises
     \[ \expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right] \]
   \end{itemize}
-
 \end{answer}
 
 \begin{question}{3) (b)}
@@ -621,5 +620,286 @@
     \item \textit{Optimal Value Function} - $u_0^*(s)$ as defined above.
   \end{itemize}
 \end{answer}
+
+\begin{question}{4) - Discount Reward Inventory Problem}
+  \textit{This is from \texttt{LectureSlides4cSO.pdf} and covers chapter 3.}.
+  \par This is an \textit{Inventory Control Problem} with discounted-cost (See \texttt{Question 3)} for the finite-time version).
+  \par Our problem is to decide, at the beginning of each time-period, what number of items to order so the expected discounted cost is minimal.
+\end{question}
+
+\begin{question}{4) a)}
+  Formulate the inventory control problem as a \textit{Discounted Reward Markov Decision Problem}.
+\end{question}
+
+\begin{answer}{4) a)}
+  \begin{itemize}
+    \item \textit{Stochastic System} - Inventory and customers.
+    \item \textit{Agent} - Inventory Manager.
+    \item \textit{Decision Epochs} - Beginning of the time-period.
+    \item \textit{Epoch $t$} - The beginning of time-period $t$.
+    \item \textit{Time Horizon} - $T=\{0,1,\dots\}$.
+    \item \textit{System States}.
+    \par Let $X_t$ be the system state at epoch $t$, $X_t'$ be the number of items in the inventory at the beginning of period $t$ and $X_t''$ be the number of backlogged items at the beginning of period $t$.
+    \[ X_t':=\begin{cases}X_t'&\text{if }X_t''=0\\-X_t''\text{if }X_t''>0\end{cases} \]
+    \item \textit{State-Space} - $T=\{-m,\dots,0,\dots,n\}$.
+    \item \textit{Agent-Actions}.
+    \par Let $Y_t$ be the agent action at epoch $t$. Define $Y_t$ as the number of items ordered at the beginning of time-period $t$.
+    \item \textit{Action-Space} - $A=\{0,\dots,n+m\}$.
+    \item \textit{Admissible Actions} - $A(s)=\{0,\dots,n-s\}$.
+    \item \textit{Transition Probabilities}.
+    \par Let $s\in S,\ a\in A(s)$. The corresponding transition probabilities are
+    \[ p(s'|s,a)\begin{cases}
+      0&\text{if }s'>s+a\\
+      p(s+a-s')&\text{if }s'\in(-m,s+a]\\
+      \sum_{k=s+a+m}^\infty p(k)&\text{if }s'=m
+    \end{cases} \]
+    \item \textit{Equivalent Rewards}.
+    \par Let $s\in S,\ a\in A(s)$. The corresponding equivalent reward is
+    \[\begin{array}{rcl}
+      r(s,a)&=&=c(a)+\sum_{k=0}^{s+a}\alpha(s+a-k)p(k)-\sum_{k=s+a+1}^{s+a+m}\beta(k-s-a)p(k)\\
+      &-&\sum_{k=s+a+m+1}^\infty\left[\beta(m)+\gamma(k-s-a-m)\right]p(k)
+      \end{array}\]
+    \item \textit{Equivalent Objective}.
+    \par Find the policy, $\pi\in HR(T)$ which maximises the expected discount reward
+    \[ \expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]\quad\alpha\in(0,1) \]
+  \end{itemize}
+\end{answer}
+
+\begin{question}{4) b)}
+  Consider the MDP formulated in \texttt{4) a)}. Assume the following
+  \begin{itemize}
+    \item $n=1,m=1,\alpha=.5$.
+    \item $p(0)=p(1)=p(2)=p(3)=\frac14$ and $p(k)=0\ \forall\ k\geq4$.
+    \item $c(k)=ck,\alpha(k)=\alpha k,\beta(k)=\beta(k),\gamma(k)=\gamma k\ \forall\ k\geq 0$.
+    \item $c=1,\alpha=2,\beta=3,\gamma=4$.
+  \end{itemize}
+  Using the policy iteration algorithm, find an algorithm policy.
+\end{question}
+
+\begin{answer}{4) b)}
+  For these specific conditions we have the following
+  \begin{itemize}
+    \item \textit{Number of Epochs} - $N=\infty$.
+    \item \textit{Time-Horizon} - $T=\{0,1,\dots\}$.
+    \item \textit{State-Space} - $S=\{-1,0,1\}$.
+    \item \textit{Action-Space} - $A=\{0,1,2\}$.
+    \item \textit{Admissible Actions}
+    \[\begin{array}{rcl}
+      A(-1)&=&\{0,1,2\}\\
+      A(0)&=&\{0,1\}\\
+      A(1)&=&\{0\}
+    \end{array}\]
+    \item \textit{Rewards}
+    \begin{center}$r(s,a)=$
+      \begin{tabular}{c|ccc}
+        $s$\textbackslash$a$&0&1&2\\\hline
+        -1&-9&-25/4&-5\\
+        0&-21/5&-4&ND\\
+        1&-3&ND&ND
+      \end{tabular}
+    \end{center}
+    \item \textit{Transition Probabilties}
+    \begin{center}
+      \begin{tabular}{rcl}
+        $p(s'|s,0)$&=&
+        \begin{tabular}{c|ccc}
+          $s$\textbackslash$s'$&-1&0&1\\\hline
+          -1&1&0&0\\
+          0&3/4&1/4&0\\
+          1&1/2&1/4&1/4
+        \end{tabular}\\
+        $p(s'|s,1)$&=&
+        \begin{tabular}{c|ccc}
+          $s$\textbackslash$s'$&-1&0&1\\\hline
+          -1&3/4&1/4&0\\
+          0&1/2&1/4&1/4\\
+          1&ND&ND&ND
+        \end{tabular}\\
+        $p(s'|s,2)$&=&
+        \begin{tabular}{c|ccc}
+          $s$\textbackslash$s'$&-1&0&1\\\hline
+          -1&1/2&1/4&1/4\\
+          0&ND&ND&ND\\
+          1&ND&ND&ND
+        \end{tabular}
+      \end{tabular}
+    \end{center}
+    \item \textit{Policy Evaluation Step}
+    \par In the $k^{th}$ iteration, we compute value function $v_k(s)$ where $v_k(s)$ is the solution to the following equations
+    \[\begin{array}{rcl}
+      v(s)&=&(T_dv)(s)\\
+      &=&r(s,d_k(s))+\alpha\sum_{s'\in S}v(s')p(s'|s,d_k(s))
+    \end{array}\]
+    \item \textit{Policy Improvement Step}
+    \par In the $k^{th}$ iteration, we compute the decision function $d_{k+1}(s)$
+    \[ d_{k+1}(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_k(s')p(s'|s,a)\right) \]
+    \item \textit{Alternative Form of Policy Improvement Step}
+    \[\begin{array}{rcl}
+      w_{k+1}(s,a)&=&r(s,a)+\alpha\sum_{s'\in S}v_k(s')p(s'|s,a)\\
+      d_{k+1}(s)&\in&\argmax_{a\in A(s)}w_{k+1}(s,a)
+    \end{array}\]
+    \item \textit{Initialisation}.
+    \par We set
+    \[\begin{array}{rcl}
+      d_0(-1)&=&2\\
+      d_0(0)&=&1\\
+      d_0(1)&=&0
+    \end{array}\]
+    $d_0(s)$ can be any \textit{Markovian Decision Function} which satisfies $d_0(s)\in A(s)\ \forall\ s\in S$.
+    \item \textit{Iteration} - $k=0$.
+    \par \underline{Policy Evaluation}
+    \par We compute solution $v_0(s)$ for the following system of equations
+    \[\begin{array}{rcl}
+      v(s)&=&(T_{d_0}v)(s)\\
+      &=&r(s,d_0(s))+\alpha\sum_{s'=-1}^1v(s')p(s'|s,d_0(s))
+    \end{array}\]
+    where $v(s)$ is unknown and $s\in\{-1,0,1\}=S$. We can expand this equation as
+    \[\begin{array}{rcl}
+      v(-1)&=&r(-1,d_0(-1))+\alpha\sum_{s'=-1}^1v(s')p(s'|-1,d_0(-1))\\
+      v(0)&=&r(0,d_0(0))+\alpha\sum_{s'=-1}^1v(s')p(s'|0,d_0(0))\\
+      v(1)&=&r(1,d_0(1))+\alpha\sum_{s'=-1}^1v(s')p(s'|1,d_0(1))\\
+    \end{array}\]
+    This has solutions
+    \[\begin{array}{rcl}
+      v_0(-1)&=&-37/4\\
+      v_0(0)&=&-33/4\\
+      v_0(1)&=&-29/4
+    \end{array}\]
+    \underline{Policy Improvement}
+    \par We compute $d_1(s)$ using the following system of equations
+    \[\begin{array}{rcl}
+      w_1(s,a)&=&r(s,a)+\alpha\sum_{s'=-1}^1v_0(s')p(s'|s,a)\\
+      d_1(s)&\in&\argmax_{a\in A(s)}w_1(s,a)
+    \end{array}\]
+    The table below summarises the values for these equations
+    \begin{center}
+      \begin{tabular}{rcl}
+        $w_1(s,a)$&=&\begin{tabular}{c|ccc}
+          $s$\textbackslash$a$&0&1&2\\\hline
+          -1&-109/8&-43/4&-37/4\\
+          0&-39/4&-33/4&ND\\
+          1&-29&ND&ND
+        \end{tabular}\\
+        $d_1(s)$&=&\begin{tabular}{c|c}
+          $s$&$d_1(s)$\\\hline
+          -1&2\\
+          0&1\\
+          1&0
+        \end{tabular}
+      \end{tabular}
+    \end{center}
+    \underline{Stopping Criterion} - As $d_1(s)=d_0(s)\ \forall\ s\in S$, then $d_1(s)$ is optimal.
+    \item \textit{Optimal Solution}.
+    \par The \textit{Optimal Markovian Decision Function} is $d_0(s)$ and the \textit{Optimal Value Function} is $v_0(s)$.
+  \end{itemize}
+\end{answer}
+
+\begin{question}{4) c)}
+  Formulate a linear problem equivalent to the MDP solved in \texttt{4) b)}.
+\end{question}
+
+\begin{answer}{4) c)}
+  The \textit{Equivalent Linear Program} is to \underline{minimise}
+  \[ \sum_{s'=-1}^s\gamma(s')v(s')\quad\text{wrt }v(-1),v(0),v(1) \]
+  subject to the condition that
+  \[ r(s,a)+\alpha\sum_{s'=-1}^1v(s')p(s'|s,a)\leq v(s) \]
+  where $\gamma(-1),\gamma(0),\gamma(1)\in(0,\infty)$ and are constants.
+  \par This condition can be expanded and restated as
+  \[\begin{array}{rcl}
+    r(-1,0)+\alpha\sum_{s'=1}^1v(s')p(s'|-1,0)\leq v(-1)\\
+    r(-1,1)+\alpha\sum_{s'=1}^1v(s')p(s'|-1,1)\leq v(-1)\\
+    r(-1,2)+\alpha\sum_{s'=1}^1v(s')p(s'|-1,2)\leq v(-1)\\
+    r(0,0)+\alpha\sum_{s'=1}^1v(s')p(s'|0,0)\leq v(0)\\
+    r(0,1)+\alpha\sum_{s'=1}^1v(s')p(s'|0,1)\leq v(0)\\
+    r(1,0)+\alpha\sum_{s'=1}^1v(s')p(s'|1,0)\leq v(0)
+  \end{array}\]
+\end{answer}
+
+\begin{question}{5) - Optimality of $\pi^*$ for Discounted Reward MDP}
+  Consider the following generic \textit{Discounted Reward MDP}
+  \begin{itemize}
+    \item \textit{Time-Horizon} - $T=\{0,1,\dots\}$.
+    \item \textit{State-Space} - $S$.
+    \item \textit{Action-Space} - $A$.
+    \item \textit{Admissible Actions} - $A(s)$.
+    \item \textit{Transition Probabilities} - $p_t(s'|s,a)=p(s'|s,a)\ \forall\ t\in T$.
+    \item \textit{Rewards} - $r_t(s,a)=\alpha^tr(s,a)$ where $\alpha\in(0,1)$.
+    \item \textit{Objective} - Find $\pi\in HR(T)$ which maximises
+    \[ \expect^\pi\left(\sum_{t=0}^\sum\alpha^tr(X_t,Y_t)\right) \]
+  \end{itemize}
+  Let $v^*(s)$ be the optimal value function which is the unique solution to the Bellam equation
+  \[ v^*(s)=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right) \]
+  Let $D^*(s)$ be the set of optimal actions for a given state $s$
+  \[\begin{array}{rcl}
+    D^*(s)&=&\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)\\
+    &=&\left\{a\in A(s):v^*(s)=r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right\}
+  \end{array}\]
+  Let $q^*(a|s)$ be any \textit{Markovian Decision Probability} which satisfies the condition
+  \[ q^*(a|s)=0\ \forall\ a\not\in D^*(s),\ \forall\ s\in S \]
+  Let $\pi^*$ be the \textit{Stationary Markovian Policy} based on the \textit{Markovian Decision Probability} $q^*(a|s)$. (ie $\pi^*$ applies $q^*(a|s)$ at each epoch).
+  \par Show that $\pi^*$ is optimal.
+\end{question}
+
+\begin{answer}{5)}
+  Note that, under policy $\pi^*$, the agent action $Y_t$ at each epoch $t\in T$ is selected according to the decision probability $q^*(a|s)$
+  \[ \prob^{\pi^*}\left(Y_t=a|X_{0:t},Y_{0:t-1}\right)=q^*(a|X_t) \]
+  By the filtering property of conditional expectations, we get
+  \[\begin{array}{rcll}
+    \prob^{\pi^*}(Y_t=a|X_t)&=&\expect^{\pi^*}\left(\prob^{\pi^*}(Y_t=a|X_{0:t},Y_{0:t-1})\big|X_t\right)\\
+    &=&\expect^{\pi^*}(q^*(a|X_t)|X_t)\\
+    &=&q^*(a|X_t)&[1]
+  \end{array}\]
+  From the notes, we know that the maximum expected discounted reward is
+  \[ \expect[v^*(X_0)] \]
+  Thus, to show $\pi^*$ is optimal, it is sufficient to show
+  \[ \expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]=\expect[v^*(X_0)] \]
+  Let $w^*(s,a)$ denote the following
+  \[ w^*(s,a):=r(s,a)+\alpha\sum_{s'\in S}v^*(s)p(s'|s,a) \]
+  This means the \textit{Bellman Equation} and $D^*(s)$ can be rewritten as
+  \[\begin{array}{rcl}
+    v^*(s)&=&\max_{a\in A(s)}w^*(s,a)\\
+    D^*(s)&=&\argmax_{a\in A(s)}w^*(s,a)
+  \end{array}\]
+  If $a\in D^*(s)$ then $w^*(s,a)=\max_{a\in A(s)}w^*(s,a)=v^*(s)$.
+  \[ a\in D^*(s)\implies [v^*(s)=w^*(s,a)] \]
+  By the definition of $q^*(a|s)$, we have
+  \[\begin{array}{rrcll}
+    &a\not\in D^*(s)&\implies&q^*(a|s)=0\\
+    \implies&\sum_{a\in A(s)}w^*(s,a)q^*(a|s)&=&\sum_{a\in D^*(s)}w^*(s,a)q^*(a|s)+\sum_{a\in A(s)\setminus D^*(s)}w^*(s,a)\underbrace{q^*(a|s)}_{=0}\\
+    \implies&\sum_{a\in A(s)}w^*(s,a)q^*(a|s)&=&\sum_{a\in D^*(s)}w^*(s,a)q^*(a|s)\\\\
+    &&=&\sum_{a\in D^*(s)}v^*(s)q^*(a|s)\\
+    &&=&v^*(s)\sum_{a\in D^*(s)}q^*(a|s)\\
+    &&=&v^*(s)\\
+    \implies&v^*(s)&=&\sum_{a\in A(s)}w^*(s,a)q^*(a|s)&[1]
+  \end{array}\]
+  Assume that $\{(X_t,Y_t)\}_{t\in T}$ is generated with policy $\pi^*$. Setting $s=X_t$ is the above formulation of $[2]$ and using $[1]$, we get
+  \[\begin{array}{rrcl}
+    &v^*(X_t)&=&\sum_{a\in A(X_t)}w^*(X_t,a)q^*(a|X_t)\\
+    &&=&\sum_{a\in A(X_t)}w^*(X_t,a)\prob^{\pi^*}[Y_t=a|X_t]\\
+    &&=&\expect^{\pi^*}\left[w^*(X_t,Y_t)|X_t\right]\\
+    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha\sum_{s'\in S}v^*(s')p(s'|X_t,Y_t)|X_t\right]\\
+    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha\sum_{s'\in S}v^*(s')\prob^{\pi^*}[X_{t+1}=x'|X_t,Y_t]|X_t\right]\\
+    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha\expect^{\pi^*}[v^*(X_{t+1})|X_t,Y_t]|X_t\right]\\
+    &&=&\expect^{\pi^*}[r(X_t,Y_t)|X_t]+\alpha\expect^{\pi^*}\left[\expect^{\pi^*}[v^*(X_{t+1})|X_t,Y_t]|X_t\right]\\
+    &&=&\expect^{\pi^*}[r(X_t,Y_t)|X_t]+\alpha\expect^{\pi^*}[v^*(X_{t+1})|X_t]\\
+    &&=&\expect^{\pi^*}[r(X_t,Y_t)+\alpha v^*(X_{t+1})|X_t]\\
+    \implies&v^*(X_t)&=&\expect^{\pi^*}[r(X_t,Y_t)+\alpha v^*(X_{t+1})|X_t]\\
+    \implies&\expect^{\pi^*}[v^*(X_t)]&=&\expect^{\pi^*}\left[\expect^{\pi^*}[r(X_t,Y_t)+\alpha v^*(X_{t+1})|X_t]\right]\\
+    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha v^*(X_{t+1})\right]\text{ by tower property}\\
+    &&=&\expect^{\pi^*}[r(X_t,Y_t)]+\alpha\expect^{\pi^*}[ v^*(X_{t+1})]\\
+    \implies&\expect^{\pi^*}[r(X_t,Y_t)]&=&\expect^{\pi^*}[v^*(X_t)]-\alpha\expect^{\pi^*}[v^*(X_{t+1})]
+  \end{array}\]
+  Using this result, we can deduce the following about the total expected reward
+  \[\begin{array}{rcl}
+    \expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]&=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}\left[r(X_t,Y_t)\right]\\
+    &=&\sum_{t=0}^\infty\alpha^t\left\{\expect^{\pi^*}[v^*(X_t)]-\alpha\expect^{\pi^*}[v^*(X_{t+1})]\right\}\\
+    &=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]-\sum_{t=0}^\infty\alpha^{t+1}\expect^{\pi^*}[v^*(X_{t+1})]\\
+    &=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]-\sum_{t=1}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]\\
+    &=&\expect^{\pi^*}[v^*(X_0)]\\
+    &=&\expect[v^*(X_0)]
+  \end{array}\]
+  \proved
+\end{answer}
+
 
 \end{document}

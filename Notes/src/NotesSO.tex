@@ -1909,7 +1909,7 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     \end{itemize}
   \end{remark}
 
-\subsection*{Linear Programming}
+\subsection*{Equivalent Linear Programming Problem}
 
   \begin{proposition}{Linear Programming}
     \textit{Linear Programming} techniques can be used to numerically solve \textit{Discounted Reward MDPs}.
@@ -1935,6 +1935,313 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
 
   \begin{theorem}{}
     $\hat{d}(s)=d^*(s)$ and $\hat{v}(s)=v^*(s)\ \forall\ s\in S$.
+  \end{theorem}
+
+\subsubsection{Average Reward Infinite-Horizon MDPs}
+
+\subsection*{Problem Formulation}
+
+  \begin{definition}{Formulation of Average Reward Infinite-Horizon MDPs}
+    Here is the specification of the components of an \textit{Average Reward Infinite-Horizon MDP}.
+    \begin{itemize}
+      \item \textit{Number of Decision Epochs} - $N=\infty$.
+      \item \textit{Time-Horizon} - $T=\{0,1,\dots\}$.
+      \item \textit{Transition Probabilities} - $p_t(s'|s,a)=p(s'|s,a)\ \forall\ t \in T$.
+      \item \textit{Rewards} $r_t(s,a)=r(s,a)\ \forall\ t\in T$.
+    \end{itemize}
+  \end{definition}
+
+  \begin{definition}{Stochastic Systems of an Average Reward Infinite-Horizon MDP}
+    \[\begin{array}{rcl}
+      X_{t+1}|X_{0:t}},Y_{0:t}&\sim&X_{t+1}|X_t,Y_t\\
+      &\sum&p_t(\cdot|X_t,Y_t)\\
+      &=&p(\cdot|X_t,Y_t)
+    \end{array}\]
+  \end{definition}
+
+  \begin{definition}{Objective of an Average Reward Infinite-Horizon MDP}
+    Given the transition probabilities $p(s'|s,a)$ and the rewards $r(s,a)$, the agent is tasked to find a \textit{History Dependent Randomised Policy} $\pi\in HT(T)$ which maximises the expected average reward per epoch over the time-horizon $T$.
+    \[ \lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right] = \lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right] \]
+  \end{definition}
+
+  \begin{proposition}{Derivation of Problem}
+    \everymath={\displaystyle}
+    Consider the following two assumptions
+    \begin{enumerate}
+      \item The parameters of the stochastic system and the parameters of immediate rewards change slowly in time.
+      \item $N\gg1$.
+    \end{enumerate}
+    By \texttt{i)} it is reasonable to approximate the transition probabilities and rewards as
+    \[ p_t(s'|s,a)\approx p(s'|s,a)\quad r_t(s'|s,a)\approx r(s,a) \]
+    By \texttt{ii)}, we can neglect the terminal reward $r_N(S_N)$ as it is significantly less than the total reward to that point. Thus
+    \[\begin{array}{rcl}
+      \expect^\pi\left[r_N(X_N)\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right]&\approx&\expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right]\\
+      &\approx&\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]
+    \end{array}\]
+    The problem of maximising the total reward and average reward are the same, as introducing a multiplicative constant $\frac1N$ does not affect the maximisation problem.
+    \[\begin{array}{rcl}
+      \argmax_\pi\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&=&\argmax_\pi\frac1N\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+      &=&\argmax_\pi\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]
+    \end{array}\]
+    By \texttt{ii)}  it is reasonable to approximate the true expectation with its limit
+    \[ \expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\approx\lim_{N\to\infty}\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right] \]
+    As the limit is not guaranteed to exist, we take the limit of the infimum of the expectation.
+    \[ \lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right] \]
+  \end{proposition}
+
+  \begin{proposition}{Existence of Limits}
+    Since the state-space $S$ and action-space $A$ are finite sets, we have that
+    \[ c=\max_{s\in S,a\in A(s)}|r(s,a)|<\infty \]
+    Consequently, the average reward is finite
+    \[ \left|\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right|\leq\frac1N\sum_{t=0}^{N-1}|r(X_t,Y_t)|\leq c \]
+    Therefore, the limit of the infimum and the limit of the supremum exist and are finite\footnote{It is shown in \texttt{Proposition 2.??} that these limits have the same value then an optimal policy $\pi$ is used. }
+    \[ \lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right] \quad \lim_{N\to\infty}\sup\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right] \]
+    If policy $\pi$ is optimal, then the limit of the expected average reward exists and is finite.
+    \[ \lim_{N\to\infty}\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right] \]
+  \end{proposition}
+
+  \begin{proposition}{Approximating Finite-Horzion MDP with Average Reward MDP}
+    \everymath={\displaystyle}
+    The \textit{Average Reward MDP} accurately approximates the \textit{Finite-Horizon MDP} under the assumptions in \texttt{Proposition 2.22}
+    \[\begin{array}{rll}
+      &\argmax_\pi\expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right]\\
+      \approx&\argmax_\pi\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&\text{as }N\gg1\\
+      =&\argmax_\pi\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+      \approx&\argmax_\pi\left(\lim_{N\to\infty}\inf\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\right)&\text{as }N\gg1
+    \end{array}\]
+  \end{proposition}
+
+  \begin{remark}{Average Reward MDP vs Discounted Reward MDP}
+    \begin{itemize}
+      \item When the discounting factor $\alpha$ is close to 0, \textit{Discounted Reward MDPs} place emphasis on the present/near-future over the far-future.
+      \item The \textit{Average Reward MDP} gives the same emphasis to all received rewards.
+      \item When the discounting factor $\alpha$ is close to 1, \textit{Discounted Reward MDPs} and \textit{Average Reward MDP} behave similarly.
+    \end{itemize}
+  \end{remark}
+
+  \begin{remark}{Average Reward MDPs are very similar to Irreducible Markov Chains}
+    See \texttt{0. Reference}  for details on \textit{Irreducible Markov Chains}.
+  \end{remark}
+
+\subsection*{Optimality Equations}
+
+  \begin{remark}{For the rest of this section}
+    Assume that under any stationary \textit{Marovian Determinisic Policy} $\{X_t\}_{t\geq0}$ is an irreducible \textit{Markov Chain}. This is equivalent to the condition that $p(s'|s,d(s))$ is an irreducible transition kernel for any \textit{Markovian Decision Function} $d:S\to A$.
+  \end{remark}
+
+  \begin{definition}{Bellman Equation}
+    The \textit{Bellman Equation} is the \textit{Optimality Equation} for the \textit{Average Reward MDP} and is defined as
+    \[ r^*+w^*(s)=\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right) \]
+    where $r^*\in\reals,w^*:S\to\reals$ are unknown.
+  \end{definition}
+
+  \begin{theorem}{Solution to Bellman equation}
+    There exists $r^*\in\reals,\ w^*:S\to\reals$ st that the \textit{Bellman Equation} is satisfied.
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.18}
+    \everymath={\displaystyle}
+    \underline{Steo 1} - \textit{Discounted Reward MDPs and Average Reward MDPs}.
+    \par Consider a \textit{Discounted Reward MDP} $DRMDP(\alpha)$ with the following elements
+    \begin{itemize}
+      \item Time-horizon $T=\{0,1,\dots\}$.
+      \item Transition probabilities $p_t(s'|s,a)=p(s'|s,a)\ \forall\ t\in T$.
+      \item Rewards $r_t(s,a)=\alpha^tr(s,a)\ \forall\ t\in T$.
+      \item Discounting factor $\alpha\in(0,1)$.
+    \end{itemize}
+    \underline{Step 2} - \textit{Notation}.
+    \par Let $v_\alpha^*(s)$ be the \textit{Optimal Value Function} for $DRMDP(\alpha)$, $d_\alpha^*(s)$ be the \textit{Markovian Decision Function} and $\pi_\alpha^*$ be the stationary policy based on $d_\alpha^*(s)$.
+    \[\begin{array}{rcl}
+      v_\alpha^*&=&\max_\pi\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\big|X_0=s\right]\\
+      d_\alpha^*(s)&\in&\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_\alpha^*(s')p(s'|s,a)\right)
+    \end{array}\]
+    \underline{Step 3} - \textit{Properties of $DRMDP(\alpha)$}.
+    \par By \texttt{Theorem 2.15}  $v_\alpha^*$ is the unique solution to the \textit{Bellman Equation} for $DRMDP(\alpha)$ and is the value function associated with policy $\pi_\alpha^*$. Meaning $\pi_\alpha^*$ is the optimal policy for $DRMDP(\alpha)$.
+    \par \underline{Step 4} - \textit{Sequence of Discounting Factors}.
+    \par Here I construct a sequence $\{\alpha_n\}_{n\geq0}$ in $(0,1)$ with some special properties. Let $\{\beta_n\}_{n\geq0}$ be any increasing sequence in $(0,1)$ which satisfies
+    \[ \lim_{n\to\infty}\beta_n=1 \]
+    Since $S,A$ are both finite, there any a finite number of distinct \textit{Markovian Decision Functions} which can be constructed. Hence, the sequence $\{d_{\beta_n}^*(s)\}_{n\geq0}$ has finitely many distinct elements (elements may be repeated). Consequently, there exists a \textit{Markovian Decision Function} $d:S\to A$ and a subsequence $\{\alpha_n\}_{n\geq0}$ of $\{\beta_n\}_{n\geq0}$ st $d_{\alpha_n}^*(s)=d(s)\ \forall\ s\in S,n\geq0$. Note that $\lim_{n\to\infty}\alpha_n=1$.
+    \par \underline{Step 5} - \textit{Notation}.
+    \par Let $r_d(s)$ be the reward function and $p_d(s'|s)$ be the transition kernel when decision function $d$ is used and $\pi_d$ be the stationary policy based on $d(s)$.
+    \[\begin{array}{rcl}
+      r_d(s)&:=&r(s,d(s))\\
+      p_d(s'|s)&:=&p(s'|s,d(s))
+    \end{array}\]
+    Assume that $\{(X_t,Y_t)\}_{t\geq0}$ is generated with policy $\pi_d$.
+    \par \underline{Step 6} - \textit{Properties of $p_d(s'|s)$ and $\{X_t\}_{t\geq0}$}.
+    \par Since $\{(X_t,Y_t)\}_{t\geq0}$ is generated with policy $\pi_d$ then \texttt{Theorem 2.2}  implies the following hold
+    \begin{enumerate}
+      \item $Y_t=d(X_t)\ \forall\ t\geq0$.
+      \item $\{X_t\}_{t\geq0}$ is a \textit{Homogeneous Markov Chain}.
+      \item $p_d(s'|s):=p(s'|s,d(s))$ is the \textit{Transition Kernel} of $\{X_t\}_{t\geq0}$, further we assume that $\{X_t\}_{t\geq0}$ is an \textit{Irreducible Markov Chain}. \texttt{Theorem 0.2}  implies that $\{X_t\}_{t\geq0}$ has a unique \textit{Invariant PMF} $\mu_d(s)$.
+    \end{enumerate}
+    Let $\bar{r}_d$ be the mean reward wrt $\mu_d$
+    \[ \bar{r}_d:=\sum_{s\in S}r_d(s)\mu_d(s) \]
+    \texttt{Theorem 0.3} implies that the \textit{Poisson Equation} associated with \textit{Markov Chain} $\{X_t\}_{t\geq0}$ and function $r_d(s)$ has a solution $w_d'(s)$ st
+    \[ r_d(s)-\bar{r}(d)=w_d'(s)-\sum_{s'\in S}w_d'(s')p_d(s'|s)\quad\forall\ s\in S \]
+    Let $w_d(s)$ be the zero-mean solution to the \textit{Poisson Equation} associated with \textit{Markov Chain} $\{X_t\}_{t\geq0}$ and function $r_d(s)$ has a solution $w_d'(s)$
+    \[ w_d(s):=w_d'(s)-\sum_{s'\in S}w_d'(s')\mu_d(s') \]
+    Let $v_\alpha(s)$ be the value function and $\tilde{v}(a)_s$ be the $\alpha$-resolvent associated with Markov Chain $\{X_t\}_{t\geq0}$ and function $r_d(s)$
+    \[\begin{array}{rrl}
+      v_\alpha(s)&:=&\expect^{\pi_d}\left[\sum_{t=0}^\infty\alpha^tr_d(X_t)\bigg|X_0=s\right]\\
+      \tilde{v}_\alpha(s)&:=&v_\alpha(s)-\left(\frac{\bar{r}_d}{1-\alpha}-w_d(s)\right)\\
+      \implies v_\alpha(s)&=&\left(\frac{\bar{r}_d}{1-\alpha}-w_d(s)\right)+\tilde{v}_\alpha(s)
+    \end{array}\]
+    The last equation is the \textit{Laurent Expansion} of $v_\alpha(s)$ and $\tilde{v}_\alpha(s)$ is the residual in this expansion.
+    \texttt{Theorem 0.4} implies that
+    \[ \lim_{\alpha\to1}\tilde{v}_\alpha(s)=0\quad\forall\ s\in S \]
+    \underline{Step 7} - \textit{Relationship between $v_{\alpha_n}(s)$ and $v_{\alpha_n}^*(s)$}.
+    \par Since $d_{\alpha_n}^*(s)=d(s)\ \forall\ s\in S,\ n\geq0$ we have that $\pi_{\alpha_n}^*=\pi_d$. As $v_{\alpha_n}^*(s)$ is identical to the value function associated with $\pi_{\alpha_n}^*$ we can deduce that
+    \[\begin{array}{rcl}
+      v_{\alpha_n}^*(s)&=&\expect^{\pi_{\alpha_n}^*}\left[\sum_{t=0}^\infty\alpha_n^tr(X_t,Y_t)\bigg|X_0=s\right]\\
+      &=&\expect^{\pi_d}\left[\sum_{t=0}^\infty\alpha_n^tr(X_t,Y_t)\bigg|X_0=s\right]\\
+      &=&\expect^{\pi_d}\left[\sum_{t=0}^\infty\alpha_n^tr(X_t,d(X_t))\bigg|X_0=s\right]\quad\text{since using }\pi\\
+      &=&\expect^{\pi_d}\left[\sum_{t=0}^\infty\alpha_n^tr_d(X_t)\bigg|X_0=s\right]\quad\text{ by def. }r_d(\cdot)\\
+      &=&v_{\alpha_n}(s)
+    \end{array}\]
+    This shows that the value function for $FHMDP(\alpha_n)$ $v_{\alpha_n}^*$ is the same as the $\alpha_n$-resolvent $v_{\alpha_n}(s)$ associated with the \textit{Markov Chain} $\{X_t\}_{t\geq0}$ and function $r_d(s)$.
+    \par \underline{Step 8} - \textit{Final Conclusions}.
+    \par $v_{\alpha_n}(s)=v_{\alpha_n}^*(s)$ is the unique solution to the \textit{Bellman Equation} for a $FHMDP(\alpha_n)$. Further,
+    \[\begin{array}{rrcl}
+      &v_{\alpha_n}&=&\frac{\bar{r}_d}{1-\alpha_n}+w_d(s)+\tilde{v}_{\alpha_n}(s)\\
+      \implies&\frac{\bar{r}_d}{1-\alpha_n}+w_d(s)+\tilde{v}_{\alpha_n}(s)&=&\max_{a\in A(s)}\left(r(s,a)+\alpha_n\sum_{s'\in S}v_{\alpha_n}(s')p(s'|s,a)\right)\\
+      &&=&\max_{a\in A(s)}\left(r(s,a)+\alpha_n\sum_{s'\in S}\left(\frac{\bar{r}_d}{1-\alpha_n}+w_d(s')+\tilde{v}_{\alpha_n}(s')\right)p(s'|s,a)\right)\\
+      &&=&\max_{a\in A(s)}\left(r(s,a)+\frac{\alpha_n\bar{r}_d}{1-\alpha_n}+\alpha_n\sum_{s'\in S}\left(w_d(s')+\tilde{v}_{\alpha_n}(s')\right)p(s'|s,a)\right)\\
+      &&=&\frac{\alpha_n\bar{r}_d}{1-\alpha_n}+\max_{a\in A(s)}\left(r(s,a)+\alpha_n\sum_{s'\in S}\left(w_d(s')+\tilde{v}_{\alpha_n}(s')\right)p(s'|s,a)\right)\\
+      \implies&\left(\frac{\bar{r}_d}{1-\alpha_n}+w_d(s)+\tilde{v}_{\alpha_n}(s)\right)-\frac{\alpha_n\bar{r}_d}{1-\alpha_n}&=&\max_{a\in A(s)}\left(r(s,a)+\alpha_n\sum_{s'\in S}\left(w_d(s')+\tilde{v}_{\alpha_n}(s')\right)p(s'|s,a)\right)\\
+      \implies&\bar{r}_d+w_d(s)+\tilde{v}_{\alpha_n}(s)&=&\max_{a\in A(s)}\left(r(s,a)+\alpha_n\sum_{s'\in S}\left(w_d(s')+\tilde{v}_{\alpha_n}(s')\right)p(s'|s,a)\right)\\
+    \end{array}\]
+    Since $\lim_{n\to\infty}\alpha_n=1$ and $\lim_{n\to\infty}\tilde{v}_{\alpha_n}(s)=0$, by taking limits, we can further deduce that
+    \[\begin{array}{rcl}
+      \bar{r}_d+w_d(s)&=&\lim_{n\to\infty}(\bar{r}_d+w_d(s)+\tilde{v}_{\alpha_n}(s))\\
+      &=&\lim_{n\to\infty}\max_{a\in A(s)}\left(r(s,a)+\alpha_n\sum_{s'\in S}(w_d(s')+\tilde{v}_{\alpha_n}(s'))p(s'|s,a)\right)\\
+      &=&\max_{a\in A(s)}\lim_{n\to\infty}\left(r(s,a)+\alpha_n\sum_{s'\in S}(w_d(s')+\tilde{v}_{\alpha_n}(s'))p(s'|s,a)\right)\\
+      &=&\max_{a\in A(s)}\left(r(s,a)+\lim_{n\to\infty}\alpha_n\sum_{s'\in S}(w_d(s')+\tilde{v}_{\alpha_n}(s'))p(s'|s,a)\right)\\
+      &=&\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w_d(s')p(s'|s,a)\right)\\
+      \implies \bar{r}_d+w_d(s)&=&\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w_d(s')p(s'|s,a)\right)
+    \end{array}\]
+    This shows that $(\bar{r}_d,w_d(s))$ is a solution to the \textit{Bellman Equation} \proved
+  \end{proof}
+
+  \begin{theorem}{Value of $r^*$ and the policy}
+    Let $r^*\in\reals,\ w^*:S\to\reals$ be a solution to the \textit{Bellman Equation}.
+    \par Let $d^*(s)$ be the \textit{Markovian Decision Function} defined as
+    \[ d^*(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right) \]
+    and $\pi^*$ be the stationary policy based on $d^*(s)$. Then, for any $\pi\in HR(T)$, $r^*$ is the maximum asymptotic value of the expected average reward.
+    \[ \lim_{N\to\infty}\sup\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\leq r^* \]
+    Further, $\pi^^*$ is an optimal policy
+    \[ \lim_{N\to\infty}\expect^{\pi^*}\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]=r^* \]
+  \end{theorem}
+
+  \begin{proof}{Theorem 2.19}
+    \everymath={\displaystyle}
+    Let $(r^*,w^*(s))$ be a solution to the \textit{Bellman Equation} and $d^*(s)$ be a \textit{Markovian Decision Function}.
+    \[\begin{array}{rcl}
+      r^*+w^*(s)&=&\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right)\\
+      d(s)&\in&\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right)
+    \end{array}\]
+    Thus
+    \[ r^*+w^*(s)\geq r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\quad\forall\ s\in S,\ a\in A(s) \]
+    where this is an inequality when $a=d^*(s)$.
+    \par Setting $s=X_T,a=Y_t$ we get
+    \[ r^*+w^*(X_t)\geq r(X_t,Y_t)+\sum_{s'\in S}w^*(s')p(s'|X_t,Y_t)\]
+    where this is an inequality when $Y_t=d^*(X_t)$.
+    \par From the definition of conditional expectations and transition probabilities, we have
+    \[\begin{array}{rrcl}
+      &\sum_{s'\in S}w^*(s')p(s'|X_t,Y_t)&=&\sum_{s'\in S}w^*(s')\prob^\pi(X_{t+1}=s'|X_t,Y_t)\\
+      &&=&\expect^\pi[w^*(X_{t+1})|X_t,Y_t]\\
+      \implies&r^*+w^*(X_t)&\geq&r(X_t,Y_t)+\expect^\pi[w^*(X_{t+1})|X_t,Y_t]
+    \end{array}\]
+    Taking expectations of both sides, we get
+    \[ \expect^\pi[r^*+w^*(X_t)]\geq\expect^\pi[r(X_t,Y_t)+\expect^\pi(w^*(X_{t+1})|X_t,Y_t)] \]
+    since $Y_t:=d^*(X_t)$ under policy $\pi^*$, this is an equality when $\pi=\pi^*$.
+    \par By the tower property we can deduce
+    \[\begin{array}{rrcl}
+      &\expect^\pi[r^*+w^*(X_t)]&\geq&\expect^\pi[r(X_t,Y_t)+\expect^\pi(w^*(X_{t+1})|X_t,Y_t)]\\
+      &&=&\expect^\pi[r(X_t,Y_t)]+\expect^\pi[\expect^\pi[w^*(X_{t+1})|X_t,Y_t]]\\
+      &&=&\expect^\pi[r(X_t,Y_t)]+\expect^\pi[w^*(X_{t+1})]\\
+      \implies&\expect^\pi[r^*+w^*(X_t)]&\geq&\expect^\pi[r(X_t,Y_t)]+\expect^\pi[w^*(X_{t+1})]\\
+      \implies&\expect^\pi[r^*]&\geq&\expect^\pi[r(X_t,Y_t)]+\expect^\pi[w^*(X_{t+1})]-\expect^\pi[w^*(X_t)]\\
+      \implies&r^*&\geq&\expect^\pi[r(X_t,Y_t)]+\expect^\pi[w^*(X_{t+1})]-\expect^\pi[w^*(X_t)]\\
+      \implies&r^*&\geq&\frac1N\sum_{t=0}^{N-1}\bigg(\expect^\pi[r(X_t,Y_t)]+\expect^\pi[w^*(X_{t+1})]-\expect^\pi(w^*(X_t))\bigg)\\
+      &&=&\frac1N\sum_{t=0}^{N-1}\expect^\pi[r(X_t,Y_t)]+\frac1N\sum_{t=0}^{N-1}\bigg(\expect^\pi[w^*(X_{t+1})]-\expect^\pi[w^*(X_t)]\bigg)\\
+      &&=&\expect^\pi\left(\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right)+\frac1N\bigg(\expect^\pi[w^*(X_N)]-\expect^\pi[w^*(X_0)]\bigg)
+    \end{array}\]
+    with equality when $\pi=\pi^*$.
+    \par Since $S$ is a finite set, we have $\max_{s\in S}|w^*(s)|<\infty$. Thus
+    \[ \lim_{N\to\infty}\bigg(\frac1N\big(\expect^\pi[w^*(X_N)]-\expect^\pi[w^*(X_0)]\big)\bigg)=0 \]
+    Thus
+    \[\begin{array}{rcl}
+      r^*&\geq&\lim_{N\to\infty}\sup\expect^\pi\left(\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right)+\lim_{N\to\infty}\frac1N\bigg(\expect^\pi[w^*(X_N)]-\expect^\pi[w^*(X_0)]\bigg)\\
+      &=&\lim_{N\to\infty}\sup\expect^\pi\left(\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right)\\
+      \implies r^*&=&\lim_{N\to\infty}\sup\expect^{\pi^*}\left(\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right)
+    \end{array}\]
+    \proved
+  \end{proof}
+
+  \begin{theorem}{Uniqueness of solutions to Bellman Equation}
+    Let $(r^*,w^*(s)))$ and $(\tilde{r}^*,\tilde{w}^*(s))$ be solutions to the \textit{Bellman Equation}. Then the following hold
+    \begin{enumerate}
+      \item $r^*=\tilde{r}^*$. (The $r$-part is unique).
+      \item $\exists\ c\in\reals$ st $\tidle{w}^*(s)=w^*(s)+c\ \forall\ s\in S$. (The $w$-part is unique with an additive constant)
+    \end{enumerate}
+  \end{theorem}
+
+\subsection*{Policy Iteration Algorithm}
+
+  \begin{definition}{Policy Iteration Algorithm}
+    Here is the \textit{Policy Iteration Algorithm} for finding an optimal policy for an \textit{Average Reward MDP}
+    \begin{itemize}
+      \item[\textit{Initialisation}] - Arbitrarily select a \textit{Markovian Decision Function} $d_0(s)$ and set $k=0$.
+      \item[\textit{Body}] For each $k\geq0$ iteration:
+      \begin{enumerate}
+        \item \textit{Policy Evaluation}
+        \begin{itemize}
+          \item Compute a solution $\mu_k(s)$ to the equations (where $\mu(\cdot)$ is unknown)\footnote{$\mu_k(s)$ is the invariant pmf of the transition kernel $p(s'|s,d_k(s))$}
+          \[\begin{array}{rcl}
+            \sum_{s'\in S}\mu(s')&=&1\\
+            \mu(s)&=&\sum_{s'\in S}p(s|s',d_k(s'))\mu(s')
+          \end{array}\]
+          \item Compute a solution $w_k(s)$ to the equation (where $w(\cdot)$ is unknown) using the $\mu_k(\cdot)$ computed in the previous step.\footnote{This is the \textit{Poisson Equation} associated with function $r(s,d_k(s))$ and with the transition kernel $p(s'|s,d_k(s))$}
+          \[\begin{array}{rrl}
+            w(s)-\sum_{s'\in S}w(s')p(s'|s,d_k(s))&=&r(s,d_k(s))-r_k\\
+            \text{where }r_k&:=&\sum_{s\in S}r(s,d_k(s))\mu_k(s)
+          \end{array}\]
+        \end{itemize}
+        \item \textit{Policy Improvement}
+        \begin{itemize}
+          \item Select a \textit{Markovian Decision Function} $d_{k+1}(s)$ st for all $s\in S$
+          \[ d_{k+1}(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w_k(s')p(s'|s,a)\right) \]
+        \end{itemize}
+        \item \textit{Termination?} - If $d_k(s)=d_{k+1}(s)\ \forall\ s\in S$, then stop the algorithm and return $\hat{d}(s)=d_k(s)$. Otherwise, increment $k$ and repeat \texttt{i)-iii)}
+      \end{enumerate}
+    \end{itemize}
+  \end{definition}
+
+  \begin{theorem}{Optimality of Policy Iteration Algorithm}
+    The following are true for the \textit{Policy Iteration Algorithm}
+    \begin{enumerate}
+      \item The \textit{Policy Iteration Algorithm} stops after a finite number of iterations.
+      \item $\hat{d}(s)=d^*(s)\ \forall\ s\in S$
+    \end{enumerate}
+  \end{theorem}
+
+\subsection*{Equivalent Linear Programming Problem}
+
+  \begin{proposition}{Equivalent Linear Programming Problem for Average Reward MDP}
+    The equivalent \textit{Linear Programming Problem} to the \textit{Average Reward MDP} is to
+    \begin{quote}
+      Minimise $r\in\reals$ subject to
+      \[ r(s,a)+\sum_{s'\in S}p(s'|s,a)w(s')\leq r+w(s)\ \forall\ s\in S,a\in A(s) \]
+    \end{quote}
+    Here, $r\in\reals$ and $w:S\to\reals$ are unknown.
+  \end{proposition}
+
+  \begin{theorem}{Optimality of Equivalent Linear Programming Problem}
+    Let $(\hat{r},\hat{w}(s))$ be an optimal solution to the equivalent \textit{Linear Programming Problem} and $\hat{d}(s)$ be a Markovian Decision function which satisfies
+    \[ \hat{d}(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}\hat{w}(s')p(s'|s,a)\right)\quad\forall\ s\in S \]
+    Then
+    \[ \hat{d}(s)=d^*(s)\quad\forall\ s\in S \]
   \end{theorem}
 
 \section{Probability}
@@ -2444,5 +2751,90 @@ NOTE - \textit{Markov Chain} typically refers to the discrete setting; whilst \t
     Define $f(x)=x,\ g(x)=\sin(x)$ and $h(x)=x^2$.\\
     Then, $g=O(f)$ at 0 and $g=o(f)$ at infinity. $h=o(f)$ at 0 and $h=\omega(f)$ at infinity.
   \end{example}
+
+\subsection{Irreducible Markov Chains}
+
+  \begin{definition}{Markov Chain}
+    A \textit{Stochastic Process} $\{X_t\}_{t\geq}$ taking values in $S$ is a \textit{Markov Chain} if it has the \textit{Markov Property}
+    \[ \prob(X_{t+1}=s_{t+1}|X_t=s_t,\dots,X_0=s_0)=\prob(X_{t+1}=s_{t=1}|X_t=s_t)\ \forall\ t\in T \]
+    A \textit{Markov Chain} $\{X_t\}_{t\geq0}$ is \textit{Homogeneous} if the transitions probabilities are the same in all time-periods
+    \[ \prob(X_{t+1}=s'|X_t=s)=\prob(X_1=s'|X_0=s)\ \forall\ t\in T \]
+    The \textit{Transition Kernel} of a \textit{Homogeneous Markov Chain} $\{X_t\}_{t\geq0}$ is the transition probabilities
+    \[ p(s'|s):=\prob(X_1=s'|X_0=s) \]
+    A \textit{Homogeneous Markov Chain} $\{X_t\}_{t\geq0}$ is \textit{Irreducible} if $\forall\ s,s'\in S$ there exists $t\geq 1$ st
+    \[ p^t(s'|s)>0 \]
+  \end{definition}
+
+  \begin{definition}{Invariant Probability Mass Function}
+    A function $\mu(s)$ is an \textit{Invariant Probability Mass Function} of a \textit{Homogeneous Markov Chain} $\{X_t\}_{t\geq0}$ if
+    \[ \mu(s)=\sum_{s'\in S}p(s|s')\mu(s') \]
+  \end{definition}
+
+  \begin{theorem}{Invariant PMF exists for all Irreducible Markov Chain}
+    Let $\{X_t\}_{t\geq0}$ be an \textit{Irreducible Markov Chain}. Then the follow hold
+    \begin{enumerate}
+      \item $\{X_t\}_{t\geq0}$ has a unique invariant probability mass function $\mu(s)$.
+      \item $\mu(s)>0\ \forall\ s\in S$.
+    \end{enumerate}
+  \end{theorem}
+
+  \begin{theorem}{Weak Law of Large Numbers}
+    Let $\{X_t\}_{t\geq0}$ be an \textit{Irreducible Markov Chain} with invariant pmf $\mu(\cdot)$ and let $f:S\to\reals$ by any function. The \textit{Weak Law of Large Numbers} state
+    \[ \lim_{N\to\infty}\expect\left[\frac1N\sum_{t=0}^{N-1}f(X_t)\right]=\sum_{s\in S}f(s)\mu(s) \]
+    Note that the RHS is the expected value of $f(s)$ wrt $\mu(s)$.
+  \end{theorem}
+
+  \begin{theorem}{Poisson Equation}
+    Let $\{X_t\}_{t\geq0}$ be an \textit{Irreducible Markov Chain} with \textit{transition kernel} $p(s'|s)$ and \textit{Invariant PMF} $\muu(s)$. Let $f:S\to\reals$ be any function and $\bar{f}$ the expected value of $f$ wrt $\mu$
+    \[ \bar{f}:=\sum_{s\in S}f(s)\mu(s) \]
+    Then the following hold
+    \begin{enumerate}
+      \item There exists a function $\check{f}:S\to\reals$ st
+      \[ f(s)-\bar{f}=\check{f}(s)-\sum_{s'\in S}\check{f}(s')p(s'|s)\quad\forall\ s\in S \]
+      \item Further, if there exists another function $\check{f}':S\to\reals$ st
+      \[ f(s)-\bar{f}=\check{f}(s)-\sum_{s'\in S}\check{f}'(s')p(s'|s)\quad\forall\ s\in S \]
+      then $\exists\ c\in\reals$ st
+      \[ \check{f}'(s)=\check{f}(s)+c\quad\forall\ s\in S \]
+    \end{enumerate}
+    This $\check{f}$ is known as the \textit{Poisson Equation} for $\{X_t\}_{t\geq0}$ and $f(s)$.
+  \end{theorem}
+
+  \begin{theorem}{Laurent Expansion of Resolvent}
+    \everymath={\displaystyle}
+    Let $\{X_t\}_{t\geq0}$ be an \textit{Irreducible Markov Chain} with \textit{transition kernel} $p(s'|s)$ and \textit{Invariant PMF} $\muu(s)$. Let $f:S\to\reals$ be any function, $\bar{f}$ the expected value of $f$ wrt $\mu$ and $\check{f}(s)$ be a solution to the \textit{Poisson Equation}
+    \[\begin{array}{rrl}
+      \bar{f}&:=&\sum_{s\in S}f(s)\mu(s)\\
+      f(s)-\bar{f}&=&\check{f}-\sum_{s'\in S}\check{f}(s')p(s'|s)
+    \end{array}\]
+    \[ \bar{f}:=\sum_{s\in S}f(s)\mu(s) \]
+    Consider the following function
+    \[\begin{array}{rcl}
+      \check{f}'(s)&:=&\check{f}(s)-\sum_{s'\in S}\check{f}(s')\\
+      f_\alpha(s)&:=&\expect^\pi\left[\sum_{t=0}^\infty\alpha^tf(X_t)\big|X_0=s\right]\quad\alpha\in(0,1)\\
+      \tilde{f}_\alpha&:=&f_\alpha(s)-\left(\frac{\bar{f}}{1-\alpha}+\check{f}')s_'\right)
+    \end{array}\]
+    $\tilde{f}_\alpha(s)$ is known as the \textit{Residual} in the \textit{Laurent Expansion of $f_\alpha(s)$}
+    Then
+    \[ \lim_{\alpha\to1}\tilde{f}_\alpha(s)=0\quad\forall\ s\in S \]
+  \end{theorem}
+
+  \begin{remark}{Poisson Equation}
+    The function $\check{f}'(s)'$ is a solution to the \textit{Poisson Equation} associated with \textit{Markov Chain} $\{X_t\}_{t\geq0}$ and function $f(s)$
+    \[ f(s)-\bar{f}=\check{f}'(s)-\sum_{s'\in S}\check{f}'(s')p(s'|s) \]
+  \end{remark}
+
+  \begin{remark}{Expectation of $\check{f}''(s)$ wrt $\mu(s)$}
+    The expectation of function $\check{f}(s)$ wrt $\mu(s)$ is zero
+    \[ \sum_{s\in S}\check{f}'(s)\mu(s)=0 \]
+  \end{remark}
+
+  \begin{remark}{$f_\alpha(s)$ and $f\tilde{f}_\alpha(s)$}
+    $f_\alpha(s)$ is known as the \textit{$alpha$-resolvent} associated with \textit{Markov Chain} $\{X_t\}_{t\geq0}$ and function $f(s)$.
+    \par The defining equation for $\tilde{f}_\alpha$ can be rewritten as
+    \[ f_\alpha(s)=\frac{\bar{f}}{(1-\alpha)}+\check{f}(s)+\tilde{f}_\alpha(s) \]
+    This equation is known as the \textit{Laurent Expansion} of $f_\alpha(s)$ at $\alpha=1$.
+    \par By the \textit{Laurent Expansion of Resolvent},
+    \[ f_\alpha(s)\approx\frac{\bar{f}}{1-\alpha}+\check{f}(s)\quad\text{when }\alpha\approx1 \]
+  \end{remark}
 
 \end{document}

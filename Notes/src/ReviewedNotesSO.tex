@@ -717,10 +717,345 @@
     This is the stated result of \texttt{Theorem 2.7} \proved
   \end{proof}
 
+\section{Stochastic Dynamic Optimisation Problems}
+
+\subsection{General} %TODO
+
+  \begin{definition}{Stochastic Dynamic Optimisation}
+
+  \end{definition}
+
+  \begin{definition}{Stochastic System}
+
+  \end{definition}
+
+  \begin{definition}{Sequential Decision Process}
+    % components of process
+  \end{definition}
+
+  \begin{remark}{Static vs Dynamic Approach}
+
+  \end{remark}
+
+  \begin{definition}{Induced Stochastic Process}
+
+  \end{definition}
+
+  \begin{proposition}{Distributions of Sequences from Action- \& State-Spaces}
+    % P(X_{t+1}|X_0:t)
+    % P(X_{o:t},Y_{0:t-1})
+  \end{proposition}
+
+  \begin{theorem}{Markov Chains in MDPs}
+
+  \end{theorem}
+
+\subsection{Markov Decision Processes}
+
+  \begin{definition}{Markov Decision Process, MDP}
+
+  \end{definition}
+
+  \begin{proposition}{Formulation/Components of of an MDP}
+
+  \end{proposition}
+
+  \begin{definition}{Time-Horizon}
+
+  \end{definition}
+
+  \begin{definition}{State-Space}
+
+  \end{definition}
+
+  \begin{definition}{Action-Space}
+
+  \end{definition}
+
+  \begin{definition}{Transition Probabilities}
+
+  \end{definition}
+
+  \begin{definition}{Decision Rules}
+
+  \end{definition}
+
+  \begin{definition}{Decision Policy}
+
+  \end{definition}
+
+  \begin{definition}{Optimisation}
+    % Optimality Equation
+    % Optimality Decision Rule
+    % Optimal Policy
+  \end{definition}
+
+\subsection{General Finite-Horizon MDPs} %TODO
+
+\subsubsection{Problem Formulation} %TODO
+
+  \begin{definition}{General Finite-Horizon MDP}
+
+  \end{definition}
+
+  \begin{proposition}{Components of a Finite-Horizon MDP}
+    % Num epochs
+    % Time-Horizon
+    % Transition Probabilities
+    % Rewards / costs
+    % Objective
+  \end{proposition}
+
+  \begin{proposition}{Stochastic System of a Finite-Horizon MDP}
+
+  \end{proposition}
+
+\subsubsection{Optimisation}
+
+  \begin{remark}{Dynamic Programming Algorithm}
+
+  \end{remark}
+
+  \begin{definition}{Optimality Equation $u^*_k(\cdot)$}
+
+  \end{definition}
+
+  \begin{definition}{Optimality Decision Rule $d^*_k(\cdot)$}
+
+  \end{definition}
+
+  \begin{definition}{Optimal Policy $\pi^*$}
+
+  \end{definition}
+
+  \begin{definition}{Value Function $v^\pi(\cdot)$}
+    % Optimal Value Function $v^*(\cdot)$
+  \end{definition}
+
+
+\subsubsection{Optimality Principle} %TODO
+
+  \begin{definition}{Tail Subproblem}
+
+  \end{definition}
+
+  \begin{remark}{Equivalence of MDP and Tail Subproblem}
+
+  \end{remark}
+
+  \begin{proposition}{Optimising Tail Subproblem}
+
+  \end{proposition}
+
+  \begin{remark}{Optimising Tail Subproblem vs Optimising MDP}
+
+  \end{remark}
+
+  \begin{theorem}{Optimality Principle}
+
+  \end{theorem}
+
+  \begin{remark}{Dynamic Programming Algorithm}
+
+  \end{remark}
+
+\subsection{Discounted Reward Infinite-Horizon MDPs} %TODO
+
+\subsubsection{Problem Formulation} %TODO
+
+  \begin{definition}{Discounted Reward Infinite-Horizon MDPs}
+
+  \end{definition}
+
+  \begin{proposition}{Components of a Discounted Reward MDPs}
+    % Num epochs
+    % Time-Horizon
+    % Transition Probabilities
+    % Rewards / costs
+    % Objective
+  \end{proposition}
+
+  \begin{proposition}{Stochastic System of a Discounted Reward MDP}
+
+  \end{proposition}
+
+  \begin{remark}{Time-Importance of Rewards}
+
+  \end{remark}
+
+\subsubsection{Approximating the Problem} %TODO
+
+  \begin{proposition}{Approximating Finite-Horizon MDPs as Discounted Reward MDPs}
+
+  \end{proposition}
+
+  \begin{remark}{The approximation is well-defined}
+
+  \end{remark}
+
+  \begin{remark}{Quality of Approximation}
+
+  \end{remark}
+
+  \begin{remark}{Discounted Reward is Convergent}
+
+  \end{remark}
+
+\subsubsection{Optimisation} %TODO
+
+  \begin{definition}{Value Function}
+    % Optimal value Function
+  \end{definition}
+
+  \begin{theorem}{Optimality Principle for $FHMDP(T_{N+1})$}
+
+  \end{theorem}
+
+  \begin{definition}{Bellman Equation}
+
+  \end{definition}
+
+  \begin{remark}{Compact Bellman Equation}
+
+  \end{remark}
+
+  \begin{definition}{Transform $T$}
+
+  \end{definition}
+
+  \begin{theorem}{Transform $T$ is a Contractive Mapping}
+
+  \end{theorem}
+
+  \begin{definition}{Transform $T_d$}
+
+  \end{definition}
+
+  \begin{theorem}{Bounding Distance between Transformations}
+
+  \end{theorem}
+
+  \begin{theorem}{Banach Fixed-Point Theorem Applied to Transform $T$}
+
+  \end{theorem}
+
+  \begin{theorem}{Banach Fixed-Point Theorem Applied to Transform $T_d$}
+
+  \end{theorem}
+
+  \begin{theorem}{Bounding Distance between Optimal Value Function over Infinite $v^*$ and Finite $v_N^*$ Horizons}
+
+  \end{theorem}
+
+  \begin{theorem}{Solution to Bellman Equation}
+
+  \end{theorem}
+
+  \begin{remark}{$\pi_{d^*}$ is an Optimal Policy}
+
+  \end{remark}
+
+\subsubsection{Policy Iteration Algorithm} %TODO
+
+  \begin{definition}{Policy Iteration Algorithm}
+
+  \end{definition}
+
+  \begin{remark}{Policy Iteration Algorithm}
+
+  \end{remark}
+
+\subsubsection{Equivalent Linear Program} %TODO
+
+  \begin{proposition}{Equivalent Linear Programming Problem for Discounted Reward MDP}
+
+  \end{proposition}
+
+\subsection{Average Reward Infinite-Horizon MDPs} %TODO
+
+\subsubsection{Problem Formulation} %TODO
+
+  \begin{definition}{Average Reward Infinite-Horizon MDPs}
+
+  \end{definition}
+
+  \begin{proposition}{Components of an Average Reward MDPs}
+    % Num epochs
+    % Time-Horizon
+    % Transition Probabilities
+    % Rewards / costs
+    % Objective
+  \end{proposition}
+
+  \begin{proposition}{Stochastic System of an Average Reward MDP}
+
+  \end{proposition}
+
+  \begin{remark}{Derivation of Average Reward MDP}
+
+  \end{remark}
+
+  \begin{remark}{The problem is well-defined}
+    % the limits exist
+  \end{remark}
+
+  \begin{remark}{Average Reward MDP vs Discounted Reward MDP}
+
+  \end{remark}
+
+  \begin{remark}{Average Reward MDPs are similar to Irreducible Markov Chains}
+
+  \end{remark}
+
+\subsubsection{Approximating the Problem} %TODO
+
+  \begin{proposition}{Approximating Finite-Horizon MDP as Average Reward MDP}
+
+  \end{proposition}
+
+\subsubsection{Optimisation} %TODO
+
+  \begin{definition}{Bellman Equation}
+
+  \end{definition}
+
+  \begin{theorem}{Solutions to the Bellman Equation Exist}
+
+  \end{theorem}
+
+  \begin{theorem}{Value of $r^*$ and the Policy}
+
+  \end{theorem}
+
+  \begin{theorem}{Uniqueness of Solutions to the Bellman Equation}
+
+  \end{theorem}
+
+\subsubsection{Policy Iteration Algorithm} %TODO
+
+  \begin{definition}{Policy Iteration Algorithm}
+
+  \end{definition}
+
+  \begin{theorem}{Optimality of Policy Iteration Algorithm}
+
+  \end{theorem}
+
+\subsubsection{Equivalent Linear Program} %TODO
+
+\begin{proposition}{Equivalent Linear Programming Problem for Average Reward MDP}
+
+\end{proposition}
+
+\begin{theorem}{Optimality of Equivalent Linear Programming Problem}
+
+\end{theorem}
+
 \newpage
 \setcounter{section}{-1}
 \section{Reference}
 
+%TODO add asymptotic notation
 \subsection{Notation}
 
   \begin{proposition}{Notation for Multi-Armed Bandit Problem}
@@ -855,7 +1190,7 @@
     \[ \pi_1(\theta|x)\propto e^{-\frac12(x-\theta)^2}\cdot e^{-\frac12\frac{(\theta-\mu_0)^2}{\sigma_0^2}}=\exp\left(-\frac12\left((x-\theta)^2+\frac{(\mu_0-\theta)^2}{\sigma_0^2}\right)\right)\]
     Consider just the term of the exponent involving $\theta$
     \[\begin{array}{rl}
-      &(x-\theta)^2+\frac{(\mu_0-\theta)^2}{\sigma_0^2}\right)\\
+      &(x-\theta)^2+\frac{(\mu_0-\theta)^2}{\sigma_0^2}\\
       =&x^2-2x\theta+\theta^2+\frac1{\sigma_0^2}\left(\mu_0^2-2\mu_0\theta+\theta^2\right)\\
       \propto&-2x\theta+\theta^2+\frac1{\sigma_0^2}\left(-2\mu_0\theta+\theta^2\right)\\
       =&\frac1{\sigma_0^2}\left[-2\sigma_0^2x\theta+\sigma_0^2\theta^2-2\mu_0\theta+\theta^2\right]\\
@@ -872,5 +1207,90 @@
     \[ \mu_1:=\frac{\mu_0+x\sigma^2_0}{1+\sigma^2_0}\quad\text{and}\quad\sigma^2_1:=\frac{\sigma^2_0}{1+\sigma^2_0} \]
     \proved
   \end{proof}
+
+\subsubsection{Irreducible Markov Chains} %TODO
+
+  \begin{definition}{Markov Chain}
+    A \textit{Stochastic Process} $\{X_t\}_{t\geq}$ taking values in $S$ is a \textit{Markov Chain} if it has the \textit{Markov Property}
+    \[ \prob(X_{t+1}=s_{t+1}|X_t=s_t,\dots,X_0=s_0)=\prob(X_{t+1}=s_{t=1}|X_t=s_t)\ \forall\ t\in T \]
+    A \textit{Markov Chain} $\{X_t\}_{t\geq0}$ is \textit{Homogeneous} if the transitions probabilities are the same in all time-periods
+    \[ \prob(X_{t+1}=s'|X_t=s)=\prob(X_1=s'|X_0=s)\ \forall\ t\in T \]
+    The \textit{Transition Kernel} of a \textit{Homogeneous Markov Chain} $\{X_t\}_{t\geq0}$ is the transition probabilities
+    \[ p(s'|s):=\prob(X_1=s'|X_0=s) \]
+    A \textit{Homogeneous Markov Chain} $\{X_t\}_{t\geq0}$ is \textit{Irreducible} if $\forall\ s,s'\in S$ there exists $t\geq 1$ st
+    \[ p^t(s'|s)>0 \]
+  \end{definition}
+
+  \begin{definition}{Invariant Probability Mass Function}
+    A function $\mu(s)$ is an \textit{Invariant Probability Mass Function} of a \textit{Homogeneous Markov Chain} $\{X_t\}_{t\geq0}$ if
+    \[ \mu(s)=\sum_{s'\in S}p(s|s')\mu(s') \]
+  \end{definition}
+
+  \begin{theorem}{Invariant PMF exists for all Irreducible Markov Chain}
+    Let $\{X_t\}_{t\geq0}$ be an \textit{Irreducible Markov Chain}. Then the follow hold
+    \begin{enumerate}
+      \item $\{X_t\}_{t\geq0}$ has a unique invariant probability mass function $\mu(s)$.
+      \item $\mu(s)>0\ \forall\ s\in S$.
+    \end{enumerate}
+  \end{theorem}
+
+  \begin{theorem}{Weak Law of Large Numbers}
+    Let $\{X_t\}_{t\geq0}$ be an \textit{Irreducible Markov Chain} with invariant pmf $\mu(\cdot)$ and let $f:S\to\reals$ by any function. The \textit{Weak Law of Large Numbers} state
+    \[ \lim_{N\to\infty}\expect\left[\frac1N\sum_{t=0}^{N-1}f(X_t)\right]=\sum_{s\in S}f(s)\mu(s) \]
+    Note that the RHS is the expected value of $f(s)$ wrt $\mu(s)$.
+  \end{theorem}
+
+  \begin{theorem}{Poisson Equation}
+    Let $\{X_t\}_{t\geq0}$ be an \textit{Irreducible Markov Chain} with \textit{transition kernel} $p(s'|s)$ and \textit{Invariant PMF} $\mu(s)$. Let $f:S\to\reals$ be any function and $\bar{f}$ the expected value of $f$ wrt $\mu$
+    \[ \bar{f}:=\sum_{s\in S}f(s)\mu(s) \]
+    Then the following hold
+    \begin{enumerate}
+      \item There exists a function $\check{f}:S\to\reals$ st
+      \[ f(s)-\bar{f}=\check{f}(s)-\sum_{s'\in S}\check{f}(s')p(s'|s)\quad\forall\ s\in S \]
+      \item Further, if there exists another function $\check{f}':S\to\reals$ st
+      \[ f(s)-\bar{f}=\check{f}(s)-\sum_{s'\in S}\check{f}'(s')p(s'|s)\quad\forall\ s\in S \]
+      then $\exists\ c\in\reals$ st
+      \[ \check{f}'(s)=\check{f}(s)+c\quad\forall\ s\in S \]
+    \end{enumerate}
+    This $\check{f}$ is known as the \textit{Poisson Equation} for $\{X_t\}_{t\geq0}$ and $f(s)$.
+  \end{theorem}
+
+  \begin{theorem}{Laurent Expansion of Resolvent}
+    \everymath={\displaystyle}
+    Let $\{X_t\}_{t\geq0}$ be an \textit{Irreducible Markov Chain} with \textit{transition kernel} $p(s'|s)$ and \textit{Invariant PMF} $\mu(s)$. Let $f:S\to\reals$ be any function, $\bar{f}$ the expected value of $f$ wrt $\mu$ and $\check{f}(s)$ be a solution to the \textit{Poisson Equation}
+    \[\begin{array}{rrl}
+      \bar{f}&:=&\sum_{s\in S}f(s)\mu(s)\\
+      f(s)-\bar{f}&=&\check{f}-\sum_{s'\in S}\check{f}(s')p(s'|s)
+    \end{array}\]
+    \[ \bar{f}:=\sum_{s\in S}f(s)\mu(s) \]
+    Consider the following function
+    \[\begin{array}{rcl}
+      \check{f}'(s)&:=&\check{f}(s)-\sum_{s'\in S}\check{f}(s')\\
+      f_\alpha(s)&:=&\expect^\pi\left[\sum_{t=0}^\infty\alpha^tf(X_t)\big|X_0=s\right]\quad\alpha\in(0,1)\\
+      \tilde{f}_\alpha&:=&f_\alpha(s)-\left(\frac{\bar{f}}{1-\alpha}+\check{f}'(s)\right)
+    \end{array}\]
+    $\tilde{f}_\alpha(s)$ is known as the \textit{Residual} in the \textit{Laurent Expansion of $f_\alpha(s)$}
+    Then
+    \[ \lim_{\alpha\to1}\tilde{f}_\alpha(s)=0\quad\forall\ s\in S \]
+  \end{theorem}
+
+  \begin{remark}{Poisson Equation}
+    The function $\check{f}'(s)'$ is a solution to the \textit{Poisson Equation} associated with \textit{Markov Chain} $\{X_t\}_{t\geq0}$ and function $f(s)$
+    \[ f(s)-\bar{f}=\check{f}'(s)-\sum_{s'\in S}\check{f}'(s')p(s'|s) \]
+  \end{remark}
+
+  \begin{remark}{Expectation of $\check{f}'(s)$ wrt $\mu(s)$}
+    The expectation of function $\check{f}(s)$ wrt $\mu(s)$ is zero
+    \[ \sum_{s\in S}\check{f}'(s)\mu(s)=0 \]
+  \end{remark}
+
+  \begin{remark}{$f_\alpha(s)$ and $f\tilde{f}_\alpha(s)$}
+    $f_\alpha(s)$ is known as the \textit{$alpha$-resolvent} associated with \textit{Markov Chain} $\{X_t\}_{t\geq0}$ and function $f(s)$.
+    \par The defining equation for $\tilde{f}_\alpha$ can be rewritten as
+    \[ f_\alpha(s)=\frac{\bar{f}}{(1-\alpha)}+\check{f}(s)+\tilde{f}_\alpha(s) \]
+    This equation is known as the \textit{Laurent Expansion} of $f_\alpha(s)$ at $\alpha=1$.
+    \par By the \textit{Laurent Expansion of Resolvent},
+    \[ f_\alpha(s)\approx\frac{\bar{f}}{1-\alpha}+\check{f}(s)\quad\text{when }\alpha\approx1 \]
+  \end{remark}
 
 \end{document}

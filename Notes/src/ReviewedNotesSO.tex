@@ -189,10 +189,6 @@
 
 \subsection{Transformation of Random Variables}
 
-% \subsection*{Discrete Random Variables}
-
-% \subsection*{Continuous Random Variables}
-
   \begin{theorem}{Monotone Functions}
     Let $X$ be a random variable and $g$ be a differentiable and strictly \underline{monotone} function.\\
     Define $Y:=g(X)$. Then
@@ -212,8 +208,6 @@
     \[ f_\mathbf{Y}(\mathbf{y})=\sum_{\x\in\{\x:g(\x)=\mathbf{y}\}}f_\X(\x)\frac1{|\text{det}(J_g(\x))} \]
     where $\text{det}(J_g(\x))$ denotes the determinant of the Jacobian of $g$ wrt $\x$ (See \texttt{Definition 0.1}).
   \end{theorem}
-
-% \subsection{Markov Process} %TODO
 
 \section{The Multi-Armed Bandit Problem}
 
@@ -719,344 +713,754 @@
 
 \section{Stochastic Dynamic Optimisation Problems}
 
-\subsection{General} %TODO
-
-  \begin{definition}{Stochastic Dynamic Optimisation}
-
-  \end{definition}
+\subsection{General}
 
   \begin{definition}{Stochastic System}
+    A \textit{Stochastic System} is a dynamic system where at least one part of the system relies on a random process, modelled by random variables.
+  \end{definition}
 
+  \begin{definition}{Stochastic Dynamic Optimisation}
+    \textit{Stochastic Dynamic Optimisation} is the study of problems where an agent is tasked with making optimal or near-optimal decision in a \textit{Stochastic System}.
   \end{definition}
 
   \begin{definition}{Sequential Decision Process}
-    % components of process
+    In a \textit{Sequential Decision Process} an agent is tasked with choosing a sequence of actions such that a \textit{Stochastic System} performs optimally wrt some pre-specified \textit{Performance Criterion}. The agent is able to observe the current system-state before taking each action.
+    \par A \textit{Sequential Decision Process} has the following components which need to be defined
+    \begin{itemize}
+      \item \textit{Time-Horizon}, $T$ - Time epochs in which actions are taken and their effect realised.
+      \item \textit{State-Space}, $S$ - A mathematical encoding of available system information.
+      \item \textit{Action-Space}, $A$ - Set of actions an agent is able to take, which affect the system. Available actions may depend on the current system state.
+      \item \textit{Transition Probabilities}, $p_t(\cdot|\cdot,\cdot)$ - A mathematical description of the underlying stocahstic system, relating agent actions and system states.
+      \item \textit{Immediate Rewards/Costs}, $r_t(\cdot,\cdot)$ - The reward/cost an agent recieves/incurs after taking an action.
+    \end{itemize}
+  \end{definition}
+
+  \begin{definition}{Time-Horizon, $T$}
+    The \textit{Time-Horizon} $T$ is the set of all \textit{Decision Epochs}. There are three types of \textit{Time-Horizon}
+    \begin{enumerate}
+      \item \textit{Continuous-Time} - $T=[t_0,t_1]$.\footnote{Continuous-time time-horizons are out of the scope of this module.}
+      \item \textit{Finite Discrete-Time} - $T=\{t_0,\dots,t_N\}$.
+      \item \textit{Infinite Discrete-Time} - $T=\{t_0,t_1,\dots\}$.
+    \end{enumerate}
+  \end{definition}
+
+  \begin{definition}{State-Space, $S$}
+    The \textit{State-Space} $S$ is the set of all states the \textit{Stochastic System} can take. There are three types of \textit{State-Space}\footnote{Only \textit{Finite Discrete-State-Spaces} are in scope of this module.}
+    \begin{enumerate}
+      \item \textit{Continuous-State} - \textit{State-Space} is uncountable.
+      \item \textit{Finite Discrete-State} - \textit{State-Space} is countaly finite $S=\{s_1,\dots,s_n\}$.
+      \item \textit{Infinite Discrete-State} - \textit{State-Space} is countably infinite.
+    \end{enumerate}
+  \end{definition}
+
+  \begin{definition}{Action-Space, $A$}
+    The \textit{Action-Space} $A$ is the set of actions the agent can take. There are three types of \textit{Action-Space}\footnote{Only \textit{Finite Discrete-Action-Spaces} are in scope of this module.}
+    \begin{enumerate}
+      \item \textit{Continuous-Action} - \textit{Action-Space} is uncountable.
+      \item \textit{Finite Discrete-Action} - \textit{Action-Space} is countaly finite $A=\{s_1,\dots,s_n\}$.
+      \item \textit{Infinite Discrete-Action} - \textit{Action-Space} is countably infinite.
+    \end{enumerate}
+    The \textit{Admissible Action-Space} $A(s)\subseteq A$ is the set of actions the agent can take if the system is in state $s$.
+  \end{definition}
+
+  \begin{definition}{Transition Probabilities, $p_t(\cdot|\cdot,\cdot)$}
+    \textit{Transition Probabilities} $p_t(\cdot|\cdot,\cdot)$ are parametric-probability mass functions which define the probability of the
+    \[ p_t(s'|s,a)=\prob(X_{t+1}=s'|X_t=s,Y_t=a) \]
+  \end{definition}
+
+  \begin{definition}{Decision Rules $q_t(\cdot)$,$d_t(\cdot)$}
+    A \textit{Decision Rule} $q_t(\cdot)$ is a procedure the agent uses to decide what action to take, given available information (Current state $X_t$, previous states $X_{0:t-1}$, previous actions $Y_{0:t-1}$).
+    \par There are four classes of \textit{Decision Rule}:
+    \begin{enumerate}
+      \item \textit{History Dependent Randomised}, HR - The \textit{Decision Rule} $q_t(\cdot)$ is a conditional probability mass function on the action-space $A$, using all available information.
+      \[\begin{array}{rcl}
+        \prob(Y_0=a_0|X_0=s_0)&=&q_0(a_0|s_0)\\
+        (Y_0|X_0)&\sim&q_0(\cdot|X_0)\\
+        \prob(Y_t=a_t|X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})&=&q_t(a_t|s_{0:t},a_{0:t-1})\\
+        (Y_t|X_{0:t},Y_{0:t-1})&\sim&q_t(\cdot|X_{0:t},Y_{0:t-1})
+      \end{array}\]
+      \item \textit{History Dependent Deterministic}, HD - The \textit{Decision Rule} $d_t(\cdot)$ is a deterministic function of all currently available information
+      \[ Y_t:=d_t(X_{0:t},Y_{0:t-1}) \]
+      \item \textit{Markovian Randomised}, MR - The \textit{Decision Rule} $q_t(\cdot)$ is a conditional mass function on the action-space $A$, using \underline{only} the current system-state.
+      \[\begin{array}{rcl}
+        \prob(Y_t=a_t|X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})&=&\prob(Y_T=a_t|X_t=s_t)\\
+        &=&q_t(a_t|s_t)\\
+        (Y_t|X_{0:t},Y_{0:t-1})&\sim&q_t(\cdot|X_t)
+      \end{array}\]
+      \item \textit{Markovian Deterministic}, MD - The \textit{Decision Rule} $d_t(\cdot)$ is a deterministic function of the current system-state
+      \[ Y_t:=d_t(X_t) \]
+    \end{enumerate}
+  \end{definition}
+
+  \begin{remark}{Memoryless}
+    \textit{Markovian Decision Rules} are memoryless.
+  \end{remark}
+
+  \begin{definition}{Decision Policy $\pi$}
+    A \textit{Decision Policy} $\pi$ is a sequence of \textit{Decision Rules}, specifying which \textit{Decision Rule} $q_t(\cdot)$ to use in each epoch.
+    \[ \pi:=\{q_t(\cdot)\}_{t\in T} \]
+    There are two types of \textit{Decision Policy}
+    \begin{enumerate}
+      \item \textit{Stationary Decision-Policy} - The same decision rule is applied in each epoch.
+      \[ \exists\ q(\cdot)\text{ st }q_t(\cdot)=q(\cdot)\ \forall\ t\in T \]
+      \item \textit{Non-Stationary Decision-Policy} - A variety of \textit{Decision Rules} are used. Which specific one is used depends on the current epoch $t$.
+    \end{enumerate}
   \end{definition}
 
   \begin{remark}{Static vs Dynamic Approach}
-
+    There are two approaches to a \textit{Sequential Decision Process}.
+    \begin{itemize}
+      \item[\textit{Static}] The agent decides what actions they take before the first decision epoch. This means agent actions are independent of the system state.
+      \item[\textit{Dynamic}] The agent decides their action each epoch, taking the current system state into account.
+    \end{itemize}
+    As there is no penalty for delaying choosing a move until the epoch in which you make it, there is little reason not to take the \textit{dynamic} approach.
   \end{remark}
 
-  \begin{definition}{Induced Stochastic Process}
-
+  \begin{definition}{Induced Stochastic Process $\{(X_t,Y_t)\}_{t\geq0}$}
+    The \textit{Induced Stochastic Process} $\{(X_t,Y_t)\}_{t\geq0}$ is the time-evolution of the agent actions $X_t$ and system states $Y_t$ in the stochastic system.
+    \par The \textit{Induced Stochastic Process} can be fully defined by
+    \begin{enumerate}
+      \item The probability mass function of $X_0$.
+      \item The system's transition probabilities $\{p_t(\cdot|\cdot,\cdot)\}_{t\in T}$.\footnote{Specifies the probability the system is in state $s'$, given the agent took action $a$ which the system was in state $s$.}
+      \item The agent's decision policy $\pi:=\{q_t(\cdot|\cdot)\}_{t\in T}$ .\footnote{Specifies the probability of an agent taken a given action, given the current state of the system.}
+    \end{enumerate}
   \end{definition}
 
-  \begin{proposition}{Distributions of Sequences from Action- \& State-Spaces}
-    % P(X_{t+1}|X_0:t)
-    % P(X_{o:t},Y_{0:t-1})
+  \begin{proposition}{Distributions of Induced Stochastic System}
+    \everymath={\displaystyle}
+    In an \textit{Induced Stochastic Process} the following distributions exist
+    \[\begin{array}{rcl}
+      \prob(X_{0:t}=s_{0:t},Y_{0:t-1}=a_{0:t-1})&=&\prob(X_0=s_0)\prod_{k=0}^{t-1}\underbrace{p_k(s_{k+1}|s_k,a_k)}_\text{Transition}\underbrace{q_k(a_k|s_{0:k},a_{0:k-1})}_\text{Decision}\\
+      \prob(X_{t+1}=s'|X_t=s)&=&\sum_{a\in A(s)}p_t(s'|s,a)q_t(a,s)
+    \end{array}\]
   \end{proposition}
 
-  \begin{theorem}{Markov Chains in MDPs}
-
+  \begin{theorem}{Markov Chains in SDPs}
+    When using a \textit{Markovian Decision Policy} in a \textit{Stochastic Dynamic Process}, the sequence of states $\{X_t\}_{t\in T}$ and the sequence of state-action pairs $\{(X_t,Y_t)\}_{t\in T}$ are \textit{Markov Chains}.
+    \par Moreover, if the transition and decision probabilities are stationary (ie independent of $t$), then they are \textit{Homogeneous Markov Chains}.
   \end{theorem}
 
 \subsection{Markov Decision Processes}
 
   \begin{definition}{Markov Decision Process, MDP}
-
+    A \textit{Markov Decision Process}, MDP, is a \textit{Sequential Decision Problem} where the underlying \textit{Stochastic System} has the \textit{Markov Property}. This is realised by the state of the system in epoch $t+1$ only depending upon the system state and agent action in epoch $t$.
+    \par In each decision epoch, \textit{Markov Decision Process} follows the following steps
+    \begin{enumerate}
+      \item The agent observes the system state $X_t$.
+      \item Based on this observation, the agent chooses an action $Y_t$ to take.
+      \item The agent recieves an immediate reward $r(X_t,Y_t)$ and the system evolves $X_{t+1}$.
+    \end{enumerate}
   \end{definition}
 
-  \begin{proposition}{Formulation/Components of of an MDP}
-
-  \end{proposition}
-
-  \begin{definition}{Time-Horizon}
-
+  \begin{definition}{Markov Decision Problem}
+    In a \textit{Markov Decision Problem}, the agent is tasked with finding a \textit{Decision Policy} $\pi$ which maximise the expected total reward received\footnote{As the reward received in each epoch $r_t(\cdot,\cdot)$ depends upon random quantities (namely system states), we cannot maximise total reward directly and instead maximise its expectation wrt the chosen policy.} in a given time-horizon $T$.
+    \[ \max_\pi\expect^\pi\left[\sum_{t\in T}r(X_t,Y_t)\right] \]
+    A \textit{Markov Decision Problem} is defined by the same components as a \textit{Sequential Decision Problem} (See \texttt{Definition 3.3}). The \textit{Transition Probabilities} $p_t(\cdot|\cdot,\cdot)$ are required to have the \textit{Markov Property}, meaning we have the following stochastic system
+    \[\begin{array}{rcl}
+      (X_{t+1}|X_{0:t},Y_{0:t})&\sim&(X_{t+1}|X_t,Y_t)\\
+      &\sim&p_t(\cdot|X_t,Y_t)
+    \end{array}\]
   \end{definition}
 
-  \begin{definition}{State-Space}
+  \begin{remark}{Initial State $X_0$}
+    The initital state $X_0$ of the system is independent of the agent's actions and thus the chosen policy $\pi$.
+  \end{remark}
 
-  \end{definition}
+\subsection{General Finite-Horizon MDPs}
 
-  \begin{definition}{Action-Space}
-
-  \end{definition}
-
-  \begin{definition}{Transition Probabilities}
-
-  \end{definition}
-
-  \begin{definition}{Decision Rules}
-
-  \end{definition}
-
-  \begin{definition}{Decision Policy}
-
-  \end{definition}
-
-  \begin{definition}{Optimisation}
-    % Optimality Equation
-    % Optimality Decision Rule
-    % Optimal Policy
-  \end{definition}
-
-\subsection{General Finite-Horizon MDPs} %TODO
-
-\subsubsection{Problem Formulation} %TODO
+\subsubsection{Problem Formulation}
 
   \begin{definition}{General Finite-Horizon MDP}
-
+    In a \textit{Finite-Horizon Markov Decision Problem} the agent has a finite-number of epochs in which to take actions in and seeks to maximise the total expected reward received.
+    \par All \textit{Finite-Horizon MDPs} have the following features\footnote{The number of epochs $N$, state-space $S$, action-space $A$, transition probabilities $p_t(\cdot)$ and rewards $r_t(\cdot)$ are all specified on a problem-by-problem basis.}
+    \begin{itemize}
+      \item \textit{Number of Epochs} - $N\in\nats$.
+      \item \textit{Time-Horizon} - $T=\{0,\dots,N-1\}$.
+      \item \textit{Transition Probabilities} - $p_0(s'|s,a),\dots,p_{N-1}(s'|s,a)$.
+      \item \textit{Immediate Rewards} - $r_0(s,a),\dots,r_{N-1}(s,a),r_N(s)$.\footnote{$r_N(s)$ is the \textit{Terminal Reward} and depends on the final state of the system.}
+      \item \textit{Objective} - Given the transition probabilities $\{p_t(\cdot|\cdot,\cdot)\}_{t\in T}$, immediate rewards $\{r_t(\cdot,\cdot)\}_{t\in T}$ and terminal reward $r_N(\cdot)$, the agent is tasked to find a \textit{History Dependent Randomised} policy $\pi\in HR(T)$ over time-horizon $T$ which maximises the exepcted total reward
+      \[ \argmax_{\pi\in HR(T)}\expect^\pi\left[\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right] \]
+    \end{itemize}
   \end{definition}
 
-  \begin{proposition}{Components of a Finite-Horizon MDP}
-    % Num epochs
-    % Time-Horizon
-    % Transition Probabilities
-    % Rewards / costs
-    % Objective
-  \end{proposition}
-
   \begin{proposition}{Stochastic System of a Finite-Horizon MDP}
-
+    In epoch $t$ \textit{Finite-Horizon MDPs} have the following \textit{Stochastic System}, given all available information
+    \[\begin{array}{rcl}
+      (X_{t+1}|X_{0:t},Y_{0:t})&\sim&(X_{t+1}|X_t,Y_t)\\
+      &\sim&p_t(X_{t+1}|X_t,Y_t)
+    \end{array}\]
   \end{proposition}
 
 \subsubsection{Optimisation}
 
-  \begin{remark}{Dynamic Programming Algorithm}
-
+  \begin{remark}{Computational Cost of Optimisation}
+    Calculating optimal strategies for \textit{Finite-Horizon MDPs} is computationally expensive, especially for large $N$. Hence approximating \textit{Finite-Horizon MDPs} are other problems is desirable. This is explored in \texttt{Section 3.4.2} and \texttt{Section 3.5.2}  /
   \end{remark}
 
-  \begin{definition}{Optimality Equation $u^*_k(\cdot)$}
-
-  \end{definition}
-
-  \begin{definition}{Optimality Decision Rule $d^*_k(\cdot)$}
-
-  \end{definition}
+  \begin{remark}{Dynamic Programming Algorithm}
+    \everymath={\displaystyle}
+    The \textit{Dynamic Programming Algorithm} is a system equation for determining the optimal \textit{Decision Policy} $\pi^*$ for a \textit{Finite-Horizon MDP}. These equations are defined as a \textit{Backwards Recursion}\footnote{Iterate from $N-1$ to $0$.}
+    \[\begin{array}{rcl}
+      u^*_N(s)&=&r_N(s)\\
+      u_t^*(s)&=&\max_{a\in A(s)}\left\{r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right\}\quad t\in T=[0,N-1]\\
+      d_t^*(s)&=&\argmax_{a\in A(s)}\left\{r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right\}\quad t\in t=[0,N-1]\\
+    \end{array}\]
+    $u_t^*(s)$ is the \textit{Optimality Equation} and takes the value of the maximum expected reward which can be earned in the last $N-t$ steps of the problem, due to its recursive definition.
+    \par $d_t^*(s)$ is the \textit{Optimal Decision Rule} and takes the value of the action which produces the greatest expected reward from the last $N-t$ steps of the problem.
+  \end{remark}
 
   \begin{definition}{Optimal Policy $\pi^*$}
-
+    An \textit{Optimal Policy} $\pi^*$ is any policy which produces the maximum expected total reward when applied to the defined \textit{Finite-Horizon MDP}. In this case it is
+    \[ \pi^*:=\{d_t^*(s)\}_{t\in T} \]
   \end{definition}
 
-  \begin{definition}{Value Function $v^\pi(\cdot)$}
-    % Optimal Value Function $v^*(\cdot)$
+  \begin{definition}{Value Function $v^\pi(\cdot)$ and Optimal Value Function $v^*(\cdot)$}
+    \everymath={\displaystyle}
+    The \textit{Value Function} $v^pi(\cdot)$ is the expected total reward, given the initial state of the system $X_0=s$ and the policy $\pi\in HR(T)$ which is being used.
+    \[ v^\pi(s):=\expect^\pi\left[\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\bigg|X_0=s\right] \]
+    The \textit{Optimal Value Function} $v^*(\cdot)$ is the maximum expected total reward, given the initial state of the system $X_0=s$
+    \[\begin{array}{rrl}
+      v^*(s)&:=&\max_{\pi\in HR(T)}v^\pi(s)\\
+      &=&\max_{\pi\in HR(T)}\expect^\pi\left[\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\bigg|X_0=s\right]
+    \end{array}\]
   \end{definition}
 
+  \begin{theorem}{Optimal Value Function and Dynamic Programming Algorithm}
+    Here are two equivalent expressions of the \textit{Optimal Value Function} $v^*(\cdot)$
+    \[\begin{array}{rclll}
+      v^*(s)&=&u_0^*(s)&\quad&\forall\ s\in S\\
+      v^*(s)&=&v^{\pi^*}(s)&\quad&\forall\ s\in S\\
+    \end{array}\]
+  \end{theorem}
 
-\subsubsection{Optimality Principle} %TODO
+\subsubsection{Optimality Principle}
 
   \begin{definition}{Tail Subproblem}
-
+    Consider a \textit{Finite-Horizon MDP} over $N$ epochs.
+    \par The \textit{Tail Subproblem of Length $L$}\footnote{$L\in[1,N]$} of this \textit{Finite-Horizon MDP} is a subproblem which is concerned with the last $L$ epochs of the full problem. It has the following features
+    \begin{itemize}
+      \item \textit{Number of Epochs} - $L\in[1,N]$.
+      \item \textit{Time-Horizon} - $T_L=\{N-L,\dots,N-1\}$.
+      \item \textit{Transition Probabilities} - $p_{N-L}(s'|s,a),\dots,p_{N-1}(s'|s,a)$.
+      \item \textit{Immediate Rewards} - $r_{N-L}(s,a),\dots,r_{N-1}(s,a),r_N(s)$.
+      \item \textit{Objective}\footnote{Same as the full problem, except over the reduced \textit{Time-Horizon}} - Given the transition probabilities $\{p_t(\cdot|\cdot,\cdot)\}_{t\in T}$, immediate rewards $\{r_t(\cdot,\cdot)\}_{t\in T}$ and terminal reward $r_N(\cdot)$, the agent is tasked to find a \textit{History Dependent Randomised} policy $\pi\in HR(T)$ over time-horizon $T$ which maximises the exepcted total reward
+      \[ \argmax_{\pi\in HR(T_L)}\expect^\pi\left[\left(\sum_{t=N-L}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right] \]
+    \end{itemize}
   \end{definition}
 
   \begin{remark}{Equivalence of MDP and Tail Subproblem}
-
+    The \textit{Tail Subproblem of Length $L$} has \textit{Time-Horizon} $T=\{N-L,\dots,N-1\}$ and thus is equivalent to the full \textit{Finite-Horizon MDP} with time-horizon $T=\{0,\dots,L\}$\footnote{\textit{Finite-Horizon MDP} over $L$ epochs.}
+    \par This means optimising the \textit{Tail Subproblem} only requires re-indexing the \textit{Optimality Equations} of the full problem.
   \end{remark}
 
   \begin{proposition}{Optimising Tail Subproblem}
-
+    \everymath={\displaystyle}
+    The \textit{Optimality Equations} for a \textit{Tail Subproblem of Length $L$} are defined sub-recursively as
+    \[\begin{array}{rcl}
+      u^*_{L,N}(s)&=&r_N(s)\\
+      u_{L,t}^*(s)&=&\max_{a\in A(s)}\left\{r_t(s,a)+\sum_{s'\in S}u_{L,t+1}^*(s')p_t(s'|s,a)\right\}\quad t\in T_L=[N-L,N-1]\\
+      d_{L,t}^*(s)&=&\argmax_{a\in A(s)}\left\{r_t(s,a)+\sum_{s'\in S}u_{L,t+1}^*(s')p_t(s'|s,a)\right\}\quad t\in t=[N-L,N-1]\\
+    \end{array}\]
+    and the \textit{Optimal Policy} $\pi_L^*$ is
+    \[ \pi^*_L:=\{d_{L,t}^*(s)\}_{t\in T_L} \]
   \end{proposition}
 
   \begin{remark}{Optimising Tail Subproblem vs Optimising MDP}
-
+    The initial condition of the \textit{Optimality Equations} for both the tail subproblem $u_{L,N}^*(\cdot)$ and the full problem $u_N^*(\cdot)$ have the same definition
+    \[ u_{L,N}^*(s):=r_N(s)=:u_N^*(s) \]
+    In the equivalent epoch $t$, the \textit{Optimality Equation} of the tail subproblem $u_{L,t}^*(\cdot)$ is a sub-recursion of the \textit{Optimality Equation} for the full problem $u_t^*(\cdot)$.
+    \par Given these two properties, the \textit{Optimality Equations} for the subproblem are all identical to that of the full problem for the equivalent epoch.
+    \[\begin{array}{rcl}
+      u_{L,t}^*(s)&=&u_t^*(s)\\
+      d_{L,t}^*(s)&=&d_t^*(s)
+    \end{array}\]
   \end{remark}
 
-  \begin{theorem}{Optimality Principle}
-
-  \end{theorem}
-
-  \begin{remark}{Dynamic Programming Algorithm}
-
-  \end{remark}
-
-\subsection{Discounted Reward Infinite-Horizon MDPs} %TODO
-
-\subsubsection{Problem Formulation} %TODO
-
-  \begin{definition}{Discounted Reward Infinite-Horizon MDPs}
-
+  \begin{definition}{Optimal Value Function of Tail-Subproblem $v_L^*(\cdot)$}
+    The \textit{Optimal value Function} for the \textit{Tail-Subproblem} of length $L$ is defined as
+    \[ v_L^*(\cdot):=\max_{\pi\in HR(T_L)}\expect^\pi\left[\left(\sum_{t=N-L}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\bigg|X_{N-t}=s\right] \]
+    This value can be interpreted as the maximum expected total reward received from the last $L$ epochs, given the system is in state $s$ at the start of epoch $t=N-L$.
+    \[ v_L^*(s)=y_{L,N-L}^*(s) \]
   \end{definition}
 
-  \begin{proposition}{Components of a Discounted Reward MDPs}
-    % Num epochs
-    % Time-Horizon
-    % Transition Probabilities
-    % Rewards / costs
-    % Objective
-  \end{proposition}
+  \begin{theorem}{Optimality Principle}
+    Consider a \textit{Finite-Horizon MDP} over $N$ epochs and a \textit{Tail Subproblem of Length $L$}.
+    \par The \textit{Optimality Principle} states
+    \[\begin{array}{rcl}
+      v_L^*(s)&=&u_{N-L}^*(s)\\
+      \pi_L^*&=&\{d_t^*(s)\}_{t\in T_L}
+    \end{array}\]
+  \end{theorem}
+
+  \begin{remark}{Optimality Principle}
+    The \textit{Optimality Principle} shows that the \textit{Dynamic Programming Algorithm} can be solved by solving all the \textit{Tail Subproblems of Length $L$} for all $L\in[1,N]$.
+    \par This can be used to restate the \textit{Dynamic Programming Algorithm} as a forwards-recursion
+    \[\begin{array}{rcl}
+      v_0^*(s)&:=&r_N(s)\\
+      v_t^*(s)&:=&\max_{a\in A(s)}\left\{r_{N-k}(s,a)+\sum_{s'\in S}v_{k-1}^*(s')p_{N-k}(s'|s,a)\right\}\quad t\in[1,N]\\
+      d_t^*(s)&:=&\argmax_{a\in A(s)}\left\{r_{N-k}(s,a)+\sum_{s'\in S}v_{k-1}^*(s')p_{N-k}(s'|s,a)\right\}\quad t\in[1,N]\\
+    \end{array}\]
+  \end{remark}
+
+\subsection{Discounted Reward Infinite-Horizon MDPs}
+
+\subsubsection{Problem Formulation}
+
+  \begin{definition}{Discounted Reward Infinite-Horizon MDPs}
+    In a \textit{Discounted Reward Infinite-Horizon MDP} the agent is tasked to find a policy which maximises the total expected discounted reward received.\footnote{The reward being ``discounted'' means that rewards received further into the further are weighted less. This is done by multiplying the expected reward in epoch $t\in T$ by $\alpha^t$ where $\alpha\in(0,1)$.}
+    All \textit{Discounted Reward MDPs} have the following features
+    \begin{itemize}
+      \item \textit{Number of Epochs} - $N=\infty$.
+      \item \textit{Time-Horizon} - $T_L=\{0,1,\dots\}$.
+      \item \textit{Transition Probabilities} - $p_t(s'|s,a)=p(s'|s,a)\ \forall\ t\in T$.\footnote{These are \textit{Stationary Transition Probabilities}.}
+      \item \textit{Immediate Rewards} - $r_t(s,a)=\alpha^tr(s,a)\ \forall\ t\in T$.\footnote{These are \textit{Stationary Rewards}.}
+      \item \textit{Objective} - Given the transition probabilities $p(s'|s,a)$, immediate rewards $r(s,a)$ and discounting factor $\alpha$, the agent is tasked to find a \textit{History Dependent Randomised Policy} $\pi\in HR(T)$ over time-horizon $T$ which maximises the expected total reward
+      \[ \argmax_{\pi\in HR(T)}\expect^\pi\left[\sum_{t=0}^\infty r_t(X_t,Y_t)\right]=\argmax_{\pi\in HR(T)}\expect^\pi\left[\sum_{t=0}^\infty \alpha^tr(X_t,Y_t)\right] \]
+    \end{itemize}
+  \end{definition}
 
   \begin{proposition}{Stochastic System of a Discounted Reward MDP}
-
+    In epoch $t$, \textit{Discounted Reward MDPs} have the following \textit{Stochastic System}, given all available information
+    \[\begin{array}{rcl}
+      (X_{t+1}|X_{0:t},Y_{0:t})&\sim&(X_{t+1}|X_t,Y_t)\\
+      &\sim&p_t(\cdot|X_t,Y_t)\\
+      &=&p(\cdot|X_t,Y_t)
+    \end{array}\]
   \end{proposition}
 
   \begin{remark}{Time-Importance of Rewards}
-
+    The value of $\alpha^t$ characterises the importance of the reward received in epoch $t$. The closer the value of $\alpha$ is to 0, the quicker the importance of rewards diminishes.
   \end{remark}
 
-\subsubsection{Approximating the Problem} %TODO
+  \begin{theorem}{Discounted Reward Converges}
+    \textit{Discounted Reward} converges, thus it is reasonable to expect the \textit{Value Function} to converge.
+    \[ \sum_{t=0}^\infty\alpha^t|r(X_t,Y_t)|<\infty\quad\text{where }\alpha\in(0,1) \]
+  \end{theorem}
+
+\subsubsection{Using for Approximation}
 
   \begin{proposition}{Approximating Finite-Horizon MDPs as Discounted Reward MDPs}
-
+    \everymath={\displaystyle}
+    Consider a \textit{Finite-Horizon MDP} as defined in \texttt{Definition 3.13}  and assume the following
+    \begin{enumerate}
+      \item The parameters of the \textit{Stochastic System} and the parameters of the \textit{Immediate Rewards} change slowly wrt time.
+      \item $N\gg1$.
+    \end{enumerate}
+    Using these assumptions we can derive the following approximations of the \textit{Transition probabilities} $p_t(s'|s,a)$, \textit{Immediate Rewards} $r_t(s,a)$ and \textit{Objective Function} of this \textit{Finite-Horizon MDP} as
+    \[\begin{array}{rcll}
+      p_t(s'|s,a)&\approx&p(s'|s,a)&\text{By i)}\\\\
+      r_t(s,a)&\approx&r(s,a)&\text{By i)}\\\\
+      \left|\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right|&\gg&|r_N(X_N)|&\text{By ii)}\\
+      \implies\expect^\pi\left[\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right]&\approx&\expect^\pi\left[\sum_{t=0}^{N_1}r_t(X_t,Y_t)\right]\\
+      &\approx&\expect^\pi\left[\sum_{t=0}^{N_1}r(X_t,Y_t)\right]\\
+      &\approx&\lim_{N\to\infty}\expect^\pi\left[\sum_{t=0}^{N_1}r(X_t,Y_t)\right]\\
+      &=&\expect^\pi\left[\sum_{t=0}^\infty r(X_t,Y_t)\right]\\
+      &\approx&\expect^\pi\left[\sum_{t=0}^\infty \alpha^tr(X_t,Y_t)\right]&\text{for }\alpha\approx1\footnotemark\\
+    \end{array}\]
+    \footnotetext{See \texttt{Remark 3.9}}
+    These approximations can form the definition of a \textit{Discounted Reward Infinite-Horizon MDP}.
   \end{proposition}
 
   \begin{remark}{The approximation is well-defined}
-
+    \everymath={\displaystyle}
+    It is possible that the penultimate expression in \texttt{Proposition 3.5} is \underline{not} well-defined\footnote{i.e. It may not have a finite value.}. To overcome this, we multiple the reward by $\alpha^t$ for $\alpha\in(0,1)$.
+    \[ \expect^\pi\left[\sum_{t=0}^\infty r(X_t,Y_t)\right]\approx\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]\text{ for }\alpha\approx1 \]
+    \par Since the \textit{State-Space} $S$ and the \textit{Action-Space} $A$ are both finite-sets, there is a finite upper-bound to the reward recieved
+    \[\begin{array}{rcl}
+      \max_{s\in S,a\in A(s)}|r(s,a)|&=&c<\infty\\
+      \implies\sum_{t=0}^\infty\alpha^t|r(X_t,Y_t)|&\leq&\sum_{t=0}^\infty\alpha^tc\\
+      &=&\frac{c}{1-\alpha}<\infty
+    \end{array}\]
+    Hence, the expected discounted reward is well-defined and finite.
   \end{remark}
 
   \begin{remark}{Quality of Approximation}
-
+    \everymath={\displaystyle}
+    We have that
+    \[\begin{array}{rcl}
+      \expect^\pi\left[\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right]&\approx&\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\text{ since }N\gg1\\
+      &\approx&\expect^\pi\left[\sum_{t=0}^{N-1}\alpha^tr(X_t,Y_t)\right]\text{ since }\alpha\approx1\\
+      &\approx&\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]\text{ since }N\gg1
+    \end{array}\]
+    Given this, we can conclude that \textit{Discounted Reward MDPs} accurately approximate \textit{Finite-Horizon MDPs} under the following assumptions
+    \begin{enumerate}
+      \item $\alpha\in(0,1)$ and $\alpha\approx1$.
+      \item The parameters of the stochastic system and the immediate rewards change slowly in time.
+      \item $N\gg1$.
+    \end{enumerate}
   \end{remark}
 
-  \begin{remark}{Discounted Reward is Convergent}
+\subsubsection{Optimisation}
 
-  \end{remark}
-
-\subsubsection{Optimisation} %TODO
-
-  \begin{definition}{Value Function}
-    % Optimal value Function
+  \begin{definition}{Value Function $v^\pi(\cdot)$ and Optimal Value Function $v^*(\cdot)$}
+    \everymath={\displaystyle}
+    The \textit{Value Function} $v^\pi(\cdot)$ of a policy $\pi\in HR(T)$ is the expected total discounted reward when using that policy, given the initial state of system $X_0=s$.
+    \[ v^\pi(s):=\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0=s\right] \]
+    The \textit{Optimal Value Function} $v^*(\cdot)$ is the maximum expected total reward, given the initial state of the system is $X_0=s$.
+    \[\begin{array}{rcl}
+      v^*(s)&:=&\max_{\pi\in HR(T)}v^\pi(s)\\
+      &:=&\max_{\pi\in HR(T)}\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0=s\right]
+    \end{array}\]
   \end{definition}
 
   \begin{theorem}{Optimality Principle for $FHMDP(T_{N+1})$}
-
+    \everymath={\displaystyle}
+    Let $u_N^*(s)$ be the maximum expected discounted reward for an \textit{Approximated Finite-Horizon MDP} over $N$ epochs, given the system starts in state $X_0=s$.
+    \[ u_N^*(s):=\max_{\pi\in HR(T_N)}\expect^\pi\left[\sum_{t=0}^N\alpha^tr(X_t,Y_t)\bigg|X_0=s\right]\quad\text{where }T_n:=\{0,\dots,N-1\} \]
+    The \textit{Optimality Principle} for an \textit{Approximated Finite-Horizon MDP} over $N+1$ epochs gives a recursive definition for $u_{N+1}^*(s)$
+    \[ u_{N+1}^*(s)=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}u_N^*p(s'|s,a)\right) \]
   \end{theorem}
 
   \begin{definition}{Bellman Equation}
-
+    The \textit{Bellman Equation} is the \textit{Optimality Equation} for a \textit{Discounted Reward MDP}, stated as
+    \[ v^*(s)=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right) \]
+    where $v^*(\cdot)$ is unknown\footnote{And thus the function we wish to find.}
   \end{definition}
+
+  \begin{proposition}{Derivation of Bellman Equation}
+    \everymath={\displaystyle}
+    We want to establish the relationship between $u_N^*(\cdot)$ and $v^*(\cdot)$.\footnote{i.e. relate the optimality equation for a \textit{Finite-Horizon MDP} $u_N^*(\cdot)$ to the optimality equation for a \textit{Discounted Reward MDP} $v^*(\cdot)$}
+    \par Since \textit{Discounted Reward} converges\footnote{See \texttt{Theorem 3.4}.}
+    \[\begin{array}{rrcll}
+      &\lim_{N\to\infty}u_N^*(s)&=&\lim_{N\to\infty}\left(\max_{\pi\in HR(T)}\expect^\pi\left[\sum_{t=0}^N\alpha^tr(X_t,Y_t)\bigg|X_0=s\right]\right)\\
+      &&=&\max_{\pi\in HR(T)}\expect^\pi\left[\lim_{N\to\infty}\left(\sum_{t=0}^N\alpha^tr(X_t,Y_t)\right)\bigg|X_0=s\right]\\
+      &&=&\max_{\pi\in HR(T)}\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0=s\right]\\
+      &&=&v^*(s)\text{ by def.}\\
+      \implies&v^*(s)&=&\lim_{N\to\infty}u_{N+1}^*(s)&\text{ by above}\\
+      &&=&\lim_{N\to\infty}\left(\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}u_N^*(s')p(s'|s,a)\right)\right)&\text{ by Optimality Principle}\\
+      &&=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}\left(\lim_{N\to\infty}u_N^*(s')\right)p(s'|s,a)\right)\\
+      &&=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)&\text{ by above}\\
+      \implies&v^*(s)&=&\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)\footnotemark
+    \end{array}\]
+    \footnotetext{This is the \textit{Bellman Equation}.}
+  \end{proposition}
 
   \begin{remark}{Compact Bellman Equation}
-
+    The \textit{Bellman Equation} can be written as\footnote{This equation is known as the \textit{Fixed-Point Equation} and is used in the \textit{Banach Fixed Point Theorems} (\texttt{Theorem 3.8,3.9} )}
+    \[ (Tv)(s)=v(s) \]
+    where $v(\dot)$ is unknown and $T:(S\to\reals)\to(S\to\reals)$ is the following transform
+    \[ T(v(s)):=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s\in S'}v(s')p(s'|s,a)\right) \]
   \end{remark}
 
-  \begin{definition}{Transform $T$}
-
-  \end{definition}
-
   \begin{theorem}{Transform $T$ is a Contractive Mapping}
-
+    Let $v',v'':S\to\reals$ be value functions\footnote{ie Value functions for different policies} and $\alpha\in(0,1)$ be the \textit{Discount Factor}
+    \par The transform $T$, defined in \texttt{Remark 3.12}, is a \textit{Contractive Mapping} since $\alpha\in(0,1)$
+    \[ \|(Tv')(s)-(Tv'')(s)\|\leq\alpha\|v'(s)-v''(s)\|\ \forall\ s\in S \]
   \end{theorem}
 
   \begin{definition}{Transform $T_d$}
-
+    Let $d:S\to A$ be a \textit{Markovian Decision Function}.
+    \par We define the transform $T_d:(S\to\reals)\to(S\to\reals)$ as
+    \[ (T_dv)(s):=r(s,d(s))+\alpha\sum_{s'\in S}v(s')p(s'|s,d(s))\text{ where }v\in V,s\in S \]
+    This is the expected reward from the single epoch when the system in state $s$ and decision function $d$ is used.
   \end{definition}
 
   \begin{theorem}{Bounding Distance between Transformations}
-
+    Let $v',v'':S\to\reals$ be value functions and $\alpha\in(0,1)$ be the \textit{Discount Factor}
+    \par The transform $T_d$, defined in \texttt{Definition 3.21}, is a \textit{Contractive Mapping} since $\alpha\in(0,1)$
+    \[ \|(T_dv')(s)-(T_dv'')(s)\|\leq\alpha\|v'(s)-v''(s)\|\ \forall\ s\in S \]
   \end{theorem}
 
   \begin{theorem}{Banach Fixed-Point Theorem Applied to Transform $T$}
-
+    \everymath={\displaystyle}
+    The following is the \textit{Banach Fixed-Point Theorem} applied to transform $T$.
+    \begin{enumerate}
+      \item Let $v_0:S\to\reals$ be an arbitrary value function and $\{v_k\}_{k\geq0}$ be recusively defined as
+      \[ v_{k+1}(s):=(Tv_k)(s)\footnotemark\implies v_{k+1}(s)=(T^{k+1}v_0)(s) \]
+      \footnotetext{This is known as the \textit{Fixed-Point Recursion}}
+      \par Then, after applying transform $T$ sufficiently many times to $v_0$ we get a solution to the \textit{Compact Bellman Equation}
+      \[\begin{array}{rrcll}
+        &\lim_{k\to\infty}v_k(s)=\lim_{k\to\infty}(T^kv)(s)&=&v(s)&\forall\ s\in S\\
+        \text{and }&(Tv)(s)&=&v(s)&\forall\ s\in S\\
+      \end{array}\]
+      Moreover, we can bound how close we are to a solution
+      \[\begin{array}{rrcll}
+        &\|v_k(s)-v(s)\|&\leq&\frac{\alpha^k\|v_1(s)-v_0(s)\|}{1-\alpha}&\forall\ s\in S,k\geq1\\
+        \Longleftrightarrow&\|(T^kv_0)(s)-v(s)\|&\leq&\frac{\alpha^k\|(Tv_0)(s)-v_0(s)\|}{1-\alpha}&\forall\ s\in S,k\geq1
+      \end{array}\]
+      \item
+        \[\text{If }\exists\ v':S\to\reals\text{ st }\forall\ s\in S,\ (Tv')(s)=v'(s)\implies v'(s)=v(s)\ \forall\ s\in S  \]
+    \end{enumerate}
   \end{theorem}
 
   \begin{theorem}{Banach Fixed-Point Theorem Applied to Transform $T_d$}
-
+    The following is the \textit{Banach Fixed-Point Theorem} applied to transform $T$.
+    \par Let $d:S\to A$ be a \textit{Markovian Decision Function}. Then there is a unique solution $v_d:S\to\reals$ to the \textit{Copact Bellman Equation} for transform $T_d$
+    \[ \exists!\ v_d:S\to\reals\text{ st }\forall\ s\in S,\ (T_dv_d)(s)=v_d(s) \]
+    Moreover, this solution $v_d(\cdot)$ is equivalent to the value function $v^{\pi_d}(\cdot)$ for $\pi_d$\footnote{$\pi_d$ is the stationary policy based on decision policy $d$.}
+    \[ v_d(s)=v^{\pi_d}(s)\quad\forall\ s\in S \]
   \end{theorem}
 
   \begin{theorem}{Bounding Distance between Optimal Value Function over Infinite $v^*$ and Finite $v_N^*$ Horizons}
-
+    Let $v^*$ be the \textit{Optimal Value Function} over an infinite time-horizon and $v^*_N$ be the \textit{Optimal Value Function} over a finite time-horizon with $N$ epochs.
+    \par Then
+    \[ \forall\ N\geq1,\ \|v_N^*-v^*\|\leq \frac{\alpha^Nc}{1-\alpha}\text{ where }c:=\max_{s\in S,a\in A(s)}|r(s,a)| \]
   \end{theorem}
 
   \begin{theorem}{Solution to Bellman Equation}
-
+    The \textit{Optimal Value Function} $v^*$ is the unique solution to the \textit{Bellman Equation}
+    \[ (Tv^*)(s)=v^*(s)\ \forall\ s\in S \]
+    Since $v^*(s)=v^{\pi^*}(s)\ \forall\ s\in S$ then we can deduce the \textit{Optimal Decision Rule} is
+    \[ d^*(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right) \]
+    The \textit{Optimal Policy} is $\pi^*=\pi_{d^*}$.
   \end{theorem}
 
   \begin{remark}{$\pi_{d^*}$ is an Optimal Policy}
 
   \end{remark}
 
-\subsubsection{Policy Iteration Algorithm} %TODO
+\subsubsection{Policy Iteration Algorithm}
 
   \begin{definition}{Policy Iteration Algorithm}
-
+    The \textit{Policy Iteration Algorithm} is an algorithm for finding an optimal decision policy $\pi^*$ for an \textit{Discounted Reward MDP}. Here are the stages of the \textit{Policy Iteration Algorithm}
+    \begin{itemize}
+      \item \textit{Initialisation} - Arbitrarily choose a \textit{Markovian Decision Function} $d_0(s)$ and set $k=0$.
+      \item \textit{Body} - For $k\geq0$ perform the following
+      \begin{enumerate}
+        \item \textit{Policy Evaluation} - Compute a solution $v_k(\cdot)$ to the \textit{Compact Bellman Equation}
+        \[ (T_{d_k}v)=v \]
+        where $v$ is unknown and $T_{d_k}$ is the \textit{Transform} defined in \texttt{Definition 3.21}.
+        \item \textit{Policy Improvement} - Use the function $v_k$ which has just been computed, to select a \textit{Markovian Decision Function} $d_{k+1}(s)$ which, in each states $s\in S$, maximises the \textit{Bellman Equation}.
+        \[ \forall\ s\in S\ d_{k+1}(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}v_k(s')p(s'|s,a)\right)\ \forall\ s\in S \]
+        \item \textit{Terminatiom?} -
+        \begin{itemize}
+          \item[If] $\forall\ s\in S\ d_k(s)=d_{k+1}(s)$:\footnote{If the decision function is unchanged.} Stop the algorithm and return the last calculated \textit{Markovian Decision Function} $d_{k+1}(\cdot)$.
+          \item[Else]: Increment $k$ and repeat i)-iii).
+        \end{itemize}
+      \end{enumerate}
+    \end{itemize}
   \end{definition}
 
   \begin{remark}{Policy Iteration Algorithm}
-
+    Here are some properties of the \textit{Policy Iteration Algorithm}
+    \begin{enumerate}
+      \item The algorithm terminates after a finite number of iterations.
+      \item The returned decision function is optimal $\forall\ s\in S,\ d_k(s)=d^*(s)$.
+    \end{enumerate}
   \end{remark}
 
-\subsubsection{Equivalent Linear Program} %TODO
+\subsubsection{Equivalent Linear Program}
+
+  \begin{remark}{Linear Programming}
+    \textit{Linear Programming} methods can be used to solve \textit{Discounted Reward MDPs}.
+  \end{remark}
 
   \begin{proposition}{Equivalent Linear Programming Problem for Discounted Reward MDP}
-
+    \everymath={\displaystyle}
+    The following \textit{Linear Program} is equivalent to a \textit{Discounted Reward MDP}
+    \begin{quote}
+      Find $v:S\to\reals$ which minimises $\sum_{s\in S}\gamma(s)v(s)$ under the restrictions that
+      \begin{enumerate}
+        \item $r(s,a)+\sum_{s'\in S}\alpha p(s'|s,a)v(s')\leq v(s)\quad\forall\ s\in S,a\in A(s)$.
+        \item $\gamma(s)>0\ \forall\ s\in S$
+      \end{enumerate}
+    \end{quote}
   \end{proposition}
 
-\subsection{Average Reward Infinite-Horizon MDPs} %TODO
+\subsection{Average Reward Infinite-Horizon MDPs}
 
-\subsubsection{Problem Formulation} %TODO
+\subsubsection{Problem Formulation}
 
   \begin{definition}{Average Reward Infinite-Horizon MDPs}
-
+    \everymath={\displaystyle}
+    In an \textit{Average Reward Infinite-Horizon MDP} the agent is tasked to find a policy which maximises the average reward in the long-run. All \textit{Average Reward MDPs} have the following features
+    \begin{itemize}
+      \item \textit{Number of Epochs} - $N=\infty$.
+      \item \textit{Time-Horizon} - $T=\{0,1,\dots\}$.
+      \item \textit{Transition Probabilities} - $p_t(s'|s,a)=p(s'|s,a)\ \forall\ t\in T$.\footnote{The \textit{Transitions Probabilities} are stationary.}
+      \item \textit{Immediate Rewards} - $r_t(s,a)=r(s,a)\ \forall\ t\in T$.\footnote{The \textit{Rewards} are stationary.}
+      \item \textit{Objective} - Given the transition probabilities $p(s'|s,a)$ and immediate rewards $r(s,a)$, the agent is tasked to find a \textit{History Dependent Randomised Policy} $\pi\in HR(T)$ which maximises the expected average reward-per-epoch over the infinite time-horizon
+      \[\begin{array}{rl}
+        &\argmax_{\pi\in HR(T)}\left\{\lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right]\right\}\\
+        =&\argmax_{\pi\in HR(T)}\left\{\lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\right\}
+      \end{array}\]
+    \end{itemize}
   \end{definition}
 
-  \begin{proposition}{Components of an Average Reward MDPs}
-    % Num epochs
-    % Time-Horizon
-    % Transition Probabilities
-    % Rewards / costs
-    % Objective
-  \end{proposition}
-
   \begin{proposition}{Stochastic System of an Average Reward MDP}
-
+    In epoch $t$, \textit{Average Reward MDPs} have the following \textit{Stochastic System}, given all available information
+    \[\begin{array}{rcl}
+      (X_{t+1}|X_{0:t},Y_{0:t})&\sim&(X_{t+1}|X_t,Y_t)\\
+      &\sim&p_t(\cdot|X_t,Y_t)\\
+      &=&p(\cdot|X_t,Y_t)\\
+    \end{array}\]
   \end{proposition}
-
-  \begin{remark}{Derivation of Average Reward MDP}
-
-  \end{remark}
 
   \begin{remark}{The problem is well-defined}
-    % the limits exist
+    \everymath={\displaystyle}
+    Since the \textit{State-Space} $S$ and \textit{Action-Space} $A$ are finite-sets, the maximum reward is finite and thus the average reward over finite-time is finite.
+    \[\begin{array}{rrcl}
+      &c:=\max_{s\in S,a\in A(s)}|r(s,a)|&<&\infty\\
+      \implies&\left|\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right|&\leq&\frac1N\sum_{t=0}^{N-1}|r(X_t,Y_t)|\leq c
+    \end{array}\]
+    Therefore the limit of the infimum and supremum exist and are finite
+    \[\begin{array}{rcl}
+      \lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\quad\text{and}\quad\lim_{N\to\infty}\sup\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]
+    \end{array}\]
   \end{remark}
 
   \begin{remark}{Average Reward MDP vs Discounted Reward MDP}
-
+    An \textit{Average Reward MDP} places the same emphasis on all received rewards. A \textit{Discounted Reward MDP} only does this if the \textit{Discount Factor} $\alpha$ is close to 1.
+    \par If $\alpha\approx0$ then a \textit{Discounted Reward MDP} places significantly more emphasis on near-future rewards than far-future.
   \end{remark}
 
   \begin{remark}{Average Reward MDPs are similar to Irreducible Markov Chains}
-
+    See \texttt{Subsection 0.5}  for details on \textit{Irreducible Morkov Chains}.
   \end{remark}
 
-\subsubsection{Approximating the Problem} %TODO
+\subsubsection{Using for Approximation}
 
   \begin{proposition}{Approximating Finite-Horizon MDP as Average Reward MDP}
-
+    \everymath={\displaystyle}
+    Consider a \textit{Finite-Horizon MDP} as defined in \texttt{Definition 3.13} and assume the following
+    \begin{enumerate}
+      \item The parameters of the \textit{Stochastic System} and the parameters of the \textit{Immediate Rewards} change slowlt wrt time.
+      \item $N\gg1$.
+    \end{enumerate}
+    Using thses assumptions we can derive the following approximation of the \textit{Transition Probabilities} $p_t(s'|s,a)$, \textit{Immediate Rewards} $r_t(s,a)$ of this \textit{Finite-Horizon MDP}
+    \[\begin{array}{rcll}
+      p_t(s'|s,a)&\approx&p(s'|s,a)&\text{By i)}\\
+      \\
+      r_t(s,a)&\approx&r(s,a)&\text{By i)}\\
+      \\
+      \left|\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right|&\gg&|r_N(X_N)|&\text{By ii)}\\
+      \implies\expect^\pi\left[\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right]&\approx&\expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right]\\
+      &\approx&\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&\text{By i)}
+    \end{array}\]
+    Since introducing a multiplicative constant does affect the $\argmax$ of an expression, we have that the following expressions are all equivalent. Thus optimising the total reward and average reward are equivalent objectives.
+    \[\begin{array}{rcl}
+    \argmax_\pi\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&=&\argmax_\pi\frac1N\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+    &=&\argmax_\pi\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+    \end{array}\]
+    We can approximate this \textit{Objective Function} using a limit
+    \[\begin{array}{rcll}
+      \implies\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right]&\approx&\lim_{N\to\infty}\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&\text{By ii)}\\
+      &=&\lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&\footnotemark
+    \end{array}\]
+    \footnotetext{We take the infimum to ensure the limit exists.}
+    These approximations can form the definition of an \textit{Average Reward Infnite-Horizon MDP}.
   \end{proposition}
 
-\subsubsection{Optimisation} %TODO
+  \begin{proposition}{Quality of Approximation}
+    \everymath={\displaystyle}
+    We have that
+    \[\begin{array}{rl}
+      &\argmax_\pi\expect^\pi\left[\left(\sum_{t=0}^{N-1}r_t(X_t,Y_t)\right)+r_N(X_N)\right]\\
+      \approx&\argmax_\pi\expect^\pi\left[\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\text{ since }N\gg1\\
+      =&\argmax_\pi\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+      =&\argmax_\pi\left(\lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\right)\text{ since }N\gg1
+    \end{array}\]
+  \end{proposition}
+
+\subsubsection{Optimisation}
 
   \begin{definition}{Bellman Equation}
+    The \textit{Bellman Optimality Equation} for an \textit{Average Reward MDP}, stated as
+    \[ w^*(s)+r^*=\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right) \]
+    where $w^*:S\to\reals,\ r^*\in\reals$ are unkowns to be found.\footnote{$w^*$ represents an invariant distribution in the stochastic system. $r^*$ represents the reward value.}
+  \end{definition}
 
+  \begin{definition}{Optimal Markovian Decision Function $d^*(\cdot)$}
+    The \textit{Optimal Markovian Decision Function} $d^*:S\to A$ for an \textit{Average Reward MDP} is on which chooses the action $a\in A(s)$ which maximises the RHS of the \textit{Bellman Equation}
+    \[ d^*(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right) \]
   \end{definition}
 
   \begin{theorem}{Solutions to the Bellman Equation Exist}
-
+    There exist $w^*:S\to\reals,\ r^*\in\reals$ which staisfy the \textit{Bellman Equation} for an \textit{Average Reward MDP} (\texttt{Definition 3.25}).
   \end{theorem}
 
-  \begin{theorem}{Value of $r^*$ and the Policy}
-
+  \begin{theorem}{$r^*$ is the Maximum Asymptotic Expected Average Reward}
+    Let $(w^*(s),r^*)$ be a solution-pair for the \textit{Bellman Equation} for an \textit{Average Reward MDP}.
+    \par Then
+    \[ \forall\ \pi\in HR(T),\ \lim_{N\to\infty}\sup\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\leq r^* \]
+    Further, let $d^*:S\to A$ be the \textit{Optimal Markovian Decision Function} and $\pi^*$ be the \textit{Decision Policy} based on $d^*(s)$. Then
+    \[ \lim_{N\to\infty}\sup\expect^{\pi^*}\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]=r^* \]
   \end{theorem}
 
   \begin{theorem}{Uniqueness of Solutions to the Bellman Equation}
-
+    Consider any two solutions-pairs $(w^*(s),r^*)$ and $(\tilde{w}^*(s),\tilde{r}^*(s))$ for the \textit{Bellman Equation} for an \textit{Average Reward MDP}. Then
+    \begin{enumerate}
+      \item The $r$-part will be the same in both solutions.
+      \[ r^*=\tilde{r}^* \]
+      \item The $w$-part will only differ by an additive constant
+      \[ \exists\ c\in\reals\text{ st }\forall\ s\in S,\ w^*(s)=\tilde{w}^*(s)+c \]
+    \end{enumerate}
   \end{theorem}
 
-\subsubsection{Policy Iteration Algorithm} %TODO
+\subsubsection{Policy Iteration Algorithm}
 
   \begin{definition}{Policy Iteration Algorithm}
-
+    \everymath={\displaystyle}
+    The \textit{Policy Iteration Algorithm} is an algorithm for finding an optimal decision policy $\pi^*$ for an \textit{Average Reward MDP}. Here are the stages of the \textit{Policy Iteration Algorithm}.
+    \begin{itemize}
+      \item \textit{Initialisation} - Arbitratily choose a \textit{Markovian Decision Function} $d_0(s)$ and set $k=0.$
+      \item \textit{Body} - For $k\geq0$ perform the following:
+      \begin{enumerate}
+        \item \textit{Policy Evaluation}
+        \begin{itemize}
+          \item Compute a solution $\mu_k(\cdot)$ to the following equations\footnote{This is the \textit{Invariant Mass Function} for the current decision function $d_k$.}
+          \[\begin{array}{rcl}
+            \sum_{s'\in S}\mu(s')&=&1\\
+            \mu(s)&=&\sum_{s'\in S}\mu(s')p(s|s',d(s'))
+          \end{array}\]
+          where $\mu(\cdot)$ is the unknown to be found.
+          \item Using this $\mu_k(\cdot)$, compute a solution $w_k(\cdot)$ to the following set of equations\footnote{This is the \textit{Poisson Equation} associated with function $r(s,d_k(s))$ and the transition kernel $p(\cdot|s,d_k(s))$.}
+          \[\begin{array}{rll}
+            w(s)-\sum_{s'\in S}w(s')p(s'|s,d_k(s))&=&r(s,d_k(s))-r_k\\
+            \text{where }r_k&:=&\sum_{s\in S}r(s,d_k(s))\mu_k(s)
+          \end{array}\]
+          where $w(\cdot)$ is the unkown to be found. Note that $r_k$ is defined explicitly given we known $\mu_k(\cdot)$.
+        \end{itemize}
+        \item \textit{Policy Improvement} - Select a \textit{Markovian Decision Policy} $d_{k+1}(\cdot)$ which, in each state $s\in S$, chooses an action which maximises the \textit{Bellman Equation}.
+        \[ \forall\ s\in S\ d_{k+1}(s)\in\argmax_{a\in A(s)}\left\{r(s,a)+\sum_{s'\in S}w_k(s')p(s'|s,a)\right\} \]
+        \item \textit{Termination?}
+        \begin{itemize}
+          \item[If] $\forall\ s\in S\ d_k(s)=d_{k+1}(s)$:\footnote{If the decision function is unchanged.} Stop the algorithm and return $d_{k+1}(\cdot)$.
+          \item[Else]: Increment $k$ and repeat i)-iii).
+        \end{itemize}
+      \end{enumerate}
+    \end{itemize}
   \end{definition}
 
-  \begin{theorem}{Optimality of Policy Iteration Algorithm}
-
+  \begin{theorem}{Optimality of the Policy Iteration Algorithm}
+    The following are properties of the the \textit{Policy Iteration Algorithm} for \textit{Average Reward MDPs}
+    \begin{enumerate}
+      \item The algorithm terminates after a finite number of iterations.
+      \item The returned decision function is optimal $\forall\ s\in S,\ d_k(s)=d^*(s)$.
+    \end{enumerate}
   \end{theorem}
 
-\subsubsection{Equivalent Linear Program} %TODO
+\subsubsection{Equivalent Linear Program}
 
-\begin{proposition}{Equivalent Linear Programming Problem for Average Reward MDP}
+  \begin{remark}{Linear Programming}
+    \textit{Linear Programming} methods can be used to solve \textit{Discounted Reward MDPs}.
+  \end{remark}
 
-\end{proposition}
+  \begin{proposition}{Equivalent Linear Programming Problem for Average Reward MDP}
+    \everymath={\displaystyle}
+    The following \textit{Linear Program} is equivalent to an \textit{Average Reward MDP}.
+    \begin{quote}
+      Minimise $r\in\reals$ under the restrictions that
+      \begin{itemize}
+        \item $r(s,a)+\sum_{s'\in S}p(s'|s,a)w(s')\leq r+w(s)\quad\forall\ s\in S,\forall\ a\in A(s)$.\footnote{Both $r\in\reals$ and $w:S\to\reals$ are unknown. IDK what to do about $w$.}
+      \end{itemize}
+    \end{quote}
+  \end{proposition}
 
-\begin{theorem}{Optimality of Equivalent Linear Programming Problem}
-
-\end{theorem}
+  \begin{theorem}{Optimality of Equivalent Linear Programming Problem}
+    Let $(\hat{r},\hat{w}(s))$ be an optimal solution to the \textit{Linear Program} defined in \texttt{Proposition 3.11} and $\hat{d}(\cdot)$ be a \textit{Markovian Decision Function} which chooses actions which maximise the RHS of the \textit{Bellman Equation} using the invariant distribution $\hat{w}$
+    \[ \forall\ s\in S,\ \hat{d}(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}\hat{w}(s')p(s'|s,a)\right) \]
+    Then the decision function $\hat{d}(\cdot)$ will be optimal
+    \[ \forall\ s\in S,\ \hat{d}(s)=d^*(s) \]
+  \end{theorem}
 
 \newpage
 \setcounter{section}{-1}
 \section{Reference}
 
-%TODO add asymptotic notation
 \subsection{Notation}
+
+\subsubsection{Problem Specific}
 
   \begin{proposition}{Notation for Multi-Armed Bandit Problem}
     The following notation is used to simplifier analysis of the \textit{Multi-Armed Bandit Problem}
@@ -1071,7 +1475,25 @@
     \end{tabular}
   \end{proposition}
 
-\subsection{Definition}
+  \begin{proposition}{Notation for Stochastic Optimisation Processes}
+    The following notation is used to simplifier analysis of the \textit{Stochastic Optimisation Processes}
+    \begin{center}
+      \begin{tabular}{|r|l|}
+        \hline
+        $X_t$&System state at the start of epoch $t$.\\
+        $Y_t$&Agent action in epoch $t$.\\
+        $T$&The time horizon.\\
+        $A$&Action-space.\\
+        $A(s)$&Admissible action-space.\\
+        $S$&State-space.\\
+        $p_t(s'|s,a)$&Transition probabilities.\\
+        $q_t(a|s)$&Policy decision probabilities.\\
+        \hline
+      \end{tabular}
+    \end{center}
+  \end{proposition}
+
+\subsection{Definitions}
 
   \begin{definition}{Jacobian $J(\cdot)$}
     Let $f:\reals^n\to\reals^m$ and $\x\in\reals^n$.
@@ -1208,7 +1630,7 @@
     \proved
   \end{proof}
 
-\subsubsection{Irreducible Markov Chains} %TODO
+\subsection{Irreducible Markov Chains} %TODO
 
   \begin{definition}{Markov Chain}
     A \textit{Stochastic Process} $\{X_t\}_{t\geq}$ taking values in $S$ is a \textit{Markov Chain} if it has the \textit{Markov Property}

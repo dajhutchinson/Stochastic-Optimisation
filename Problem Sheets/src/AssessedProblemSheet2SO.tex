@@ -44,22 +44,22 @@
     \item \textit{Agent Actions}.
     \par Let $Y_t$ denote the action taken by the agent in epoch $t$ and be defined as the amount of product the company produces in epoch $t$.
     \item \textit{Action-Space}.
-    \par By the defintiion of $Y_t$ and the fact that the company can produce at most $m$ products in a month
+    \par By the definition of $Y_t$ and the fact that the company can produce at most $m$ products in a month, we have that the action-space is
     \[ A=\{0,\dots,m\} \]
     \item \textit{System States}.
     \par Let $X_t$ denote the system state in epoch $t$ and be defined as the index of the unit price which each product was sold at in epoch $t-1$ (ie at the end of the previous month).
     \item \textit{State -Space}.
-    \par By the definition of $X_t$ and since unit prices are indexed from $1$ to $n$
+    \par By the definition of $X_t$ and since unit prices are indexed from $1$ to $n$, we have that the state-space is
     \[ S=\{1,\dots,n\} \]
     \item \textit{Transition Probabilities}.
-    \par Let $s,s'\in S,a\in A(s)$ and define $p_t(s'|s,a)=\prob(X_{t+1}=s'|X_t=s,Y_t=a)$. Then
+    \par Let $s,s'\in S,a\in A(s)$ and define transition probabilities as $p_t(s'|s,a)=\prob(X_{t+1}=s'|X_t=s,Y_t=a)$. Then
     \[\begin{array}{rcl}
       p_t(s'|s,a)&=&p(s'|s,a)\\
       &=&\pi(s'|s,a)
     \end{array}\]
     where $\pi(\cdot|\cdot,\cdot)$ is as defined in the question.
-    \item \textit{Immediate Rewards}
-    The immedaite reward $r_t$ recieved in each epoch $t$ depends on the unit price at the end of that epoch, but, due to my definition of system states, this value is not encoded into the system state until epoch $t+1$. This does not fit into the framework of Markovian decision problems so we take the expected reward in each epoch.
+    \item \textit{Immediate Rewards}.
+    \par The immedaite reward $R_t$ recieved in each epoch $t$ depends on the unit price at the end of that epoch, but, due to my definition of system states, this value is stored in $X_{t+1}$, (not $X_t$). This does not fit into the framework of Markovian decision problems so we take the expected reward in each epoch.
     \[\begin{array}{rcl}
       \expect^\pi[R_t]&=&\expect^\pi[r(X_t,Y_t)]\\
       &=&\begin{cases}
@@ -206,9 +206,10 @@
 
 \begin{answer}{2) (a)}
   \[\begin{array}{rrcll}
-    &v^*(s)&=&\max_{a\in A(s)}\left\{r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right\}&\text{ by def}\\
+    &v^*(s)&=&\max_{a\in A(s)}\left\{r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right\}&\forall\ s\in S\\
     \implies&v^*(s)&\geq&r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)&\forall\ s\in S,a\in A(s)\\
     \implies&0&\leq&v^*(s)-r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)&\forall\ s\in S,a\in A(s)\\
+    &&=&u^*(s,a)\\
     \implies&0&\leq&u^*(s,a)&\forall\ s\in S,a\in A(s)
   \end{array}\]
 \end{answer}
@@ -220,18 +221,19 @@
 
 \begin{answer}{2) (b)}
   Let $\tilde{s}\in S$ and $\tilde{a}\in (A(\tilde{s})\setminus D^*(\tilde{s}))$ (ie $a$ is a sub-optimal action).
-  \par Suppose there is a non-negative probability that $\tilde{a}$ chosen to be played
+  \par Suppose there is a non-negative probability that $\tilde{a}$ is chosen by our policy, given the system is in state $\tilde{s}$.
   \[ q(\tilde{a}|\tilde{s})>0 \]
   Since $\tilde{a}\not\in D^*(\tilde{s})$ then
   \[\begin{array}{rrcl}
     &v^*(\tilde{s})&>&r(\tilde{s},\tilde{a})+\alpha\sum_{s'\in S}v^*(s')p(s'|\tilde{s},\tilde{a})\\
     \implies&0&<&v^*(\tilde{s})-r(\tilde{s},\tilde{a})-\alpha\sum_{s'\in S}v^*(s')p(s'|\tilde{s},\tilde{a})\\
+    &&=&u^*(\tilde{s},\tilde{a})\\
     \implies&0&<&u^*(\tilde{s},\tilde{a})
   \end{array}\]
-  Due to our assumption about $q(\tilde{a}|\tilde{s})$, we have that
-  \[ u^*(\tilde{s},\tilde{a})q(\tilde{a},\tilde{s})>0\ \forall\ \tilde{a}\in A(\tilde{s})\setminus D^*(\tilde{s}) \]
+  Since we assume $q(\tilde{a}|\tilde{s})>0$, we have that
+  \[ u^*(\tilde{s},\tilde{a})q(\tilde{a},\tilde{s})>0\ \forall\ \tilde{a}\in (A(\tilde{s})\setminus D^*(\tilde{s})) \]
   As this holds for all such $\tilde{a}$, their sum is strictly positive
-  \[ \sum_{a\in A(\tilde{s})}u^*(\tilde{s},s)q(a|\tilde{s}) \]
+  \[ \sum_{a\in A(\tilde{s})}u^*(\tilde{s},s)q(a|\tilde{s})>0 \]
 \end{answer}
 
 \begin{question}{2) (c)}
@@ -243,14 +245,15 @@
   \[\begin{array}{rl}
     &\expect^\pi\left[v^*(X_t)-\alpha v^*(X_{t+1})-r(X_t,Y_t)\right]\\
     =&\expect^\pi\left[v^*(X_t)\right]-\alpha\expect^\pi\left[v^*(X_{t+1})\right]-\expect^\pi\left[r(X_t,Y_t)\right]\\
-    =&\expect^\pi\left[v^*(X_t)\right]-\alpha\expect^\pi\big[\expect^\pi\left[v^*(X_{t+1})|X_t,Y_t\right]\big]-\expect^\pi\left[r(X_t,Y_t)\right]\\
+    =&\expect^\pi\left[v^*(X_t)\right]-\alpha\expect^\pi\big[\expect^\pi\left[v^*(X_{t+1})|X_t,Y_t\right]\big]-\expect^\pi\left[r(X_t,Y_t)\right]\text{ by tower property}\\
     =&\expect^\pi\left[v^*(X_t)\right]-\alpha\expect^\pi\left[\sum_{s'\in S}v^*(s')p(s'|X_t,Y_t)\right]-\expect^\pi\left[r(X_t,Y_t)\right]\\
     =&\expect^\pi\left[v^*(X_t)-\alpha\sum_{s'\in S}v^*(s')p(s'|X_t,Y_t)-r(X_t,Y_t)\right]\\
     =&\expect^\pi\left[u^*(X_t,Y_t)\right]\text{ by definition}\\
     =&\expect^\pi\left[\expect^\pi\left[u^*(X_t,Y_t)|X_t\right]\right]\text{ by tower property}\\
     =&\expect^\pi\left[\sum_{a\in A(X_t)}u^*(X_t,a)q(a|X_t)\right]\text{ by def. conditional expectation}\\
-    \geq&0\text{ due to 2) (b)}
+    \geq&0
   \end{array}\]
+  The inequality is due to $u^*(s,a)\geq0$ and $q(a|s)\geq0$ for all $s\in S,a\in A(s)$ by 2) (a) and the definition of probability distributions.
 \end{answer}
 
 \begin{question}{2) (d)}
@@ -260,10 +263,10 @@
 
 \begin{answer}{2) (d)}
   \[\begin{array}{rl}
-    &\sum_{t=0}^\infty\alpha^t\expect\left[v^*(X_t)-\alpha v^*(X_{t+1})-r(X_t,Y_t)\right]\\
-    =&\sum_{t=0}^\infty\alpha^t\expect\left[v^*(X_t)-\alpha v^*(X_{t+1})\right]-\sum_{t=0}^\infty\alpha^t\expect\left[r(X_t,Y_t)\right]\\
-    =&\expect\left[\sum_{t=0}^\infty\alpha^t\big(v^*(X_t)-\alpha v^*(X_{t+1})\big)\right]-\expect\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]\\
-    =&\expect\left[v^*(X_0)\right]-\expect\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]
+    &\sum_{t=0}^\infty\alpha^t\expect^\pi\left[v^*(X_t)-\alpha v^*(X_{t+1})-r(X_t,Y_t)\right]\\
+    =&\sum_{t=0}^\infty\alpha^t\expect^\pi\left[v^*(X_t)-\alpha v^*(X_{t+1})\right]-\sum_{t=0}^\infty\alpha^t\expect^\pi\left[r(X_t,Y_t)\right]\\
+    =&\expect^\pi\left[\sum_{t=0}^\infty\alpha^t\big(v^*(X_t)-\alpha v^*(X_{t+1})\big)\right]-\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]\\
+    =&\expect^\pi\left[v^*(X_0)\right]-\expect^\pi\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]
   \end{array}\]
   The last step is due to all terms, except $v^*(X_0)$, in the summation cancelling.
 \end{answer}
@@ -278,26 +281,25 @@
   Consider this result
   \[\begin{array}{rl}
     =&\expect^\pi\left[v^*(X_0)-\alpha v^*(X_1)-r(X_0,Y_0)\right]\\
-    =&\expect^\pi\left[\max_{Y_0\in A(X_0)}\left(r(X_0,Y_0)+\alpha\sum_{s'\in S}v^*(s')p(s'|X_0,Y_0)\right)-\alpha v^*(X_1)-r(X_0,Y_0)\right]\\
-    =&\max_{Y_0\in A(X_0)}\left(r(X_0,Y_0)+\alpha\sum_{s'\in S}v^*(s')p(s'|X_0,Y_0)\right)-\expect^\pi\left[r(X_0,Y_0)+\alpha v^*(X_1)\right]\\
-    =&\max_{Y_0\in A(X_0)}\left(r(X_0,Y_0)+\alpha\sum_{s'\in S}v^*(s')p(s'|X_0,Y_0)\right)-\max_{Y_0\in A(X_0)}\big(r(X_0,Y_0)+\alpha\expect^\pi\left[ v^*(X_1)\right]\big)\text{ since }\pi\text{ is optimal}\\
-    =&\max_{Y_0\in A(X_0)}\left(r(X_0,Y_0)+\alpha\sum_{s'\in S}v^*(s')p(s'|X_0,Y_0)\right)-\max_{Y_0\in A(X_0)}\left(r(X_0,Y_0)+\alpha\sum_{s'\in S}v^*(s')p(s'|X_0,Y_0)\right)\\
-    =&0
+    =&\expect^\pi\left[\sum_{a\in A(X_0)}u^*(X_0,a)q(a|X_0)\right]\text{ by 2) (c)}\\
+    =&\expect^\pi\left[\sum_{a\in D^*(s)}u^*(X_0,a)q(a|X_0)\right]\text{ since }\pi\text{ is optimal\footnotemark}\\
+    =&0\text{ as }u^*(s,a)=0\ \forall\ a\in D^*(s)
   \end{array}\]
+  \footnotetext{Since $\pi$ is optimal $q(a|s)=0$ if $a\not\in D^*(s)$}
+
   Using this result and 2) (c)
   \[\begin{array}{rcl}
     0&=&\expect^\pi\left[\sum_{a\in A(X_0)}u^*(X_0,a)q(a|X_0)\right]\\
-    &=&\sum_{s\in S}\left(\sum_{a\in A(s)}u^*(s,a)q(a|s)\right)\prob(X_0=s)
+    &=&\sum_{s\in S}\left(\sum_{a\in A(s)}u^*(s,a)q(a|s)\right)\prob(X_0=s)\quad [1]
   \end{array}\]
-  By 2) (a), $u^*(s,a)\geq0\ \forall\ s\in S,a\in A(s)$, and $q(a|s)\prob(X_0=s)\geq0$ by the defintion of probability distributions.
-  \par Thus all terms in the outer summation are non-negative. Further, as they sum to 0, all terms in the outer summation are 0.
-  \par Since the question assumes that $\prob^\pi(X_0=s)>0\ \forall\ s\in S$, it must be that
-  \[ 0=\sum_{a\in A(s)}u^*(s,a)q(a|s) \]
-  \par This means that the decision probability distribution $q(a|s)$ of our policy $\pi$ does not satisfy 2) (b).
-  \par Thus, under our policy there does not exist any $s\in S,a\in(A(s)\setminus D^*(s))$ where $q(a|s)>0$.
-  \par Meaning, I can conclude that
-  \[ \forall\ s\in S, a\in A(s)\setminus D^*(s),\ q(a|s)=0 \]
-  \proved
+  Note that $u^*(s,a)\geq0$ for all $s\in S,a\in A(s)$ by 2) (a), and $q(a|s)\geq0,\prob(X_0=s)\geq0$ by the defintion of probability distributions. Thus
+  \[ \left(\sum_{a\in A(s)}u^*(s,a)q(a|s)\right)\prob(X_0=s)\geq0\ \forall\ s\in S\]
+  As each term of the outer summation in $[1]$ is non-negative and sum to 0, all the terms must be 0.
+  \[ \left(\sum_{a\in A(s)}u^*(s,a)q(a|s)\right)\prob(X_0=s)=0\ \forall\ s\in S \]
+  \par Since the question assumes that $\prob^\pi(X_0=s)>0$ for all $s\in S$, it must be that
+  \[ \sum_{a\in A(s)}u^*(s,a)q(a|s)=0\ \forall\ s\in S \]
+  \par This contradicts the result in 2) (b), thus we can conclude that the conditions of 2) (b) are violated. Meaning, I can conclude that
+  \[ q(a|s)=0\ \forall\ s\in S, a\in \big(A(s)\setminus D^*(s)\big) \]
 \end{answer}
 
 \end{document}

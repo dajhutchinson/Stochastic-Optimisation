@@ -63,13 +63,13 @@
     \[\begin{array}{rcl}
       \expect^\pi[R_t]&=&\expect^\pi[r(X_t,Y_t)]\\
       &=&\begin{cases}
-        \expect^\pi\left[Y_t\big(\beta(X_{t+1})-\gamma\big)\right]&\text{if }\beta(X_{t+1})\geq\gamma\\
-        \expect^\pi\left[Y_t\big(\beta(X_{t+1})-\gamma\big)+\alpha Y_t\big(\beta(X_{t+1})-\gamma\big)\right]&\text{if }\beta(X_{t+1})<\gamma
+        \expect^\pi\left[Y_t\big(b(X_{t+1})-\gamma\big)\right]&\text{if }b(X_{t+1})\geq\gamma\\
+        \expect^\pi\left[Y_t\big(b(X_{t+1})-\gamma\big)+\alpha Y_t\big(b(X_{t+1})-\gamma\big)\right]&\text{if }b(X_{t+1})<\gamma
       \end{cases}\\
       &=&\begin{cases}
         \expect^\pi\left[Y_t\beta\big(X_{t+1}-l\big)\right]&\text{if }X_{t+1}\geq l\\
         \expect^\pi\left[Y_t\beta\big(X_{t+1}-l\big)(1+\alpha)\right]&\text{if }X_{t+1}<l
-      \end{cases}\text{ by def. }\beta(\cdot),\gamma\\
+      \end{cases}\text{ by def. }b(\cdot),\gamma\\
       &=&\expect^\pi\left[Y_t\beta\big(X_{t+1}-l\big)\big(1+\alpha\indexed\{X_{t+1}<l\}\big)\right]\\
       &=&\expect^\pi\bigg[\expect^\pi\left[Y_t\beta\big(X_{t+1}-l\big)\big(1+\alpha\indexed\{X_{t+1}<l\}\big)\right]\bigg|X_t,Y_t\bigg]\text{ by Tower property}\\
       &=&Y_t\beta\cdot\big(\expect^\pi[X_{t+1}|X_t,Y_t]-l\big)\cdot\big(1+\alpha\indexed\{\expect^\pi[X_{t+1}|X_t,Y_t]<l\}\big)

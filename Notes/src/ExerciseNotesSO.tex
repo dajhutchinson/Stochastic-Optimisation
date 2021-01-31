@@ -3,337 +3,20 @@
 \usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
 \usepackage{amsmath,amsfonts,fancyhdr,bbm}
 \usepackage[section,nohyphen]{DomH}
-\headertitle{Application Notes - Stochastic Optimisation}
+\headertitle{Exercise Notes - Stochastic Optimisation}
 
 \begin{document}
 
 % \questionsfalse
 % \answersfalse
 
-\title{Application Notes - Stochastic Optimisation}
+\title{Exercise Notes - Stochastic Optimisation}
 \author{Dom Hutchinson}
 \date{\today}
 \maketitle
 
-
-\begin{question}{1)}
-  Consider the following stochastic system. Let $T:=\{0,\dots,N-1\}$ be a finite time-horizon, $X_t\in S$ be the system state at epoch $t\in T$, $Y_t\in A$ be the action taken at epoch $t\in T$, $A(s)\subseteq A$ be the admissible actions when in state $s\in S$. The stochastic system has the follow dynamics
-  \[\begin{array}{rcl}
-    \Psi_t&:&S\times A\times B\to S\\
-    X_{t+1}&=&\Psi_t(X_t,Y_t,U_t)\\
-    \Phi_t&:&S\times C\to A\\
-    Y_{t+1}&=&\Phi_t(X_t,V_t)\\
-    R_t&:&S\times A\times D\to \reals\\
-    &&\R_t(X_t,Y_t,W_t)\\
-  \end{array}\]
-  where $U_t\sim\text{Uni}(B),\ U_t\sim\text{Uni}(C),\ W_t\sim\text{Uni}(D)$ for some discrete systems $B,C,D$. Assume that $X_0,\{U_t\}_{t\in T},\{V_t\}_{t\in T},\{W_t\}_{t\in T}$ are all mutually independent.
-  \par The objective of this task is to maximised the total expected reward from this system
-  \[ \max\expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right] \]
-\end{question}
-
-\begin{question}{1) (a)}
-  Show that the problem of maximising the expected total reward for this stochastic system is equivalent to the Markov Decision Problem.
-\end{question}
-
-\begin{answer}{1) (a)}
-  This requires us to show two properties
-  \begin{enumerate}
-    \item This stochastic system exhibits Markovian Dynamics
-    \[ \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})=\prob(X_{t+1}=s_{t+1}|X_t=s_t,Y_t=a_t) \]
-    \item The expected total reward admits the following representation
-    \[ \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]=\expect\left[\sum_{t\in T}r_t(X_t,Y_t)\right] \]
-  \end{enumerate}
-  At epoch $t=1$ we have
-  \[\begin{array}{rcl}
-    X_1&=&\Psi_t(X_0,Y-0,U_0)\\
-    &=&\Psi_1(X_0,\Phi_0(X_0,V_0),U_0)\\
-    \implies X_1&=&\tilde\Psi_1(X_0,U_0,V_0)
-  \end{array}\]
-  for a new function $\tilde\Psi_1:S\times B\times C\to S$. Also, at epoch $t=1$ we have
-  \[\begin{array}{rcl}
-    Y_1&=&\Phi_1(X_1,V_1)\\
-    &=&\Phi_1(\tilde\Psi_1(X_0,U_0,V_0),V_1)\\
-    \implies Y_1&=&\tilde\Phi_1(X_0,U_0,V_{0:1})
-  \end{array}\]
-  for a new function $\tilde\Phi_1:S\times B\times C^2\to A$. We can extend this to the general epoch $t$
-  \[\begin{array}{rcl}
-    X_t&=&\tilde\Psi_t(X_0,U_{0:t-1},V_{0:t-1})\\
-    Y_t&=&\tilde\Phi_t(X_0,U_{0:t-1},V_{0:t})
-  \end{array}\]
-  where our general mapping functions have signatures
-  \[\begin{array}{rcl}
-    \tilde\Psi_t&:&S\times B^t\times C^t\to S\\
-    \tilde\Phi_t&:&S\times B^t\times C^{t+1}\to A
-  \end{array}\]
-  As we are allowed to assume that $X_0,\{U_t\}_{t\in T},\{V_t\}_{t\in T},\{W_t\}_{t\in T}$ are all mutually independent. We have that $U_t\ \&\ (X_{0:t},Y_{0;t})$ are mutually independent and $W_t\ \&\ (X_t,Y_t)$ are mutually independent. \footnote{Proof is long and given in slides}
-  \par Consider the transition probabilities
-  \[\begin{array}{rl}
-    &\prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\\
-    =&\prob(\Psi_t(X_t,Y_t,U_t)=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\text{ by def. }X_{t+1}\\
-    =&\prob(\Psi_t(s_t,a_t,U_t)=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\text{ by conditions}\\
-    =&\prob(\Psi_t(s_t,a_t,U_t)=s_{t+1})\text{ as }U_t\indep(X_{0:t},Y_{0:t})\\
-    =&\prob(X_{t+1}=s_{t+1}|X_t=s_t,Y_t=a_t)
-  \end{array}\]
-  This shows that the stochastic system exhibits markovian dynamics.
-\end{answer}
-
-\begin{question}{1) (b)}
-  Identify the elements of the equivalent Markov Decision Problem.
-\end{question}
-
-\begin{answer}{1) (b)}
-  This requires us to identify the following
-  \begin{enumerate}
-    \item Transition probabilities
-    \[ p_t(s'|s,a):=\prob(X_{t+1}=s|X_t=s,Y_t=a) \]
-    \item Equivalent reward
-    \[ r_t(s,a) \]
-  \end{enumerate}
-  We derive the transition probabilities as follows
-  \[\begin{array}{rrl}
-    p_t(s'|s,a)&:=&\prob(X_{t+1}=s'|X_t=s,Y_t=a)\\
-    &=&\prob(\Psi_t(X_t,Y_t,U_t)=s'|X_t=s,Y+t=a)\text{ by def. }X_{t+1}\\
-    &=&\prob(\Psi_t(s,a,U_t)=s')\text{ by conditions }\\
-    &=&\expect\left[\indexed\{\Psi_t(s,a,U_t)=s'\}\right]\\
-    &=&\sum_{u\in B}\indexed\{\Psi_t(s,a,u)=s'\}\cdot f_{U_t}(u)
-  \end{array}\]
-  We have
-  \[\begin{array}{rcl}
-    \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]&=&\sum_{t\in T}\expect\left[R_t(X_t,Y_t,W_t)\right]\\
-    &=&\sum_{t\in T}\expect\left[\expect\left[R_t(X_t,Y_t,W_t)|X_t,Y_t\right]\right]\text{ by Tower Property}
-  \end{array}\]
-  Define $r_t(s,a):=\expect\left[R_t(X_t,Y_t,W_t)|X_t=s,Y_t=a\right]$. This gives us a representation for expected total reward
-  \[ \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]=\expect\left[\sum_{t\in T}r_t(X_t,Y_t)\right] \]
-  Since $W_t\ \&\ (X_t,Y_T)$ are mutually independent we can get a deterministic expression for $r_t(s,a)$
-  \[\begin{array}{rcl}
-    r_t(s,a)&=&\expect\left[R_t(X_t,Y_t,W_t)|X_t=s,Y_t=a\right]\\
-    &=&\expect\left[R_t(s,a,W_t)\right]\text{ by conditions}\\
-    &=&\sum_{w\in D}R_t(S,a,w)f_{W_t}(w)\text{ by def. expectation}
-  \end{array}\]
-\end{answer}
-
-\begin{question}{2) - Interesting system states $X_t$}
-  Consider the following \textit{Sequential Decision Problem}. Let $T:=\{0,\dots,N-1\}$ and at each epoch the stochastic system can be in one of two conditions $C_0$ or $C_1$ (These are \underline{not} system states). At each epoch the agent can take an action from $A:=\{0,1\}$ and let $A(s)=A$ for all $s\in S$.
-  \par Here are the possible interactions between the agent and the stochastic system
-  \begin{itemize}
-    \item[(A1)] Agent takes action 1 at epoch $t\in T$:
-    \begin{itemize}
-      \item The system always will be in condition $C_1$ at epoch $t+1$.
-    \end{itemize}
-    \item[(A0)] Agent takes action 0 at epoch $t$:
-    \begin{itemize}
-      \item AND the system is in condition $C_0$ at epoch $t$: then the system will be in condition $C_0$ at epoch $t+1$.
-      \item ELSE (if the system is in condition $C_1$ at epoch $t$):
-      \par Let $k$ be the number of epochs since action 1 was last taken, then the system will still be in state $C_1$ at epoch $t+1$ with probability $\pi(k)$, where $\{\pi(k)\}_{k\in\nats^0}$ is a decreasing sequence in $[0,1]$ and there is some known $n\in\nats$ st $\forall\ k\geq n,\ \pi(k)=0$.
-    \end{itemize}
-  \end{itemize}
-  At each epoch $t\in T$, if the system is in state $C_i$, $i\in\{0,1\}$ and the agent takes action $j\in A$ then the agent receives \textit{immediate reward} $R(i,j)$. \underline{No} reward is received at epoch $t=N$
-\end{question}
-
-\begin{question}{2) (a)}
-  Formulate the describe sequential decision problem as a finite-horizon \textit{Markov Decision Problem}
-\end{question}
-
-\begin{answer}{2) (a)}
-  This question requires us to identify: the decision epochs; time-horizon; system states; state-space; agent actions; action-space; transition probabilities; and, equivalent rewards.
-  \begin{itemize}
-    \item \textit{Number of Epochs}.
-    \par $N=21$. Stated in question.
-
-    \item \textit{Time-Horizon}.
-    \par $T+
-    =\{0,\dots,N-1\}$. Stated in question.
-
-    \item \textit{Agent actions}.
-    \par Let $Y_t$ denote the action the agent takes at epoch $t$.
-
-    \item \textit{Action-Space}.
-    \par $A=\{0,1\}$. Stated in question.
-
-    \item \textit{Admissible Actions}.
-    \par $A(s)=A$ for all $s\in S$.
-
-    \item \textit{State-Space}.\footnote{System states are an encoding of available system information, which is relevant to the selection of $Y_t$.}
-    \par Let $X_t$ be the system state at epoch $t$ ($X_t\not\in\{C_0,c_1$), $X'_t$ be the system condition at epoch $t$  ($X'_t\in\{C_0,c_1$) and $X''_t$ denote the number of decision epochs between epoch $t$ and the last epoch in which action 0 was taken. Since $X_t',X_t''$ encode all relevant system information, we want to devise a definition of $X_t$ which is a deterministic encoding of $X_t',X_t''$.
-    \par By considering the definitions of $X_t',X_t''$, we can derive the following conclusions from the interactions described in the question
-    \begin{itemize}
-      \item If ($Y_t=0$ and $X_t''\geq n$): $\pi(X_t'')=1\implies X_{t+1}'=C_0$.
-      \item If ($X_t''\geq n+1$): Then $X_{t-1}''\geq n$ and action 0 was taken last turn$\implies X_t'=C_0$,
-      \item If ($Y_t=0$ and $X_t'=C_0$): $X_{t+1}'=C_0$ as stated in question.
-      \item If ($X_t'=C_0$): It remains in $C_0$ until action 1 is taken.
-    \end{itemize}
-    From these conclusions we state, if $X_t''\geq n\implies X_t''$ is not relevant for the selection of $Y_t$. Further, it is not relevant to the prediction of $X_{t+1}$ given $Y_t$.
-    \par We now define the system states $X_t$ as
-    \[ X_t=\begin{cases}
-      X_t''&\text{if }X_t'=C_1\\
-      n+1&\text{if }X_t'=C_0
-    \end{cases} \]
-    This is justified by considering what information is sufficient to make a prediction given possible combinations of $X_t',X_t''$.
-    This means the state-space is $S=\{0,\dots,n+1\}$.
-
-    \item \textit{Transition Probabilities}
-    \par The definition of transition probabilities is
-    \[ p_t(s'|s,a)=\prob^\pi(X_{t+1}=s'|X_t=a,Y_t=a) \]
-    We need to compute three cases
-    \begin{enumerate}
-      \item $a=1$ (ie $Y_t=1$).
-      \par In this case $X_{t+1}'=C_1,X_{t+1}''=0\implies X_{t+1}=0$. Giving
-      \[ p_t(s'|s,1)\equiv\prob^\pi[X_{t+1}=s'|X_t=s,Y_t=1]=\begin{cases}1&\text{if s'=0}\\0&\text{otherwise}\end{cases} \]
-
-      \item $a=0,s=n+1$ (ie $Y_t=0,X_t=n+1$).
-      \par In this case $X_t'=C_0$. Giving
-      \[ p_t(s'|n+1,0)\equiv\prob^\pi[X_{t+1}=s'|X_t=n+1,Y_t=0]=\begin{cases}1&\text{if s'=n+1}\\0&\text{otherwise}\end{cases} \]
-
-      \item $a=0,s\leq n$ (ie $Y_t=0,X_t=s\leq n$).
-      \par In this case $X_{t+1}'=C_1,\ X_t''=X_t=s$. We have that $X_{t+1}'$ takes either $C_0$ or $C_1$ so we need to consider two probabilities
-      \[\begin{array}{rcl}
-        p_t(s+1|s,0)&=&\prob^\pi(X_{t+1}'=C_1|X_t'=C_1,X_t''=s,Y_t=0)=\pi(s)\\
-        p_t(n+1|s,0)&=&\prob^\pi(X_{t+1}'=C_0|X_t'=C_1,X_t''=s,Y_t=0)=1-\pi(s)\\
-      \end{array}\]
-      We can summarise these two expression as the following
-      \[ p_t(s'|s,a)=\begin{cases}
-        \pi(s)&\text{if }s'=s+1\\
-        1-\pi(s)&\text{if }s'=n+1\\
-        0&\text{otherwise}
-      \end{cases} \]
-    \end{enumerate}
-
-    \item \textit{Equivalent Rewards}.
-    \par If $X_t\leq n$ then $X_t'=C_1\implies r_t=R(1,Y_t)$.
-    \par If $X_t=n+1$ then $X_t'=C_0\implies r_t=R(0,Y_t)$.
-    \par This can be summarised as
-    \[ r_t(s,a)=\begin{cases}R(1,a)&\text{if }s\leq n\\R(0,a)\text{if }s=n+1\end{cases} \]
-
-    \item \textit{Terminal Award}.
-    \par $r_N(s)=0$. Stated in the question.
-
-    \item \textit{Objective}.
-    \par Find a policy $\pi\in HR(T)$ which maximises
-    \[ \expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_n)\right] \]
-
-  \end{itemize}
-\end{answer}
-
-\begin{question}{2) (b)}
-  By considering the markov decision problem formulated in \texttt{2) (a)} and assuming the following
-  \begin{itemize}
-    \item $N=2,\ n=1$
-    \item $\pi(0=.5)$
-    \item $R(0,0)=-5,\ R(0,1)=-7,\ R(1,0)=0,\ R(1,1)=-2$.
-  \end{itemize}
-  Find an optimal policy $\pi^*$
-\end{question}
-
-\begin{answer}{2) (b)}
-  From \texttt{2) (a)} we can quickly derive this formulation by substituting in the values specified.
-  \begin{itemize}
-    \item \textit{Decision Epochs} - $N=2$.
-
-    \item \textit{Time-Horizon} - $T=\{0,1\}$.
-
-    \item \textit{Action-Space} - $A=\{0,1\}$.
-
-    \item \textit{Admissible Actions} - $A(s)=\{0,1\}\ \forall\ s\in S$.
-
-    \item \textit{State-Space} - $S=\{0,1,2\}$
-
-    \item \textit{Transition Probabilities}\\
-    \begin{tabular}{rl}
-      $p_t(s'|s,0)=$&\begin{tabular}{c|ccc}
-        s\textbackslash s'&0&1&2\\\hline
-        0&0&.5&.5\\
-        1&0&0&1\\
-        2&0&0&1
-      \end{tabular}\\\\
-      $p_t(s'|s,1)=$&\begin{tabular}{c|ccc}
-        s\textbackslash s'&0&1&2\\\hline
-        0&1&0&0\\
-        1&1&0&0\\
-        2&1&0&0
-      \end{tabular}
-    \end{tabular}
-
-    \item \textit{Rewards}.
-    \begin{tabular}{rl}
-      $r_t(s,a)=$&\begin{tabular}{c|cc}
-        s\textbackslash a&0&1\\\hline
-        0&0&-2\\
-        1&0&-2\\
-        2&-5&-7
-      \end{tabular}
-    \end{tabular}
-
-    \item \textit{Terminal Award} - $r_2(s)=0$.
-  \end{itemize}
-  To find the optimal policy we use the \textit{Dynamic Programming Algorithm} which is defined as
-  \[\begin{array}{rcl}
-    u_t^*(s)&=&\max_{a\in A(s)}\left(r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right)\\
-    d_t^*(s)&\in&\argmax_{a\in A(s)}\left(r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right)
-  \end{array}\]
-  where $t=N-1,\dots,0$ and $u_N^*(s)=r_N(s)$.
-  For simplicity I will use the following to denote the expression we are maximising
-  \[ w_t^*(s,a):=r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a) \]
-  \par For this specific scenario we have two epochs to consider
-  \begin{itemize}
-    \item[$t=1$] We need to compute $u_1^*(s),d_1^*(s)$. We have
-    \[\begin{array}{rcl}
-      w_1^*(s,a)&=&r_1(s,a)+u_2^*(0)p_1(0|s,a)+u_2^*(1)p_1(1|s,a)+u_2^*(2)p_1(2|s,a)\\
-      &=&r_1(s,a)\text{ since }u_2^*(s)=0\ \forall\ s
-    \end{array}\]
-    where $s\in S=\{0,1,2\}$.
-    \par Consider the following table for the value of $w_1^*(s,a)$
-    \begin{center}
-      \begin{tabular}{rl}
-        $w_1^*(s,a)=$&\begin{tabular}{c|cc}
-          $s$\textbackslash$a$&0&1\\\hline
-          0&0&-2\\
-          1&0&-2\\
-          2&-5&-7
-        \end{tabular}
-      \end{tabular}
-    \end{center}
-    We can use this to determine $u_1^*(s),d_1^*(s)$ for each state $s$
-    \begin{center}
-        \begin{tabular}{c|c|c}
-          $s$&$u_1^*$&$d_1^*(s)$\\
-          0&0&0\\
-          1&0&0\\
-          2&-5&0
-        \end{tabular}
-    \end{center}
-    This shows that action 0 is optimal for all states in epoch $t=1$
-
-    \item[$t=0$] We need to compute $u_0^*(s),d_0^*(s)$. We have
-    \[\begin{array}{rcl}
-      w_0^*(s,a)&=&r_0(s,a)+u_1^*(0)p01(0|s,a)+u_1^*(1)p_0(1|s,a)+u_1^*(2)p_0(2|s,a)\\
-    \end{array}\]
-    where $s\in S=\{0,1,2\}$.
-    \par Consider the following table for the value of $w_1^*(s,a)$
-    \begin{center}
-      \begin{tabular}{rl}
-        $w_0^*(s,a)=$&\begin{tabular}{c|cc}
-          $s$\textbackslash$a$&0&1\\\hline
-          0&$-\frac52$&-2\\
-          1&-5&-2\\
-          2&-10&-7
-        \end{tabular}
-      \end{tabular}
-    \end{center}
-    We can use this to determine $u_0^*(s),d_0^*(s)$ for each state $s$
-    \begin{center}
-        \begin{tabular}{c|c|c}
-          $s$&$u_0^*$&$d_0^*(s)$\\
-          0&-2&1\\
-          1&-2&1\\
-          2&-7&1
-        \end{tabular}
-    \end{center}
-    This shows that action 1 is optimal for all states in epoch $t=0$
-  \end{itemize}
-  This shows that the optimal strategy is $\pi^*=(1,0)$
-\end{answer}
-
-\begin{question}{3) - Inventory Control}
+\begin{question}{1) - Inventory Control}
+  \textit{This is from \texttt{LectureSlides3cSO.pdf} and covers chapter 2.}.
   Consider the following \textit{Inventory Control Problem}. Let $n\in\nats$ be the maximum number of stored items allowed.
   \par The inventory is controlled over finte time-periods $\{0,\dots,N-1\}$ for $N\geq2$. At the beginning of each time-period a number of items are demanded by customers and delivered immediately. If more items are demanded than are currently in stock, then the orders are backlogged and satisfied when new items arrive. Backlogged items are satisfied before any new demands. Let $m$ be the maximum number of backlogged items allowed.
   \par Let $Z_t$ denote the number of items demanded by customers at time $t\in T$. We assume $Z_t$ are non-negative IID random variables with $p(k):=\prob(Z_t=k)$. Further, we assume $Z_t$ is independent from the number of items stored at the beginning of period $t=0$ and independent from the number of items currently backlogged.
@@ -341,11 +24,11 @@
   \par Our problem, is to determine, at the beginning of each time-period, how many new items to order whilst minimising total cost.
 \end{question}
 
-\begin{question}{3) (a)}
+\begin{question}{1) (a)}
   Formulate the described inventory control problem as a finite-horizon \textit{Markov Decision Problem}
 \end{question}
 
-\begin{answer}{3) (a)}
+\begin{answer}{1) (a)}
   \begin{itemize}
     \item \textit{Stochsatic System} - Inventory and customers.
     \item \textit{Agent} - Inventory Manager
@@ -498,7 +181,7 @@
   \end{itemize}
 \end{answer}
 
-\begin{question}{3) (b)}
+\begin{question}{1) (b)}
   By considering the markov decision problem formulated in \texttt{2) (a)}  and assume the following
   \begin{itemize}
     \item $N=2,n=1,m=1$.
@@ -509,7 +192,7 @@
   Find an optimal policy $\pi^*$
 \end{question}
 
-\begin{answer}{3) (b)}
+\begin{answer}{1) (b)}
   From \texttt{3) (a)} we can quickly derive this formulation by substituting in the values specified.
   \begin{itemize}
     \item \textit{Number of Epochs} - $N=2$.
@@ -621,17 +304,18 @@
   \end{itemize}
 \end{answer}
 
-\begin{question}{4) - Discount Reward Inventory Problem}
+\newpage
+\begin{question}{2) - Discount Reward Inventory Problem}
   \textit{This is from \texttt{LectureSlides4cSO.pdf} and covers chapter 3.}.
-  \par This is an \textit{Inventory Control Problem} with discounted-cost (See \texttt{Question 3)} for the finite-time version).
+  \par This is an \textit{Inventory Control Problem} with discounted-cost (See \texttt{Question 1)} for the finite-time version).
   \par Our problem is to decide, at the beginning of each time-period, what number of items to order so the expected discounted cost is minimal.
 \end{question}
 
-\begin{question}{4) a)}
+\begin{question}{2) a)}
   Formulate the inventory control problem as a \textit{Discounted Reward Markov Decision Problem}.
 \end{question}
 
-\begin{answer}{4) a)}
+\begin{answer}{2) a)}
   \begin{itemize}
     \item \textit{Stochastic System} - Inventory and customers.
     \item \textit{Agent} - Inventory Manager.
@@ -665,7 +349,7 @@
   \end{itemize}
 \end{answer}
 
-\begin{question}{4) b)}
+\begin{question}{2) b)}
   Consider the MDP formulated in \texttt{4) a)}. Assume the following
   \begin{itemize}
     \item $n=1,m=1,\alpha=.5$.
@@ -676,7 +360,7 @@
   Using the policy iteration algorithm, find an algorithm policy.
 \end{question}
 
-\begin{answer}{4) b)}
+\begin{answer}{2) b)}
   For these specific conditions we have the following
   \begin{itemize}
     \item \textit{Number of Epochs} - $N=\infty$.
@@ -794,11 +478,11 @@
   \end{itemize}
 \end{answer}
 
-\begin{question}{4) c)}
+\begin{question}{2) c)}
   Formulate a linear problem equivalent to the MDP solved in \texttt{4) b)}.
 \end{question}
 
-\begin{answer}{4) c)}
+\begin{answer}{2) c)}
   The \textit{Equivalent Linear Program} is to \underline{minimise}
   \[ \sum_{s'=-1}^s\gamma(s')v(s')\quad\text{wrt }v(-1),v(0),v(1) \]
   subject to the condition that
@@ -815,91 +499,184 @@
   \end{array}\]
 \end{answer}
 
-\begin{question}{5) - Optimality of $\pi^*$ for Discounted Reward MDP}
-  Consider the following generic \textit{Discounted Reward MDP}
-  \begin{itemize}
-    \item \textit{Time-Horizon} - $T=\{0,1,\dots\}$.
-    \item \textit{State-Space} - $S$.
-    \item \textit{Action-Space} - $A$.
-    \item \textit{Admissible Actions} - $A(s)$.
-    \item \textit{Transition Probabilities} - $p_t(s'|s,a)=p(s'|s,a)\ \forall\ t\in T$.
-    \item \textit{Rewards} - $r_t(s,a)=\alpha^tr(s,a)$ where $\alpha\in(0,1)$.
-    \item \textit{Objective} - Find $\pi\in HR(T)$ which maximises
-    \[ \expect^\pi\left(\sum_{t=0}^\sum\alpha^tr(X_t,Y_t)\right) \]
-  \end{itemize}
-  Let $v^*(s)$ be the optimal value function which is the unique solution to the Bellam equation
-  \[ v^*(s)=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right) \]
-  Let $D^*(s)$ be the set of optimal actions for a given state $s$
-  \[\begin{array}{rcl}
-    D^*(s)&=&\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)\\
-    &=&\left\{a\in A(s):v^*(s)=r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right\}
-  \end{array}\]
-  Let $q^*(a|s)$ be any \textit{Markovian Decision Probability} which satisfies the condition
-  \[ q^*(a|s)=0\ \forall\ a\not\in D^*(s),\ \forall\ s\in S \]
-  Let $\pi^*$ be the \textit{Stationary Markovian Policy} based on the \textit{Markovian Decision Probability} $q^*(a|s)$. (ie $\pi^*$ applies $q^*(a|s)$ at each epoch).
-  \par Show that $\pi^*$ is optimal.
+\newpage
+\begin{question}{3) - Average Reward Inventory Problem}
+  \textit{This is from \texttt{LectureSlides5cSO.pdf} and covers chapter 4.}.
+  \par This is an \textit{Inventory Control Problem} with discounted-cost (See \texttt{Question 1)} for the finite-time version).
+  \par Our problem is to decide, at the beginning of each time-period, what number of items to order so the expected average cost is minimal.
 \end{question}
 
-\begin{answer}{5)}
-  Note that, under policy $\pi^*$, the agent action $Y_t$ at each epoch $t\in T$ is selected according to the decision probability $q^*(a|s)$
-  \[ \prob^{\pi^*}\left(Y_t=a|X_{0:t},Y_{0:t-1}\right)=q^*(a|X_t) \]
-  By the filtering property of conditional expectations, we get
-  \[\begin{array}{rcll}
-    \prob^{\pi^*}(Y_t=a|X_t)&=&\expect^{\pi^*}\left(\prob^{\pi^*}(Y_t=a|X_{0:t},Y_{0:t-1})\big|X_t\right)\\
-    &=&\expect^{\pi^*}(q^*(a|X_t)|X_t)\\
-    &=&q^*(a|X_t)&[1]
-  \end{array}\]
-  From the notes, we know that the maximum expected discounted reward is
-  \[ \expect[v^*(X_0)] \]
-  Thus, to show $\pi^*$ is optimal, it is sufficient to show
-  \[ \expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]=\expect[v^*(X_0)] \]
-  Let $w^*(s,a)$ denote the following
-  \[ w^*(s,a):=r(s,a)+\alpha\sum_{s'\in S}v^*(s)p(s'|s,a) \]
-  This means the \textit{Bellman Equation} and $D^*(s)$ can be rewritten as
-  \[\begin{array}{rcl}
-    v^*(s)&=&\max_{a\in A(s)}w^*(s,a)\\
-    D^*(s)&=&\argmax_{a\in A(s)}w^*(s,a)
-  \end{array}\]
-  If $a\in D^*(s)$ then $w^*(s,a)=\max_{a\in A(s)}w^*(s,a)=v^*(s)$.
-  \[ a\in D^*(s)\implies [v^*(s)=w^*(s,a)] \]
-  By the definition of $q^*(a|s)$, we have
-  \[\begin{array}{rrcll}
-    &a\not\in D^*(s)&\implies&q^*(a|s)=0\\
-    \implies&\sum_{a\in A(s)}w^*(s,a)q^*(a|s)&=&\sum_{a\in D^*(s)}w^*(s,a)q^*(a|s)+\sum_{a\in A(s)\setminus D^*(s)}w^*(s,a)\underbrace{q^*(a|s)}_{=0}\\
-    \implies&\sum_{a\in A(s)}w^*(s,a)q^*(a|s)&=&\sum_{a\in D^*(s)}w^*(s,a)q^*(a|s)\\\\
-    &&=&\sum_{a\in D^*(s)}v^*(s)q^*(a|s)\\
-    &&=&v^*(s)\sum_{a\in D^*(s)}q^*(a|s)\\
-    &&=&v^*(s)\\
-    \implies&v^*(s)&=&\sum_{a\in A(s)}w^*(s,a)q^*(a|s)&[1]
-  \end{array}\]
-  Assume that $\{(X_t,Y_t)\}_{t\in T}$ is generated with policy $\pi^*$. Setting $s=X_t$ is the above formulation of $[2]$ and using $[1]$, we get
-  \[\begin{array}{rrcl}
-    &v^*(X_t)&=&\sum_{a\in A(X_t)}w^*(X_t,a)q^*(a|X_t)\\
-    &&=&\sum_{a\in A(X_t)}w^*(X_t,a)\prob^{\pi^*}[Y_t=a|X_t]\\
-    &&=&\expect^{\pi^*}\left[w^*(X_t,Y_t)|X_t\right]\\
-    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha\sum_{s'\in S}v^*(s')p(s'|X_t,Y_t)|X_t\right]\\
-    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha\sum_{s'\in S}v^*(s')\prob^{\pi^*}[X_{t+1}=x'|X_t,Y_t]|X_t\right]\\
-    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha\expect^{\pi^*}[v^*(X_{t+1})|X_t,Y_t]|X_t\right]\\
-    &&=&\expect^{\pi^*}[r(X_t,Y_t)|X_t]+\alpha\expect^{\pi^*}\left[\expect^{\pi^*}[v^*(X_{t+1})|X_t,Y_t]|X_t\right]\\
-    &&=&\expect^{\pi^*}[r(X_t,Y_t)|X_t]+\alpha\expect^{\pi^*}[v^*(X_{t+1})|X_t]\\
-    &&=&\expect^{\pi^*}[r(X_t,Y_t)+\alpha v^*(X_{t+1})|X_t]\\
-    \implies&v^*(X_t)&=&\expect^{\pi^*}[r(X_t,Y_t)+\alpha v^*(X_{t+1})|X_t]\\
-    \implies&\expect^{\pi^*}[v^*(X_t)]&=&\expect^{\pi^*}\left[\expect^{\pi^*}[r(X_t,Y_t)+\alpha v^*(X_{t+1})|X_t]\right]\\
-    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha v^*(X_{t+1})\right]\text{ by tower property}\\
-    &&=&\expect^{\pi^*}[r(X_t,Y_t)]+\alpha\expect^{\pi^*}[ v^*(X_{t+1})]\\
-    \implies&\expect^{\pi^*}[r(X_t,Y_t)]&=&\expect^{\pi^*}[v^*(X_t)]-\alpha\expect^{\pi^*}[v^*(X_{t+1})]
-  \end{array}\]
-  Using this result, we can deduce the following about the total expected reward
-  \[\begin{array}{rcl}
-    \expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]&=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}\left[r(X_t,Y_t)\right]\\
-    &=&\sum_{t=0}^\infty\alpha^t\left\{\expect^{\pi^*}[v^*(X_t)]-\alpha\expect^{\pi^*}[v^*(X_{t+1})]\right\}\\
-    &=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]-\sum_{t=0}^\infty\alpha^{t+1}\expect^{\pi^*}[v^*(X_{t+1})]\\
-    &=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]-\sum_{t=1}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]\\
-    &=&\expect^{\pi^*}[v^*(X_0)]\\
-    &=&\expect[v^*(X_0)]
-  \end{array}\]
-  \proved
+\begin{question}{3) (a)}
+  Formulate the considered inventory control problem as an \textit{Average Reward MDP}
+\end{question}
+
+\begin{answer}{3) (a)}
+  \begin{itemize}
+    \item \textit{Decision Epochs} - Beginning of each time-period.
+    \item \textit{Time-Horizon} - $T=\{0,1,\dots\}$.
+    \item \textit{System States}.
+    \par Let $X_t$ be the system state in epoch $t$; $X_t'$ be the number of items kept in the inventory at the beginning of period $t$; $X_t''$ be the number of backlogged items at the beginning of period $t$.
+    \[ X_t:=\begin{cases}X_t'&\text{if }X_t''=0\\-X_t''&\text{if }X_t''>0\end{cases} \]
+    \item \textit{State-Space} - $S=\{-m,\dots,0,n\}$.
+    \item \textit{Agent Actions}.
+    \par Let $Y_t$ be the number of items ordered at the beginning of time-period $t$.
+    \item \textit{Action-Space} - $A=\{0,\dots,n+m\}$.
+    \item \textit{Admissible Actions} -  $A(s)=\{0,\dots,n-s\}$.
+    \item \textit{Transition Probabilities}.
+    \[ p(s'|s,a)=\begin{cases}0&\text{if }s'>s+a\\p(s+a-s')&\text{if }s'\in(-m,s+a]\\\sum_{k=s+a+m}^\infty p(k)&\text{if }s'=m\end{cases} \]
+    \item \textit{Equivalent Rewards}.
+    \[\begin{array}{rcl}
+      r(s,a)&=&-c(a)-\sum_{k=0}^{s+a}\alpha(s+a-k)p(k)\\
+      &-&\sum_{k=s+a+1}^{s+a+m}\beta(k-s-a)p(k)\\
+      &-&\sum_{k=s+a+m+1}^\infty\big(\beta(m)+\gamma(k-s-a-m)\big)p(k)
+    \end{array}\]
+    \item \textit{Equivalent Objective}.
+    \par Find $\pi\in HR(T)$ st
+    \[ \pi=\argmax_\pi\lim_{N\to\infty}\inf\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right] \]
+  \end{itemize}
 \end{answer}
 
+\begin{question}{3) (b)}
+  Consider the \textit{MDP} formulated in \texttt{3) (a)}. Assume the following
+  \begin{itemize}
+    \item $n=1,\ m=1,\ \alpha=0.5$.
+    \item $p(k)=\begin{cases}\frac14&\text{if }k\in[1,4]\\0&\text{otherwise}\end{cases}$.
+    \item $c(k)=k,\ \alpha(k)=2k,\ \beta(k)=3k,\ \gamma(k)=4k$ for $k\geq0$.
+  \end{itemize}
+  Use the \textit{Policy Iteration Algorithm} to find an optimal policy
+\end{question}
+
+\begin{answer}{3) (b)}
+  \begin{itemize}
+    \item \textit{Time-Horizon} - $T=\{0,1,\dots\}$.
+    \item \textit{State-Space} - $S=\{-1,0,1\}$.
+    \item \textit{Action-Space} - $A=\{0,1,2\}$.
+    \item \textit{Admissible Actions}.
+    \[\begin{array}{rcl}
+      A(-1)&=&\{0,1,2\}\\
+      A(0)&=&\{0,1\}\\
+      A(1)&=&\{0\}
+    \end{array}\]
+    \item \textit{Immediate Rewards}.
+    \begin{center}
+      $r(s,a)=$\begin{tabular}{c|ccc}
+        $s$\textbackslash$a$&0&1&2\\\hline
+        -1&-9&-25/4&-5\\
+        0&-21/4&-4&ND\\
+        1&-3&ND&ND
+      \end{tabular}
+    \end{center}
+    \item \textit{Transition Probabilities}.
+    \begin{center}
+      \begin{tabular}{rcl}
+        $p(s'|s,0)$&=&\begin{tabular}{c|ccc}
+          $s$\textbackslash$s'$&-1&0&1\\\hline
+          -1&1&0&0\\
+          0&3/4&1/4&0\\
+          1&1/2&1/4&1/4
+        \end{tabular}
+        \\\\
+        $p(s'|s,1)$&=&\begin{tabular}{c|ccc}
+          $s$\textbackslash$s'$&-1&0&1\\\hline
+          -1&3/4&1/4&0\\
+          0&1/2&1/4&1/4\\
+          1&ND&ND&ND
+        \end{tabular}
+        \\\\
+        $p(s'|s,2)$&=&\begin{tabular}{c|ccc}
+          $s$\textbackslash$s'$&-1&0&1\\\hline
+          -1&1/2&1/4&1/4\\
+          0&ND&ND&ND\\
+          1&ND&ND&ND
+        \end{tabular}
+      \end{tabular}
+    \end{center}
+  \end{itemize}
+  Now I apply the \textit{Policy Iteration Algorithm}
+  \begin{itemize}
+    \item \textit{Initialisation} - Define the following Markovian Decision Function
+    \[\begin{array}{rcl}
+      d_0(-1)&=&2\\
+      d_0(0)&=&1\\
+      d_0(1)&=&0
+    \end{array}\]
+    \item \textit{Iteration} $k=0$.
+    \item \textit{Policy Evaluation} - We compute a solution $\mu_0(s)$ to the following system of equations
+    \[\begin{array}{rcl}
+      \sum_{s'\in S}p_0(s|s')\mu(s')&=&\mu(s)\ \forall\ s\in S\\
+      \sum_{s'\in S}\mu(s')&=&1
+    \end{array}\]
+    where $\mu(s)$ is unknown and $p_0(s'|s)=p(s'|s,d_0(s))$. We can derive the following three equations
+    \[\begin{array}{rrcl}
+      i)\quad&p(-1|-1)\mu(-1)+p(-1|0)\mu(0)+p(-1|1)\mu(1)&=&\mu(-1)\\
+      ii)\quad&p(0|-1)\mu(-1)+p(0|0)\mu(0)+p(0|1)\mu(1)&=&\mu(0)\\
+      iii)\quad&p(1|-1)\mu(-1)+p(1|0)\mu(0)+p(1|1)\mu(1)&=&\mu(1)\\\\
+      \implies&\frac12\mu(-1)+\frac12\mu(0)+\frac12\mu(1)&=&\mu(-1)\text{ from }i)\\
+      \implies&\mu(0)+\mu(1)&=&\mu(-1)\\
+      \implies&\mu(-1)&=&\frac12\text{ as sum to 1}\\\\
+      \implies&\frac14\mu(-1)+\frac14\mu(0)+\frac14\mu(1)&=&\mu(-1)\text{ from }ii)\\
+      \implies&\mu(-1)+\mu(1)&=&3\mu(0)\\
+      \implies&\frac12+\mu(0)+\left(3\mu(0)-\frac12\right)&=&1\text{ as sum to 1}\\
+      \implies&\mu(0)&=&\frac14\\
+      \implies&\mu(1)&=&\frac14\text{ as sum to 1}\\
+    \end{array}\]
+    We compute solutions $w_0(s)$ to the system of equations
+    \[\begin{array}{rcl}
+      w(s)-\sum_{s'\in S}p_0(s|s')w(s')&=&r_0(s)-\bar{r}(0)\ \forall\ s\in S\\
+      \sum_{s'\in S}w(s')\mu_0(s')&=&0
+    \end{array}\]
+    where $w(s)$ is unknown and $r_0(s),\bar{r}_0$ are defined as
+    \[\begin{array}{rcl}
+      r_0(s)&=&r(s,d_0(s))
+      =\begin{cases}
+           -5&\text{if }s=-1\\
+           -4&\text{if }s=0\\
+           -3&\text{if }s=1
+         \end{cases}\\
+      \bar{r}_0&=&\sum_{s'\in S}r_0(s')\mu(s')\\
+      &=&(-5)\cdot\frac12+(-4)\cdot\frac14+(-3)\cdot\frac14=-9/2
+    \end{array}\]
+    I can't be asked to do it, but the solution is
+    \[\begin{array}{rcl}
+      w_0(-1)&=&-3/4\\
+      w_0(0)&=&-1/4\\
+      w_0(1)&=&-5/4
+    \end{array}\]
+    \item \textit{Policy Improvement}.
+    \par Compute $d_1(s)$ using the following equations
+    \[\begin{array}{rcl}
+      u_1(s,a)&=&r(s,a)+\sum_{s'\in S}w_0(s')p(s'|s,a)\\
+      d_1(s)&\in&\argmax_{a\in A(s)}u_1(s,a)
+    \end{array}\]
+    This gives values
+    \begin{center}
+      \begin{tabular}{rcl}
+        $u_1(s,a)$&=&\begin{tabular}{c|ccc}
+            $s$\textbackslash$a$&0&1&2\\\hline
+            -1&-39/4&-27/4&-5\\
+            0&-23/4&-4&ND\\
+            1&-3&ND&ND&ND
+        \end{tabular}\\
+        $u_1(s,a)$&=&\begin{tabular}{c|cc}
+            $s$&$d_1(s)$\\\hline
+            -1&2\\
+            0&1\\
+            1&0
+        \end{tabular}
+      \end{tabular}
+    \end{center}
+    \item As $d_1(s)=d_0(s)\ \forall\ s\in S$ the stopping condition is met.
+  \end{itemize}
+\end{answer}
+
+\begin{question}{3) (c)}
+  Formulate a linear program equivalent to the average reward problem solve in \texttt{3) (b)}.
+\end{question}
+
+\begin{answer}{3) (c)}
+  Minimise $t$ wrt $r,w(-1),w(0),w(1)$\\
+  Subject to
+  \[ r(s,a)+\sum_{s'\in S}w(s')p(s'|s,a)\leq r+w(s)\quad s\in S,a\in A(s) \]
+\end{answer}
 
 \end{document}

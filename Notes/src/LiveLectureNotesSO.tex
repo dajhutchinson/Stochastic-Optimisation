@@ -1,0 +1,743 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
+\usepackage{amsmath,amsfonts,fancyhdr,bbm}
+\usepackage[section,nohyphen]{DomH}
+\headertitle{Live Lecture Notes - Stochastic Optimisation}
+
+\begin{document}
+
+% \questionsfalse
+% \answersfalse
+
+\title{Live Lecture Notes - Stochastic Optimisation}
+\author{Dom Hutchinson}
+\date{\today}
+\maketitle
+
+\begin{question}{1) - Sequential Decision Problem as an MDP}
+  \textit{This question is from ``Chapter 1: Live Lecture''} (\texttt{LectureSlides2bSO.pdf}).
+  \par Consider the following stochastic system. Let $T:=\{0,\dots,N-1\}$ be a finite time-horizon, $X_t\in S$ be the system state at epoch $t\in T$, $Y_t\in A$ be the action taken at epoch $t\in T$, $A(s)\subseteq A$ be the admissible actions when in state $s\in S$. The stochastic system has the follow dynamics
+  \[\begin{array}{rcl}
+    \Psi_t&:&S\times A\times B\to S\\
+    X_{t+1}&=&\Psi_t(X_t,Y_t,U_t)\\
+    \Phi_t&:&S\times C\to A\\
+    Y_{t+1}&=&\Phi_t(X_t,V_t)\\
+    R_t&:&S\times A\times D\to \reals\\
+    &&\R_t(X_t,Y_t,W_t)\\
+  \end{array}\]
+  where $U_t\sim\text{Uni}(B),\ U_t\sim\text{Uni}(C),\ W_t\sim\text{Uni}(D)$ for some discrete systems $B,C,D$. Assume that $X_0,\{U_t\}_{t\in T},\{V_t\}_{t\in T},\{W_t\}_{t\in T}$ are all mutually independent.
+  \par The objective of this task is to maximised the total expected reward from this system
+  \[ \max\expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right] \]
+\end{question}
+
+\begin{question}{1) (a)}
+  Show that the problem of maximising the expected total reward for this stochastic system is equivalent to the Markov Decision Problem.
+\end{question}
+
+\begin{answer}{1) (a)}
+  This requires us to show two properties
+  \begin{enumerate}
+    \item This stochastic system exhibits Markovian Dynamics
+    \[ \prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})=\prob(X_{t+1}=s_{t+1}|X_t=s_t,Y_t=a_t) \]
+    \item The expected total reward admits the following representation
+    \[ \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]=\expect\left[\sum_{t\in T}r_t(X_t,Y_t)\right] \]
+  \end{enumerate}
+  At epoch $t=1$ we have
+  \[\begin{array}{rcl}
+    X_1&=&\Psi_t(X_0,Y-0,U_0)\\
+    &=&\Psi_1(X_0,\Phi_0(X_0,V_0),U_0)\\
+    \implies X_1&=&\tilde\Psi_1(X_0,U_0,V_0)
+  \end{array}\]
+  for a new function $\tilde\Psi_1:S\times B\times C\to S$. Also, at epoch $t=1$ we have
+  \[\begin{array}{rcl}
+    Y_1&=&\Phi_1(X_1,V_1)\\
+    &=&\Phi_1(\tilde\Psi_1(X_0,U_0,V_0),V_1)\\
+    \implies Y_1&=&\tilde\Phi_1(X_0,U_0,V_{0:1})
+  \end{array}\]
+  for a new function $\tilde\Phi_1:S\times B\times C^2\to A$. We can extend this to the general epoch $t$
+  \[\begin{array}{rcl}
+    X_t&=&\tilde\Psi_t(X_0,U_{0:t-1},V_{0:t-1})\\
+    Y_t&=&\tilde\Phi_t(X_0,U_{0:t-1},V_{0:t})
+  \end{array}\]
+  where our general mapping functions have signatures
+  \[\begin{array}{rcl}
+    \tilde\Psi_t&:&S\times B^t\times C^t\to S\\
+    \tilde\Phi_t&:&S\times B^t\times C^{t+1}\to A
+  \end{array}\]
+  As we are allowed to assume that $X_0,\{U_t\}_{t\in T},\{V_t\}_{t\in T},\{W_t\}_{t\in T}$ are all mutually independent. We have that $U_t\ \&\ (X_{0:t},Y_{0;t})$ are mutually independent and $W_t\ \&\ (X_t,Y_t)$ are mutually independent. \footnote{Proof is long and given in slides}
+  \par Consider the transition probabilities
+  \[\begin{array}{rl}
+    &\prob(X_{t+1}=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\\
+    =&\prob(\Psi_t(X_t,Y_t,U_t)=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\text{ by def. }X_{t+1}\\
+    =&\prob(\Psi_t(s_t,a_t,U_t)=s_{t+1}|X_{0:t}=s_{0:t},Y_{0:t}=a_{0:t})\text{ by conditions}\\
+    =&\prob(\Psi_t(s_t,a_t,U_t)=s_{t+1})\text{ as }U_t\indep(X_{0:t},Y_{0:t})\\
+    =&\prob(X_{t+1}=s_{t+1}|X_t=s_t,Y_t=a_t)
+  \end{array}\]
+  This shows that the stochastic system exhibits markovian dynamics.
+\end{answer}
+
+\begin{question}{1) (b)}
+  Identify the elements of the equivalent Markov Decision Problem.
+\end{question}
+
+\begin{answer}{1) (b)}
+  This requires us to identify the following
+  \begin{enumerate}
+    \item Transition probabilities
+    \[ p_t(s'|s,a):=\prob(X_{t+1}=s|X_t=s,Y_t=a) \]
+    \item Equivalent reward
+    \[ r_t(s,a) \]
+  \end{enumerate}
+  We derive the transition probabilities as follows
+  \[\begin{array}{rrl}
+    p_t(s'|s,a)&:=&\prob(X_{t+1}=s'|X_t=s,Y_t=a)\\
+    &=&\prob(\Psi_t(X_t,Y_t,U_t)=s'|X_t=s,Y+t=a)\text{ by def. }X_{t+1}\\
+    &=&\prob(\Psi_t(s,a,U_t)=s')\text{ by conditions }\\
+    &=&\expect\left[\indexed\{\Psi_t(s,a,U_t)=s'\}\right]\\
+    &=&\sum_{u\in B}\indexed\{\Psi_t(s,a,u)=s'\}\cdot f_{U_t}(u)
+  \end{array}\]
+  We have
+  \[\begin{array}{rcl}
+    \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]&=&\sum_{t\in T}\expect\left[R_t(X_t,Y_t,W_t)\right]\\
+    &=&\sum_{t\in T}\expect\left[\expect\left[R_t(X_t,Y_t,W_t)|X_t,Y_t\right]\right]\text{ by Tower Property}
+  \end{array}\]
+  Define $r_t(s,a):=\expect\left[R_t(X_t,Y_t,W_t)|X_t=s,Y_t=a\right]$. This gives us a representation for expected total reward
+  \[ \expect\left[\sum_{t\in T}R_t(X_t,Y_t,W_t)\right]=\expect\left[\sum_{t\in T}r_t(X_t,Y_t)\right] \]
+  Since $W_t\ \&\ (X_t,Y_T)$ are mutually independent we can get a deterministic expression for $r_t(s,a)$
+  \[\begin{array}{rcl}
+    r_t(s,a)&=&\expect\left[R_t(X_t,Y_t,W_t)|X_t=s,Y_t=a\right]\\
+    &=&\expect\left[R_t(s,a,W_t)\right]\text{ by conditions}\\
+    &=&\sum_{w\in D}R_t(S,a,w)f_{W_t}(w)\text{ by def. expectation}
+  \end{array}\]
+\end{answer}
+
+\newpage
+\begin{question}{2) - Interesting system states $X_t$}
+  \textit{This question is from ``Chapter 2: Live Lecture''} (\texttt{LectureSlides3bSO.pdf}).
+  \par Consider the following \textit{Sequential Decision Problem}. Let $T:=\{0,\dots,N-1\}$ and at each epoch the stochastic system can be in one of two conditions $C_0$ or $C_1$ (These are \underline{not} system states). At each epoch the agent can take an action from $A:=\{0,1\}$ and let $A(s)=A$ for all $s\in S$.
+  \par Here are the possible interactions between the agent and the stochastic system
+  \begin{itemize}
+    \item[(A1)] Agent takes action 1 at epoch $t\in T$:
+    \begin{itemize}
+      \item The system always will be in condition $C_1$ at epoch $t+1$.
+    \end{itemize}
+    \item[(A0)] Agent takes action 0 at epoch $t$:
+    \begin{itemize}
+      \item AND the system is in condition $C_0$ at epoch $t$: then the system will be in condition $C_0$ at epoch $t+1$.
+      \item ELSE (if the system is in condition $C_1$ at epoch $t$):
+      \par Let $k$ be the number of epochs since action 1 was last taken, then the system will still be in state $C_1$ at epoch $t+1$ with probability $\pi(k)$, where $\{\pi(k)\}_{k\in\nats^0}$ is a decreasing sequence in $[0,1]$ and there is some known $n\in\nats$ st $\forall\ k\geq n,\ \pi(k)=0$.
+    \end{itemize}
+  \end{itemize}
+  At each epoch $t\in T$, if the system is in state $C_i$, $i\in\{0,1\}$ and the agent takes action $j\in A$ then the agent receives \textit{immediate reward} $R(i,j)$. \underline{No} reward is received at epoch $t=N$
+\end{question}
+
+\begin{question}{2) (a)}
+  Formulate the describe sequential decision problem as a finite-horizon \textit{Markov Decision Problem}
+\end{question}
+
+\begin{answer}{2) (a)}
+  This question requires us to identify: the decision epochs; time-horizon; system states; state-space; agent actions; action-space; transition probabilities; and, equivalent rewards.
+  \begin{itemize}
+    \item \textit{Number of Epochs}.
+    \par $N=21$. Stated in question.
+
+    \item \textit{Time-Horizon}.
+    \par $T+
+    =\{0,\dots,N-1\}$. Stated in question.
+
+    \item \textit{Agent actions}.
+    \par Let $Y_t$ denote the action the agent takes at epoch $t$.
+
+    \item \textit{Action-Space}.
+    \par $A=\{0,1\}$. Stated in question.
+
+    \item \textit{Admissible Actions}.
+    \par $A(s)=A$ for all $s\in S$.
+
+    \item \textit{State-Space}.\footnote{System states are an encoding of available system information, which is relevant to the selection of $Y_t$.}
+    \par Let $X_t$ be the system state at epoch $t$ ($X_t\not\in\{C_0,c_1$), $X'_t$ be the system condition at epoch $t$  ($X'_t\in\{C_0,c_1$) and $X''_t$ denote the number of decision epochs between epoch $t$ and the last epoch in which action 0 was taken. Since $X_t',X_t''$ encode all relevant system information, we want to devise a definition of $X_t$ which is a deterministic encoding of $X_t',X_t''$.
+    \par By considering the definitions of $X_t',X_t''$, we can derive the following conclusions from the interactions described in the question
+    \begin{itemize}
+      \item If ($Y_t=0$ and $X_t''\geq n$): $\pi(X_t'')=1\implies X_{t+1}'=C_0$.
+      \item If ($X_t''\geq n+1$): Then $X_{t-1}''\geq n$ and action 0 was taken last turn$\implies X_t'=C_0$,
+      \item If ($Y_t=0$ and $X_t'=C_0$): $X_{t+1}'=C_0$ as stated in question.
+      \item If ($X_t'=C_0$): It remains in $C_0$ until action 1 is taken.
+    \end{itemize}
+    From these conclusions we state, if $X_t''\geq n\implies X_t''$ is not relevant for the selection of $Y_t$. Further, it is not relevant to the prediction of $X_{t+1}$ given $Y_t$.
+    \par We now define the system states $X_t$ as
+    \[ X_t=\begin{cases}
+      X_t''&\text{if }X_t'=C_1\\
+      n+1&\text{if }X_t'=C_0
+    \end{cases} \]
+    This is justified by considering what information is sufficient to make a prediction given possible combinations of $X_t',X_t''$.
+    This means the state-space is $S=\{0,\dots,n+1\}$.
+
+    \item \textit{Transition Probabilities}
+    \par The definition of transition probabilities is
+    \[ p_t(s'|s,a)=\prob^\pi(X_{t+1}=s'|X_t=a,Y_t=a) \]
+    We need to compute three cases
+    \begin{enumerate}
+      \item $a=1$ (ie $Y_t=1$).
+      \par In this case $X_{t+1}'=C_1,X_{t+1}''=0\implies X_{t+1}=0$. Giving
+      \[ p_t(s'|s,1)\equiv\prob^\pi[X_{t+1}=s'|X_t=s,Y_t=1]=\begin{cases}1&\text{if s'=0}\\0&\text{otherwise}\end{cases} \]
+
+      \item $a=0,s=n+1$ (ie $Y_t=0,X_t=n+1$).
+      \par In this case $X_t'=C_0$. Giving
+      \[ p_t(s'|n+1,0)\equiv\prob^\pi[X_{t+1}=s'|X_t=n+1,Y_t=0]=\begin{cases}1&\text{if s'=n+1}\\0&\text{otherwise}\end{cases} \]
+
+      \item $a=0,s\leq n$ (ie $Y_t=0,X_t=s\leq n$).
+      \par In this case $X_{t+1}'=C_1,\ X_t''=X_t=s$. We have that $X_{t+1}'$ takes either $C_0$ or $C_1$ so we need to consider two probabilities
+      \[\begin{array}{rcl}
+        p_t(s+1|s,0)&=&\prob^\pi(X_{t+1}'=C_1|X_t'=C_1,X_t''=s,Y_t=0)=\pi(s)\\
+        p_t(n+1|s,0)&=&\prob^\pi(X_{t+1}'=C_0|X_t'=C_1,X_t''=s,Y_t=0)=1-\pi(s)\\
+      \end{array}\]
+      We can summarise these two expression as the following
+      \[ p_t(s'|s,a)=\begin{cases}
+        \pi(s)&\text{if }s'=s+1\\
+        1-\pi(s)&\text{if }s'=n+1\\
+        0&\text{otherwise}
+      \end{cases} \]
+    \end{enumerate}
+
+    \item \textit{Equivalent Rewards}.
+    \par If $X_t\leq n$ then $X_t'=C_1\implies r_t=R(1,Y_t)$.
+    \par If $X_t=n+1$ then $X_t'=C_0\implies r_t=R(0,Y_t)$.
+    \par This can be summarised as
+    \[ r_t(s,a)=\begin{cases}R(1,a)&\text{if }s\leq n\\R(0,a)\text{if }s=n+1\end{cases} \]
+
+    \item \textit{Terminal Award}.
+    \par $r_N(s)=0$. Stated in the question.
+
+    \item \textit{Objective}.
+    \par Find a policy $\pi\in HR(T)$ which maximises
+    \[ \expect^\pi\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_n)\right] \]
+
+  \end{itemize}
+\end{answer}
+
+\begin{question}{2) (b)}
+  By considering the markov decision problem formulated in \texttt{2) (a)} and assuming the following
+  \begin{itemize}
+    \item $N=2,\ n=1$
+    \item $\pi(0=.5)$
+    \item $R(0,0)=-5,\ R(0,1)=-7,\ R(1,0)=0,\ R(1,1)=-2$.
+  \end{itemize}
+  Find an optimal policy $\pi^*$
+\end{question}
+
+\begin{answer}{2) (b)}
+  From \texttt{2) (a)} we can quickly derive this formulation by substituting in the values specified.
+  \begin{itemize}
+    \item \textit{Decision Epochs} - $N=2$.
+
+    \item \textit{Time-Horizon} - $T=\{0,1\}$.
+
+    \item \textit{Action-Space} - $A=\{0,1\}$.
+
+    \item \textit{Admissible Actions} - $A(s)=\{0,1\}\ \forall\ s\in S$.
+
+    \item \textit{State-Space} - $S=\{0,1,2\}$
+
+    \item \textit{Transition Probabilities}\\
+    \begin{tabular}{rl}
+      $p_t(s'|s,0)=$&\begin{tabular}{c|ccc}
+        s\textbackslash s'&0&1&2\\\hline
+        0&0&.5&.5\\
+        1&0&0&1\\
+        2&0&0&1
+      \end{tabular}\\\\
+      $p_t(s'|s,1)=$&\begin{tabular}{c|ccc}
+        s\textbackslash s'&0&1&2\\\hline
+        0&1&0&0\\
+        1&1&0&0\\
+        2&1&0&0
+      \end{tabular}
+    \end{tabular}
+
+    \item \textit{Rewards}.
+    \begin{tabular}{rl}
+      $r_t(s,a)=$&\begin{tabular}{c|cc}
+        s\textbackslash a&0&1\\\hline
+        0&0&-2\\
+        1&0&-2\\
+        2&-5&-7
+      \end{tabular}
+    \end{tabular}
+
+    \item \textit{Terminal Award} - $r_2(s)=0$.
+  \end{itemize}
+  To find the optimal policy we use the \textit{Dynamic Programming Algorithm} which is defined as
+  \[\begin{array}{rcl}
+    u_t^*(s)&=&\max_{a\in A(s)}\left(r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right)\\
+    d_t^*(s)&\in&\argmax_{a\in A(s)}\left(r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right)
+  \end{array}\]
+  where $t=N-1,\dots,0$ and $u_N^*(s)=r_N(s)$.
+  For simplicity I will use the following to denote the expression we are maximising
+  \[ w_t^*(s,a):=r_t(s,a)+\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a) \]
+  \par For this specific scenario we have two epochs to consider
+  \begin{itemize}
+    \item[$t=1$] We need to compute $u_1^*(s),d_1^*(s)$. We have
+    \[\begin{array}{rcl}
+      w_1^*(s,a)&=&r_1(s,a)+u_2^*(0)p_1(0|s,a)+u_2^*(1)p_1(1|s,a)+u_2^*(2)p_1(2|s,a)\\
+      &=&r_1(s,a)\text{ since }u_2^*(s)=0\ \forall\ s
+    \end{array}\]
+    where $s\in S=\{0,1,2\}$.
+    \par Consider the following table for the value of $w_1^*(s,a)$
+    \begin{center}
+      \begin{tabular}{rl}
+        $w_1^*(s,a)=$&\begin{tabular}{c|cc}
+          $s$\textbackslash$a$&0&1\\\hline
+          0&0&-2\\
+          1&0&-2\\
+          2&-5&-7
+        \end{tabular}
+      \end{tabular}
+    \end{center}
+    We can use this to determine $u_1^*(s),d_1^*(s)$ for each state $s$
+    \begin{center}
+        \begin{tabular}{c|c|c}
+          $s$&$u_1^*$&$d_1^*(s)$\\
+          0&0&0\\
+          1&0&0\\
+          2&-5&0
+        \end{tabular}
+    \end{center}
+    This shows that action 0 is optimal for all states in epoch $t=1$
+
+    \item[$t=0$] We need to compute $u_0^*(s),d_0^*(s)$. We have
+    \[\begin{array}{rcl}
+      w_0^*(s,a)&=&r_0(s,a)+u_1^*(0)p01(0|s,a)+u_1^*(1)p_0(1|s,a)+u_1^*(2)p_0(2|s,a)\\
+    \end{array}\]
+    where $s\in S=\{0,1,2\}$.
+    \par Consider the following table for the value of $w_1^*(s,a)$
+    \begin{center}
+      \begin{tabular}{rl}
+        $w_0^*(s,a)=$&\begin{tabular}{c|cc}
+          $s$\textbackslash$a$&0&1\\\hline
+          0&$-\frac52$&-2\\
+          1&-5&-2\\
+          2&-10&-7
+        \end{tabular}
+      \end{tabular}
+    \end{center}
+    We can use this to determine $u_0^*(s),d_0^*(s)$ for each state $s$
+    \begin{center}
+        \begin{tabular}{c|c|c}
+          $s$&$u_0^*$&$d_0^*(s)$\\
+          0&-2&1\\
+          1&-2&1\\
+          2&-7&1
+        \end{tabular}
+    \end{center}
+    This shows that action 1 is optimal for all states in epoch $t=0$
+  \end{itemize}
+  This shows that the optimal strategy is $\pi^*=(1,0)$
+\end{answer}
+
+\newpage
+\begin{question}{3) - Optimality of a policy for a General FH-MDP}
+  \textit{This question is from ``Chapter 2: Live Lecture B (Revised)''} (\texttt{LectureSlides3dSO.pdf}).
+  \par Consider a \textit{Generic Finite-Horizon MDP} over horizon $T:=\{0,\dots,N-1\}$.
+  \par Define, as a backwards-recursion, the \textit{Optimality Equations} $u_{N-1}^*(s),\dots,u_0^*(s)$ as
+  \[\begin{array}{rcl}
+    u_N^*(s)&=&r_N(s)\\
+    u_k^*(s)&=&\max_{a\in A(s)}\left(r_k(s,a)+\sum_{s'\in S}u_{k+1}^*(s')p_k(s'|s,a)\right)\text{ for }k\in[N-1,0],s\in S
+  \end{array}\]
+  the \textit{Optimal Decision Rule} sets $D_0^*(s),\dots,D_{N-1}^*(s)$ as
+  \[\begin{array}{rcl}
+    D_k^*(s)&=&\argmax_{a\in A(s)}\left(r_k(s,a)+\sum_{s'\in S}u_{k+1}^*(s')p_k(s'|s,a)\right)\text{ for }k\in[N-1,0],s\in S\\
+    &=&\left\{a\in A(s):u_k^*(s)=r_k(s,a)+\sum_{s'\in S}u_{k+1}^*(s')p_k(s'|s,a)\right\}
+  \end{array}\]
+  Let $q_0^*(a|s),\dots,q_{N-1}^*(a|s)$ be any \textit{Markovian Decision Probabilities} which give zero weight to all sub-optimal actions.
+  \[ q_t^*(a|s)=0\ \forall\ a\not\in D_t^*(s) \]
+  Let $\pi^*$ be a \textit{Markovian Policy} based on $q_0^*(a|s),\dots,q_{N-1}^*(a|s)$
+  \[ \pi^*:=\{q_t^*(a|s)\}_{t\in T} \]
+  Show that $\pi^*$ is an optimal policy.
+\end{question}
+
+\begin{answer}{3)}
+  \everymath={\displaystyle}
+  Note that, under policy $\pi^*$, the agent action $Y_t$ is chosen as
+  \[ \prob^{\pi^*}(Y_t=a|X_{0:t},Y_{0:t-1})=q_t^*(a|X_t) \]
+  By the filtering property of conditional expectations we get
+  \[\begin{array}{rcl}
+    \prob^{\pi^*}(Y_t=a|X_t)&=&\expect^{\pi^*}\left(\prob^{\pi^*}(Y_t=a|X_{0:t},Y_{0:t-1})\big|X_t\right)\\
+    &=&\expect^{\pi^*}(q_t^*(a|X_t)\big|X_t)\\
+    &=&q_t^*(a|X_t)
+  \end{array}\]
+  To prove $\pi^*$ is an optimal policy, it is sufficient to show that
+  \[ \expect[u_0^*(X_0)]=\expect^{\pi^*}\left[\sum_{t=0}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right] \]
+  Let $R_k$ denote the expected reward from the last $N-k$ steps
+  \[ R_k:=\expect^{\pi^*}\left[\sum_{t=k}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right] \]
+  Thus, to show $\pi^*$ is optimal, it is sufficient to show that
+  \begin{equation}
+    R_k=\expect^{\pi^*}\left[u_k^*(X_k)\right]\ \forall\ k\in[0,N]
+    \label{3_target}
+  \end{equation}
+  This is show by a backwards recursion.
+  \par \textit{Initial Step} - $k=N$.
+  By definition
+  \[ R_N:=\expect^{\pi^*}[r_N(X_N)]=:\expect^{\pi^*}[u_N^*(X_N)] \]
+  The result holds.
+  \par \textit{Inductive Hypothesis} - $R_k=\expect^{\pi^*}\left[u_k^*(X_k)\right]$ holds for an arbitrary $k\in[1,N]$.
+  \par \textit{Inductive Step} - $k-1$.
+  \par Consider $R_{k-1}$
+  \[\begin{array}{rrl}
+    R_{k-1}&:=&\expect^{\pi^*}\left[\sum_{t=k-1}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right]\\
+    &=&\expect^{\pi^*}\left[r_{k-1}(X_{k-1}Y_{k-1})\right]+\expect^{\pi^*}\left[\sum_{t=k}^{N-1}r_t(X_t,Y_t)+r_N(X_N)\right]\\
+    &=&\expect^{\pi^*}[r_{k-1}(X_{k-1},Y_{k-1})]+R_k\text{ by def.}\\
+    &=&\expect^{\pi^*}[r_{k-1}(X_{k-1},Y_{k-1})]+\expect^{\pi^*}[u_k^*(X_k)]\text{ by IH.}\\
+    &=&\expect^{\pi^*}[r_{k-1}(X_{k-1},Y_{k-1})+u_k^*(X_k)]\\
+    &=&\expect^{\pi^*}\left[\expect^{\pi^*}[r_{k-1}(X_{k-1},Y_{k-1})+u_k^*(X_k)\big|X_{k-1},Y_{k-1}]\right]\text{ by Tower Prpty.}\\
+    &=&\expect^{\pi^*}\left[r_{k-1}(X_{k-1},Y_{k-1})+\expect^{\pi^*}[u_k^*(X_k)\big|X_{k-1},Y_{k-1}]\right]\\
+    &=&\expect^{\pi^*}\left[r_{k-1}(X_{k-1},Y_{k-1})+\sum_{s'\in S}u_k^*(s')\prob^{\pi^*}(X_k=s'|X_{k-1},Y_{k-1})\right]\\
+    &=&\expect^{\pi^*}\left[r_{k-1}(X_{k-1},Y_{k-1})+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},Y_{k-1})\right]\\
+    &=&\expect^{\pi^*}\left[\expect^{\pi^*}\left[r_{k-1}(X_{k-1},Y_{k-1})+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},Y_{k-1})\bigg|X_{k-1}\right]\right]\text{ by Tower Prpty.}\\
+    &=&\expect^{\pi^*}\left[\sum_{a\in A(X_{k-1})}\left[r_{k-1}(X_{k-1},a)+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},a)\right]q_{k-1}^*(a|X_{k-1})\right]\\
+    &=&\expect^{\pi^*}\left[\sum_{a\in D_{k-1}^*(s)}\left[r_{k-1}(X_{k-1},a)+\sum_{s'\in S}u_k^*(s')p_{k-1}(s'|X_{k-1},a)\right]q_{k-1}^*(a|X_{k-1})\right]\text{ by def. }q_{k-1}^*(\cdot)\\
+    &=&\expect^{\pi^*}\left[\sum_{a\in D_{k-1}^*(s)}u_{k-1}^*(s)q_{k-1}^*(a|X_{k-1})\right]\text{ by def. }D_{k-1}^*(s)\\
+    &=&\expect^{\pi^*}\left[u_{k-1}^*(s)\sum_{a\in D_{k-1}^*(s)}q_{k-1}^*(a|X_{k-1})\right]\\
+    &=&\expect^{\pi^*}\left[u_{k-1}^*(s)\right]
+  \end{array}\]
+  Hence, by mathematical induction, the result holds for all $k\in[0,N].$
+\end{answer}
+
+\newpage
+\begin{question}{4) - Optimality Equation for Semi-Static FH-MDP}
+  \textit{This question is from ``Chapter 2: Live Lecture B (Revised)''} (\texttt{LectureSlides3dSO.pdf}).
+  \par Consider a \textit{general Finite-Horizon MDP} and assume the following
+  \[\begin{array}{rcl}
+    S&=&\{1,\dots,M\}\text{ for }M\in[2,\infty)\\
+    A(s)&=&A\ \forall\ s\in S\\
+    p_t(s'|s,a)&=&p_t(s'|\tilde{s},a)\ \forall\ s',s,\tilde{s}\in S\\
+    r_t(s,a)&\in&[0,r_t(\tilde{s},a)]\ \forall\ s',s,\tilde{s}\in S\text{ where }s\leq\tilde{s}\\
+    r_N(s)&\in&[0,r_N(\tilde{s})]\ \forall\ s',s,\tilde{s}\in S\text{ where }s\leq\tilde{s}\\
+    u_N^*(s)&=&r_N(s)\\
+    u_k^*(s)&=&\max_{a\in A(s)}\left(r_k(s,a)+\sum_{s'\in S}u_{k+1}^*(s')p_k(s'|s,a)\right)\text{ for }k\in[N-1,0]
+  \end{array}\]
+  This means that the transition probabilities vary depending upon action $a$, not the system state $s$.
+  Show that
+  \[ u_t^*(s)\leq u_t^*(\tilde{s})\ \forall\ s,\tilde{s}\in S\text{ where }s\leq\tilde{s} \]
+\end{question}
+
+\begin{answer}{4)}
+  Fix $s,\tilde{s}\in S$ with $s\leq\tilde{s}$ and $t\in T$. By the question we have
+  \[\begin{array}{rcl}
+    p_t(s'|s,a)&=&p_t(s'|\tilde{s},a)\\
+    r_t(s,a)&\leq&r_t(\tilde{s},a)\\
+  \end{array}\]
+  Thus
+  \[\begin{array}{rcl}
+    \sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)&=&\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|\tilde{s},a)\\
+    \implies r_t(s,a)\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)&\leq&r_t(\tilde{s},a)\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|\tilde{s},a)
+  \end{array}\]
+  By taking the maximum of both sides we get
+  \[\begin{array}{rcl}
+    \max_{a\in A}\left\{r_t(s,a)\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|s,a)\right\}&\leq&\max_{a\in A}\left\{r_t(\tilde{s},a)\sum_{s'\in S}u_{t+1}^*(s')p_t(s'|\tilde{s},a)\right\}\\
+    \implies\ u_t^*(s)&\leq&u_t^*(\tilde{s})
+  \end{array}\]
+\end{answer}
+
+\newpage
+\begin{question}{5) - Optimality of a policy for DR-MDP}
+  \textit{This question is from ``Chapter 3: Live Lecture''} (\texttt{LectureSlides4bSO.pdf}).
+  \par Consider a general \textit{Discounted Reward MDP}. Notably this means, $r_t(s,a)=\alpha^tr(s,a)$ for some $\alpha\in(0,1)$.
+  \par Let $v^*(s)$ be the unique solution to the \textit{Bellman Equation} for Discounted Reward MDPs
+  \[ v^*(s)=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right) \]
+  Let $D^*(s)$ be the set of optimal agent actions in state $s$
+  \[\begin{array}{rcl}
+  D^*(s)&=&\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right)\\
+  &=&\left\{a\in A(s):v^*(s)=r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a)\right\}
+  \end{array}\]
+  Let $q^*(a|s)$ be a \textit{Markovian Decision Function} which gives zero weight to sub-optimal actions
+  \[ q^*(a|s)=0\ \forall\ a\not\in D^*(s) \]
+  Let $\pi^*$ be the stationary \textit{Markovian Policy} based on the $q^*(a|s)$ (ie $\pi^*$ applies $q^*(a|s)$ in all epochs).
+  \par Show that $\pi^*$ is an \textit{Optimal Policy}.
+\end{question}
+
+\begin{answer}{5)}
+  Note that under $\pi^*$ the agent action $Y_t$ is chosen as
+  \[ \prob^{\pi^*}(Y_t=a|X_{0:t},Y_{0:t-1})=q^*(a|X_t) \]
+  By the filtering property of conditional expectations, we get
+  \[\begin{array}{rcl}
+    \prob^{\pi^*}(Y_t=a|X_t)&=&\expect^{\pi^*}\left(\prob^{\pi^*}(Y_t=a|X_{0:t},Y_{0:t-1})\big|X_t\right)\\
+    &=&\expect^{\pi^*}(q^*(a|X_t)|X_t)\\
+    &=&q^*(a|X_t)
+  \end{array}\]
+  The maximum expected reward is $\expect[v^*(X_0)]$, thus to show that $\pi^*$ is optimal, it is sufficient to show that
+  \[ \expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]=\expect[v^*(X_0)] \]
+  Let $w^*(s,a)$ denote the function to maximised by the \textit{Bellman Equation}
+  \[ w^*(s,a)=r(s,a)+\alpha\sum_{s'\in S}v^*(s')p(s'|s,a) \]
+  We can restate the \textit{Bellman Equation} and $D^*(s)$ as
+  \[\begin{array}{rcl}
+    v^*(s)&=&\max_{a\in A(s)}(w^*(s,a))\\
+    D^*(s)&=&\argmax_{a\in A(s)}(w^*(s,a))
+  \end{array}\]
+  Thus
+  \[\begin{array}{rcl}
+    a\in D^*(s)\implies w^*(s,a)&=&\max_{a\in A(s)}w^*(s,a)\\
+    &=&v^*(s)
+  \end{array}\]
+  By the question we have that $a\not\in D^*(s)\implies q^*(a|s)=0$, thus
+  \[\begin{array}{rcl}
+    \sum_{a\in A(s)}w^*(s,a)q^*(a|s)&=&\sum_{a\in D^*(s)}w^*(s,a)q^*(a|s)\text{ by def. }q^*()\\
+    &=&\sum_{a\in D^*(s)}v^*(s)q^*(a|s)\text{ by above}\\
+    &=&v^*(s)\sum_{a\in D^*(s)}q^*(a|s)\\
+    &=&v^*(s)\\
+    \implies\sum_{a\in A(s)}w^*(s,a)q^*(a|s)&=&v^*(s)
+  \end{array}\]
+  Assume that $\{(X_t,Y_t)\}_{t\in T}$ was generated by $\pi^*$ and set $s=X_t$. Then
+  \[\begin{array}{rcl}
+    v^*(X_t)&=&\sum_{a\in A(X_t)}w^*(X_t,a)q^*(a|X_t)\\
+    &=&\expect^{\pi^*}\left[w^*(X_t,Y_t)|X_t\right]\\
+    &=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha\sum_{s'\in S}v^*(s')p(s'|X_t,Y_t)\bigg|X_t\right]\text{ by def. }w^*(X_t,Y_t)\\
+    &=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha\expect^{\pi^*}[v^*(X_{t+1})|X_t,Y_t]\bigg|X_t\right]
+  \end{array}\]
+  By the filtering property of conditional expectations
+  \[\begin{array}{rrcl}
+    &v^*(X_t)&=&\expect^{\pi^*}\left[r(X_t,Y_t)\big|X_t\right]+\alpha\expect^{\pi^*}\left[\expect^{\pi^*}[v^*(X_{t+1})|X_t,Y_t]\big|X_t\right]\\
+    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)\big|X_t\right]+\alpha\expect^{\pi^*}\left[v^*(X_{t+1})\big|X_t\right]\\
+    &&=&\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha v^*(X_{t+1})\big|X_t\right]\\
+    \implies&\expect^{\pi^*}[v^*(X_t)]&=&\expect\left[\expect^{\pi^*}\left[r(X_t,Y_t)+\alpha v^*(X_{t+1})\big|X_t\right]\right]\text{ by tower prpty.}\\
+    &&=&\expect^{\pi^*}[r(X_t,Y_t)+\alpha v^*(X_{t+1})]\\
+    &&=&\expect^{\pi^*}[r(X_t,Y_t)]+\alpha \expect^{\pi^*}[v^*(X_{t+1})]\\
+    \implies&\expect^{\pi^*}[r(X_t,Y_t)]&=&\expect^{\pi^*}[v^*(X_t)]-\alpha\expect^{\pi^*}[v^*(X_{t+1})]\\
+    \implies&\expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\right]&=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}\left[r(X_t,Y_t)\right]\\
+    &&=&\sum_{t=0}^\infty\alpha^t\left(\expect^{\pi^*}[v^*(X_t)]-\alpha\expect^{\pi^*}[v^*(X_{t+1})]\right)\\
+    &&=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]-\sum_{t=0}^\infty\alpha^{t+1}\expect^{\pi^*}[v^*(X_{t+1})]\\
+    &&=&\sum_{t=0}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]-\sum_{t=1}^\infty\alpha^t\expect^{\pi^*}[v^*(X_t)]\\
+    &&=&\expect^{\pi^*}[v^*(X_0)]\\
+    &&=&\expect[v^*(X_0)]
+  \end{array}\]
+\end{answer}
+
+\newpage
+\begin{question}{6) - Uniqueness of Solution to Bellman Equation for AR-MDP}
+  \textit{This question is from ``Chapter 4: Live Lecture''} (\texttt{LectureSlides5bSO.pdf}).
+  \par Consider a general \textit{Average-Reward MDP}, note that this means the objective is to find $\pi$ which maximises
+  \[ \lim_{N\to\infty}\inf\expect^\pi\left(\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right) \]
+  Let $(r*,w^*(s))$ be a solution to the \textit{Bellman Equations} for \textit{Average Reward MDPs}
+  \[ r^*+w^*(s)=\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right) \]
+  Let $(\tilde{r}^*,\tilde{w}^*(s))$ be another solution to the \textit{Bellman Equations} for \textit{Average Reward MDPs}
+  \[ \tilde{r}^*+\tilde{w}^*(s)=\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}\tilde{w}^*(s')p(s'|s,a)\right) \]
+  Assume that $\{X_t\}_{t\geq}$ is an irreducible Markov chain under any stationary, Markovian, deterministic policy
+\end{question}
+
+\begin{question}{6) (a)}
+  Show that $\tilde{r}^*=r^*$
+\end{question}
+
+\begin{answer}{6) (a)}
+  Let $d^*(s)$ be a Markovian decision function which only chooses actions which maximise the \textit{Bellman Equations} using the solutions $(r^*,w^*(s))$.
+  \[ d^*(s)\in\argmax_{a\in A(s)}\left[r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right] \]
+  Let $\pi^*$ be the stationary policy which applies $d^*(s)$ in every epoch.
+  Let $\tilde{d}^*(s)$ be a Markovian decision function which only chooses actions which maximise the \textit{Bellman Equations} using the other solutions $(\tilde{r}^*,\tilde{w}^*(s))$.
+  \[ \tilde{d}^*(s)\in\argmax_{a\in A(s)}\left[r(s,a)+\sum_{s'\in S}\tilde{w}^*(s')p(s'|s,a)\right] \]
+  Let $\tilde\pi^*$ be the stationary policy which applies $\tilde{d}^*(s)$ in every epoch.
+  \par We have that
+  \[\begin{array}{rcl}
+    \lim_{N\to\infty}\sup\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&\leq&r^*\ \forall\ \pi\\
+    \lim_{N\to\infty}\sup\expect^{\pi^*}\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&=&r^*\ \forall\ \pi\\
+    \lim_{N\to\infty}\sup\expect^\pi\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&\leq&\tilde{r}^*\ \forall\ \pi\\
+    \lim_{N\to\infty}\sup\expect^{\tilde\pi^*}\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]&=&\tilde{r}^*\ \forall\ \pi
+  \end{array}\]
+  Setting $\pi=\pi^*$ we have that
+  \[\begin{array}{rcl}
+    r^*&=&\lim_{N\to\infty}\expect^{\pi^*}\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+    &=&\lim_{N\to\infty}\sup\expect^{\pi^*}\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+    &\leq&\tilde{r}^*\\
+    \implies r^*&\leq&\tilde{r}^*
+  \end{array}\]
+  Setting $\pi=\tilde\pi^*$ we have that
+  \[\begin{array}{rcl}
+    \tilde{r}^*&=&\lim_{N\to\infty}\expect^{\tilde\pi^*}\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+    &=&\lim_{N\to\infty}\sup\expect^{\tilde\pi^*}\left[\frac1N\sum_{t=0}^{N-1}r(X_t,Y_t)\right]\\
+    &\leq&r^*\\
+    \implies \tilde{r}^*&\leq&r^*
+  \end{array}\]
+  Thus
+  \[ \tilde{r}^*=r^* \]
+\end{answer}
+
+\begin{question}{6) (b)}
+  Show that $\exists c\in \reals$ st
+  \[ \tilde{w}^*(s)=w^*(s)+c\ \forall\ s\in S \]
+\end{question}
+
+\begin{answer}{6) (b)}
+  Note that $r^*,w^*(s),d^*(s)$ satisfy the following
+  \[\begin{array}{rcl}
+    r^*+w^*(s)&=&\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right)\\
+    d^*(s)&=&\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right)\\
+  \end{array}\]
+  Thus
+  \[ r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\leq r^*+w^*(s)\ \forall\ s\in S,\ a\in A(s) \]
+  and this is an equality if $a=d^*(s)$.
+  \par Setting $a=d^*(s)$ we get
+  \[\begin{array}{rrcl}
+    &r(s,d^*(s))+\sum_{s'\in S}w^*(s')p(s'|s,d^*(s))&=&r^*+w^*(s)\\
+    \implies&r(s,d^*(s))-r^*&=&w^*(s)-\sum_{s'\in S}w^*(s')p(s'|s,d^*(s))\\
+  \end{array}\]
+  Similarly, note that $\tilde{r}^*,\tilde{w}^*(s),d^*(s)$ satisfy the following
+  \[\begin{array}{rcl}
+    \tilde{r}^*+\tilde{w}^*(s)&=&\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}\tilde{w}^*(s')p(s'|s,a)\right)\\
+    \tilde{d}^*(s)&=&\argmax_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}\tilde{w}^*(s')p(s'|s,a)\right)\\
+  \end{array}\]
+  Thus
+  \[ r(s,a)+\sum_{s'\in S}\tilde{w}^*(s')p(s'|s,a)\leq \tilde{r}^*+\tilde{w}^*(s)\ \forall\ s\in S,\ a\in A(s) \]
+  and this is an equality if $a=\tilde{d}^*(s)$.
+  \par Setting $a=\tilde{d}^*(s)$ we get
+  \[\begin{array}{rrcl}
+    &r(s,\tilde{d}^*(s))+\sum_{s'\in S}\tilde{w}^*(s')p(s'|s,\tilde{d}^*(s))&\leq&\tilde{r}^*+\tilde{w}^*(s)\\
+    &&=&r^*+\tilde{w}^*(s)\text{ by a)}\\
+    \implies&\tilde{w}^*(s)-\sum_{s'\in S}\tilde{w}^*(s)p(s'|s,\tilde{d}^*(s))&\geq&r(s,d^*(s))-r^*
+  \end{array}\]
+  By combining this inequality with the earlier expression we get
+  \begin{equation}
+    [\tilde{w}^*(s)-w^*(s)]-\sum_{s'\in S}[\tilde{w}^*(s')-w^*(s')]p(s'|s,d^*(s))\geq0
+    \label{6b_ineq}
+  \end{equation}
+  Let $p^*(s'|s)$ denote the transition kernel when using $d^*(\cdot)$
+  \[ p^*(s'|s)=p(s'|s,d^*(s)) \]
+  Assume that $\{(X_t,Y_t)\}_{t\geq0}$ is generated by $\pi^*$. Then we know the following
+  \begin{enumerate}
+    \item $Y_t=d^*(X_t)\ \forall\ t\in T$.
+    \item $\{X_t\}_{t\geq0}$ is a homogeneous Markov chain.
+    \item $p^*(s'|s)$ is the transition kernel for $\{X_t\}_{t\geq0}$
+  \end{enumerate}
+  Thus, $\{X_t\}_{t\geq0}$ is an irreducible Markov chain. Meaning
+  \begin{enumerate}
+    \item $\{X_t\}_{t\geq0}$ has a unique invariant pmf $\mu^*(s)$.
+    \item $\mu^*(s)>0\ \forall\ s\in S$.
+  \end{enumerate}
+  By the definition of an invariant pmf, we have
+  \[ \mu^*(s)=\sum_{s'\in S}p^*(s|s')\mu(s') \]
+  Consider \ref{6b_ineq} and calculate
+  \everymath={\displaystyle}
+  \[\begin{array}{rl}
+    =&\sum_{s\in S}\mu^*(s)\left\{[\tilde{w}^*(s)-w^*(s)]-\sum_{s'\in S}[\tilde{w}^*(s')-w^*(s')]p^*(s'|s)\right\}\\
+    =&\sum_{s\in S}\mu^*(s)[\tilde{w}^*(s)-w^*(s)]-\sum_{s\in S}\mu^*(s)\sum_{s'\in S}[\tilde{w}^*(s')-w^*(s')]p^*(s'|s)\\
+    =&\sum_{s\in S}\mu^*(s)[\tilde{w}^*(s)-w^*(s)]-\sum_{s'\in S}[\tilde{w}^*(s')-w^*(s')]\sum_{s\in S}\mu^*(s)p^*(s'|s)\\
+    =&\sum_{s\in S}\mu^*(s)[\tilde{w}^*(s)-w^*(s)]-\sum_{s'\in S}[\tilde{w}^*(s')-w^*(s')]\mu^*(s')\text{ by def. invariant pmf}\\
+    =&0
+  \end{array}\]
+  Since $\mu^*(s)>0\ \forall\ s$ we have that
+  \[ [\tilde{w}^*(s)-w^*(s)]-\sum_{s'\in S}[\tilde{w}^*(s')-w^*(s')]p^*(s'|s)=0 \]
+  Define the following functions
+  \[\begin{array}{rcl}
+    f(s)&=&0\\
+    \check{f}(s)&=&0\\
+    \check{f}'(s)&=&\tilde{w}^*(s)-w^*(s)\\
+    \bar{f}&=&\sum_{s\in S}f(s)\mu^*(s)
+  \end{array}\]
+  Using these functions, we can restate the expression above as
+  \[\begin{array}{rcl}
+    f(s)-\bar{f}&=&\check{f}'(s)-\sum_{s\in S}\check{f}'(s')p^*(s'|s)\\
+    \text{and }f(s)-\bar{f}&=&\check{f}(s)-\sum_{s\in S}\check{f}(s')p^*(s'|s)
+  \end{array}\]
+  These are the Poisson equation for $\{X_t\}_{t\geq0}$ and $f(s)$ where $\check{f}(s),\check{f}'(s)$ are solutions to the Poisson equations.
+  \par As they are both solutions, then
+  \[ \exists c\in\reals,\ \check{f}'(s)-\check{f}(s)=c\ \forall\ s\in S \]
+  This means that
+  \[ \exists\ c\in\reals,\  \tilde{w}^*(s)=w^*(s)+c\ \forall\ s\in S \]
+\end{answer}
+
+\newpage
+\begin{question}{7) - AR-MDPs are DR-MDPs where $\alpha=1$}
+  \textit{This question is from ``Revision(Live) Lecture 1''} (\texttt{RevisionSlides1SO.pdf}).
+  \par Consider a general \textit{Infinite-Horizon MDP} with static transition probabilities and rewards.
+  \par Assume the state sequence $\{X_t\}_{t\geq0}$ is an irreducible Markov chain under any stationary, Markovian, deterministic policy.
+  \par Let $(r^*,w^*(\cdot))$ be solutions to the \textit{Bellman Equation} for \textit{Average Reward MDPs}
+  \[ r^*+w^*(s)=\max_{a\in A(s)}\left(r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right)\ \forall\ s\in S \]
+  Let $v_\alpha^*(\cdot)$ be a solution to the \textit{Bellman Equation} for \textit{Discounted Reward MDPs}, with discount factor $\alpha\in(0,1)$
+  \[ v_\alpha^*(s)=\max_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_\alpha^*(s')p(s'|s,a)\right)\ \forall\ s\in S \]
+\end{question}
+
+\begin{question}{7) (a)}
+  Show that
+  \[ r^*=\lim_{\alpha\to1}(1-\alpha)v_\alpha^*(s)\ \forall\ s\in S \]
+  and show
+  \[ \exists\ c\in\reals\text{ st }w^*(s)=\lim_{\alpha\to1}\left(v_\alpha^*(s)-\frac{r^*}{1-\alpha}\right)+c\ \forall\ s\in S \]
+\end{question}
+
+\begin{answer}{7) (a)}
+  By the question, $\exists\ \varepsilon\in(0,1)$ and a \textit{Markovian Deterministic Decision Function} $d^*(\cdot)$ st
+  \[ d^*(s)\in\argmax_{a\in A(s)}\left(r(s,a)+\alpha\sum_{s'\in S}v_\alpha^*(s')p(s'|s,a)\right)\ \forall\ \alpha\in(\varepsilon,1),\ s\in S \]
+  $d^*(s)$ is an optimal \textit{Markovian Decision Function} for a \textit{Discounted Reward MDP} when $\alpha\in(\varepsilon,1)$.
+  \par Let $\pi^*$ be a stationary policy which applies $d^*(s)$ every epoch. This is an optimal policy for a \textit{Discounted Reward MDP} when $\alpha\in(\varepsilon,1)$.
+  \par Assume $\{(X_t,Y_t)\}_{t\in T}$ is a generated by policy $\pi^*$ and define $p^*(s'|s)$ to be the transition kernel when using $d^*(s)$.
+  \[ p^*(s'|s):=p(s'|s,d^*(s)) \]
+  By the definition of value functions for \textit{Discounted Reward MDPs} we have that
+  \[ v_\alpha^*(s)=v_\alpha^{\pi^*}(s)\ \forall\ s\in S,\ \alpha\in(\varepsilon,1) \]
+  We can deduce that
+  \begin{enumerate}
+    \item $Y_t=d^*(X_t)\ \forall\ t\in T$.
+    \item $\{X_t\}_{t\geq0}$ is a homogeneous Markov chain.
+    \item $p^*(s'|s)$ is the transition kernel for $\{X_t\}_{t\geq0}$
+  \end{enumerate}
+  This means that $\{X_t\}_{t\geq0}$ is an irreducible Markov chain and thus has a unique invariant pmf $\mu^*(s)$.
+  \par Define the following functions
+  \[\begin{array}{rcl}
+    r^*(s)&:=&r(s,d^*(s))\\
+    \bar{r}^*&=&\sum_{s\in S}r^*(s)\mu^*(s)\\
+  \end{array}\]
+  Let $\tilde{u}^*(s)$ be a function which satisfies the Poisson equation for $\{X_t\}_{t\geq0}$, associated with $r^*(s)$
+  \[ \tilde{u}^*(s)-\sum_{s'\in S}\tilde{u}^*(s)p^*(s'|s)=r^*(s)-\bar{r}^*,\ \forall\ s\in S \]
+  Define $u^*(s)$ to be the zero-mean version of $\tilde{u}^*(s)$.
+  \[ u^*(s)=\tilde{u}^*(s)-\sum_{s'\in S}\tilde{u}^*(s')\mu^*(s') \]
+  $u^*(s)$ is still a solution of the Poisson equation, and thus its expected value wrt $\mu^*(s)$ is zero
+  \[ \sum_{s\in S}u^*(s)\mu^*(s)=0 \]
+  Let $v_\alpha(s)$ be the $\alpha$ resolvent of $\[X_t\}_{t\geq0}$, wrt $r^*(s)$, and $\tilde{v}^\alpha$ be the residual of the first order \textit{Laurent Expansion} of $v_\alpha(s)$
+  \[\begin{array}{rcl}
+    v_\alpha(s)&=&\expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr^*(X_t)\big|X_0=s\right]\\
+    \tilde{v}_\alpha(s)&=&v_\alpha(s)-\left[\frac{\bar{r}^*}{1-\alpha}+\mu^*(s)\right]
+  \end{array}\]
+  Then
+  \[ \lim_{\alpha\to1}\tilde{v}_\alpha(s)=0\ \forall\ s\in S \]
+  By rearranging the definition of $\tilde{v}_\alpha(s)$ we have the following
+  \[\begin{array}{rrcl}
+    &v_\alpha(s)&=&\frac{\bar{r}^*}{1-\alpha}+u^*(s)+\tilde{v}_\alpha(s)\\
+    &\bar{r}^*&=&(1-\alpha)v_\alpha(s)-(1-\alpha)[u^*(s)+\tilde{v}_\alpha(s)]\\
+    &u^*(s)&=&\left[v_\alpha(s)-\frac{\bar{r}^*}{1-\alpha}\right]-\tilde{v}_\alpha(s)
+  \end{array}\]
+  By taking limits we have
+  \[\begin{array}{rcl}
+    \bar{r}^*&=&\lim_{\alpha\to1}(1-\alpha)v_\alpha(s)\ \forall\ s\in S\\
+    u^*(s)&=&\lim_{\alpha\to1}\left[v_\alpha(s)-\frac{\bar{r}^*}{1-\alpha}\right]\ \forall\ s\in S
+  \end{array}\]
+  Since $Y_t=d^*(X_t)$ we have that
+  \[\begin{array}{rcl}
+    v_\alpha^{\pi^*}(s)&=&\expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr(X_t,Y_t)\bigg|X_0=s\right]\\
+    &=&\expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr(X_t,d^*(X_t))\bigg|X_0=s\right]\\
+    &=&\expect^{\pi^*}\left[\sum_{t=0}^\infty\alpha^tr^*(X_t)\bigg|X_0=s\right]\\
+    &=&v_\alpha(s)\\
+  \end{array}\]
+  Thus
+  \[ \bar{r}^*=\lim_{\alpha\to1}(1-\alpha)v_\alpha^*(s) \]
+  By the \textit{Bellman Equations} we have
+  \[\begin{array}{rrcl}
+    &v_\alpha^*(s)&=&\max_{a\in A(s)}\left\{r(s,a)+\alpha\sum_{s'\in S}v_\alpha^*(s')p(s'|s,a)\right\}\\
+    &&=&\max_{a\in A(s)}\left\{r(s,a)+\alpha\sum_{s'\in S}v_\alpha(s')p(s'|s,a)\right\}\\
+    &&=&\max_{a\in A(s)}\left\{r(s,a)+\alpha\sum_{s'\in S}\left[\frac{\bar{r}^*}{1-\alpha}+u^*(s')+\tilde{v}_\alpha(s')\right]p(s'|s,a)\right\}\\
+    &&=&\max_{a\in A(s)}\left\{r(s,a)+\frac{\alpha\bar{r}^*}{1-\alpha}+\alpha\sum_{s'\in S}\left[u^*(s')+\tilde{v}_\alpha(s')\right]p(s'|s,a)\right\}\\
+    &&=&\frac{\alpha\bar{r}^*}{1-\alpha}+\max_{a\in A(s)}\left\{r(s,a)+\alpha\sum_{s'\in S}\left[u^*(s')+\tilde{v}_\alpha(s')\right]p(s'|s,a)\right\}\\
+    \implies&v_\alpha^*(s)-\frac{\alpha\bar{r}^*}{1-\alpha}&=&\max_{a\in A(s)}\left\{r(s,a)+\alpha\sum_{s'\in S}\left[u^*(s')+\tilde{v}_\alpha(s')\right]p(s'|s,a)\right\}\\
+    \implies&v_\alpha^*(s)-\frac{\alpha\bar{r}^*}{1-\alpha}&=&\\
+    \implies&\frac{\bar{r}^*}{1-\alpha}+u^*(s)+\tilde{v}_\alpha(s)-\frac{\alpha\bar{r}^*}{1-\alpha}&=&\\
+    \implies&\bar{r}^*+u^*(s)+\tilde{v}_\alpha(s)&=&\\
+  \end{array}\]
+  Noting that $\lim_{\alpha\to1}\tilde{v}_\alpha(s)=0$, we find that as $\alpha\to1$
+  \[ \bar{r}^*+u^*(s)=\max_{a\in A(s)}\left\{r(s,a)+\sum_{s'\in S}u^*(s')p(s'|s,a)\right\} \]
+  By defining $w^*(s)=u^*(s)\ \forall\ s\in S$ we get the expression of the \textit{Bellman Equation} for \textit{Average Reward MDPs}
+  \[ \bar{r}^*+w^*(s)=\max_{a\in A(s)}\left\{r(s,a)+\sum_{s'\in S}w^*(s')p(s'|s,a)\right\} \]
+  This means that $(r^*,w^*(s))$ and $(\bar{r}^*,u^*(s))$ are solutions to the equivalent bellman equations.
+  \par As shown before for \textit{Average Reward MDPs}, $r^*=\bar{r}^*\implies r^*=\lim_{\alpha\to1}(1-\alpha)v_\alpha^*(s)$ and $\exists\ c\in \reals$ st $w^*(s)=u^*(s)+c$, further
+  \[\begin{array}{rcl}
+    w^*(s)&=&u^*(s)+c\\
+    &=&\lim_{\alpha\to1}\left[v_\alpha(s)-\frac{\bar{r}^*}{1-\alpha}\right]+c\text{ by result of }u^*(s)\\
+    &=&\lim_{\alpha\to1}\left[v_\alpha^*(s)-\frac{\bar{r}^*}{1-\alpha}\right]+c\text{ by result of }v_\alpha(s)
+  \end{array}\]
+\end{answer}
+
+\end{document}
